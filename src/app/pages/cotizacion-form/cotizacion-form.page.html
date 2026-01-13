@@ -1,0 +1,350 @@
+<div class="app-shell">
+    <div class="glass-bg"></div>
+
+    <div class="page">
+        <div class="top-pill">COTIZACIÓN No {{cotizacionNoLabel}}</div>
+
+        <form class="card form-card" [formGroup]="form" (ngSubmit)="generarPlan()">
+
+
+            <div class="fieldset">
+                <div class="legend">INFORMACIÓN DE USUARIO</div>
+                <!-- Información del usuario -->
+                <div class="grid grid-2">
+                    <div class="field">
+                        <label>Tipo Documento</label>
+                        <select formControlName="tipoDocumento">
+                            <option value="" disabled>Seleccionar</option>
+                            <option value="CC">CC</option>
+                            <option value="CE">PPT</option>
+                            <option value="NIT">PASAPORTE</option>
+                            <option value="PAS">CE</option>
+                        </select>
+                        <small class="error" *ngIf="isInvalid('tipoDocumento')"> {{ getErrorMessage('tipoDocumento') }}</small>
+                    </div>
+
+                    <div class="field">
+                        <label>No Documento</label>
+                        <input type="number" class="no-spinners" formControlName="noDocumento" placeholder="Ingrese un numero de documento"/>
+                        <small class="error" *ngIf="isInvalid('noDocumento')"> {{ getErrorMessage('noDocumento') }}</small>
+                    </div>
+
+                    <div class="field">
+                        <label>Nombres</label>
+                        <input type="text" formControlName="nombres" placeholder="Ingrese los nombres" />
+                        <small class="error" *ngIf="isInvalid('nombres')"> {{ getErrorMessage('nombres') }}</small>
+                    </div>
+
+                    <div class="field">
+                        <label>Apellidos</label>
+                        <input type="text" formControlName="apellidos"  placeholder="Ingrese los apellidos" />
+                        <small class="error" *ngIf="isInvalid('apellidos')"> {{ getErrorMessage('apellidos') }}</small>
+                    </div>
+
+                    <div class="field">
+                        <label>Dirección</label>
+                        <input type="text" formControlName="direccion"  placeholder="Ingrese una dirección"/>
+                        <small class="error" *ngIf="isInvalid('direccion')"> {{ getErrorMessage('direccion') }}</small>
+                    </div>
+
+                    <div class="field">
+                        <label>Teléfono</label>
+                        <input type="tel" formControlName="telefono"  placeholder="Ingrese un número de teléfono"/>
+                        <small class="error" *ngIf="isInvalid('telefono')"> {{ getErrorMessage('telefono') }}</small>
+                    </div>
+
+                    <div class="field">
+                        <label>Correo electrónico</label>
+                        <input type="email" formControlName="correo" placeholder="Ej: correo@ejemplo.com" />
+                        <small class="error" *ngIf="isInvalid('correo')"> {{ getErrorMessage('correo') }}</small>
+                    </div>
+
+                    <div class="field">
+                        <label>Canal</label>
+                        <select formControlName="canal">
+                            <option value="" disabled>Seleccionar</option>
+                            <option value="whatsapp">WHATSAPP</option>
+                            <option value="telefono">TELEFONO</option>
+                            <option value="email">EMAIL</option>
+                        </select>
+                        <small class="error" *ngIf="isInvalid('canal')"> {{ getErrorMessage('canal') }}</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title"></div>
+
+            <div class="fieldset">
+                <div class="legend">INFORMACIÓN DEL APARTAMENTO</div>
+                <div class="grid grid-3">
+                    <div class="field">
+                        <label>Proyecto</label>
+                        <select formControlName="proyecto">
+                            <option value="" disabled>Seleccionar</option>
+                            <option>NOGALES</option>
+                            <option>CANARIAS</option>
+                            <option>DEHESA</option>
+                        </select>
+                        <small class="error" *ngIf="isInvalid('proyecto')"> {{ getErrorMessage('proyecto') }}</small>
+                    </div>
+
+                    <div class="field">
+                        <label>Torre</label>
+                        <select formControlName="torre">
+                            <option value="" disabled>Seleccionar</option>
+                            <option>Torre 1</option>
+                            <option>Torre 2</option>
+                        </select>
+                        <small class="error" *ngIf="isInvalid('torre')"> {{ getErrorMessage('torre') }}</small>
+                    </div>
+
+                    <div class="field">
+                        <label>Apartamento</label>
+                        <select formControlName="apartamento">
+                            <option value="" disabled>Seleccionar</option>
+                            <option>101</option>
+                            <option>102</option>
+                        </select>
+                        <small class="error" *ngIf="isInvalid('apartamento')"> {{ getErrorMessage('apartamento') }}</small>
+                    </div>
+
+                    <div class="field">
+                        <label>Valor total</label>
+                        <input type="number" class="no-spinners" formControlName="valorTotal" placeholder="$" />
+                        <small class="error" *ngIf="isInvalid('valorTotal')"> {{ getErrorMessage('valorTotal') }}</small>
+                    </div>
+
+                    <div class="field">
+                        <label>Beneficio ante valorización</label>
+                        <input type="number" class="no-spinners" formControlName="beneficioValorizacion" placeholder="$" />
+                        <small class="error" *ngIf="isInvalid('beneficioValorizacion')"> {{ getErrorMessage('beneficioValorizacion') }}</small>
+                    </div>
+
+                    <div class="field">
+                        <label>Beneficio Pronta Separación</label>
+                        <input type="number" class="no-spinners" formControlName="beneficioProntaSeparacion" placeholder="$" />
+                        <small class="error" *ngIf="isInvalid('beneficioProntaSeparacion')"> {{ getErrorMessage('beneficioProntaSeparacion') }}</small>
+                    </div>
+
+                     <div class="field">
+                        <label>Valor Especial Hoy</label>
+                        <input appCopCurrency type="text" formControlName="valorEspecialHoy" placeholder="$" />
+                        <small class="error" *ngIf="isInvalid('valorEspecialHoy')"> {{ getErrorMessage('valorEspecialHoy') }}</small>
+                    </div>
+
+                    <div class="field">
+                        <label>% cuota inicial</label>
+                        <select formControlName="porcentajeCuotaInicial">
+                            <option>20</option>
+                            <option>25</option>
+                            <option>30</option>
+                            <option>35</option>
+                            <option>40</option>
+                            <option>45</option>
+                            <option>50</option>
+                            <option>55</option>
+                            <option>60</option>
+                            <option>65</option>
+                            <option>70</option>
+                            <option>75</option>
+                            <option>80</option>
+                            <option>85</option>
+                            <option>90</option>
+                            <option>95</option>
+                            <option>100</option>
+                        </select>
+                        <small class="error" *ngIf="isInvalid('porcentajeCuotaInicial')"> {{ getErrorMessage('porcentajeCuotaInicial') }}</small>
+                    </div>
+
+                    <div class="field">
+                        <label>Valor Cuota Inicial</label>
+                        <input appCopCurrency type="text" formControlName="valorCuotaInicial" placeholder="$" />
+                        <small class="error" *ngIf="isInvalid('valorCuotaInicial')"> {{ getErrorMessage('valorCuotaInicial') }}</small>
+                    </div>
+
+                    <div class="field">
+                        <label>Fecha de la última cuota</label>
+                        <input type="date" formControlName="fechaUltimaCuota" />
+                        <small class="error" *ngIf="isInvalid('fechaUltimaCuota')"> {{ getErrorMessage('fechaUltimaCuota') }}</small>
+                    </div>
+
+                    <div class="field">
+                        <label>Cantidad de cuotas</label>
+                        <input type="number" class="no-spinners" formControlName="cantidadCuotas" />
+                        <small class="error" *ngIf="isInvalid('cantidadCuotas')"> {{ getErrorMessage('cantidadCuotas') }}</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title"></div>
+
+            <div class="fieldset">
+                <div class="legend">INFORMACIÓN DE ADICIONALES</div>
+
+                <div class="grid-3-compact">
+                    <!-- Col 1: checks -->
+                    <div class="stack">
+                        <div class="check-row">
+                            <span>Parqueadero</span>
+                            <input type="checkbox" formControlName="parqueadero" />
+                        </div>
+
+                        <div class="check-row">
+                            <span>Kit de Acabados</span>
+                            <input type="checkbox" formControlName="kitAcabados" />
+                        </div>
+
+                        <div class="check-row">
+                            <span>Kit de domótica</span>
+                            <input type="checkbox" formControlName="kitDomotica" />
+                        </div>
+                    </div>
+
+                    <!-- Col 2: inputs -->
+                    <div class="stack">
+                        <div class="field">
+                            <label>Cantidad</label>
+                            <select formControlName="cantidadParqueaderos">
+                                <option value="0">0</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                            </select>
+                            <small class="error" *ngIf="isInvalid('cantidadParqueaderos')"> {{ getErrorMessage('cantidadParqueaderos') }}</small>
+                        </div>
+
+                        <div class="field">
+                            <label>Cuotas de financiación</label>
+                            <input type="number" class="no-spinners" formControlName="cuotasFinanciacion" />
+                            <small class="error" *ngIf="isInvalid('cuotasFinanciacion')"> {{ getErrorMessage('cuotasFinanciacion') }}</small>
+                        </div>
+                    </div>
+
+                    <!-- Col 3: inputs -->
+                    <div class="stack">
+                        <div class="field">
+                            <label>Valor Total Adicionales</label>
+                            <input type="text" formControlName="valorTotalAdicionales" placeholder="$" />
+                            <small class="error" *ngIf="isInvalid('valorTotalAdicionales')"> {{ getErrorMessage('valorTotalAdicionales') }}</small>
+                        </div>
+
+                        <div class="field">
+                            <label>Fecha última cuota</label>
+                            <input type="date" formControlName="fechaUltimaCuotaAdic" />
+                            <small class="error" *ngIf="isInvalid('fechaUltimaCuotaAdic')"> {{ getErrorMessage('fechaUltimaCuotaAdic') }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="section-title"></div>
+
+            <div class="fieldset">
+                <div class="legend">INFORMACIÓN DE COTIZACIÓN</div>
+
+                <div class="grid-2-split">
+                    <!-- Izquierda: inputs ordenados -->
+                    <div class="stack">
+                        <div class="field">
+                            <label>Nombre del Ejecutivo</label>
+                            <select formControlName="nombreEjecutivo">
+                                <option value="" disabled>Seleccionar</option>
+                                <option>Ejecutivo 1</option>
+                                <option>Ejecutivo 2</option>
+                            </select>
+                            <small class="error" *ngIf="isInvalid('nombreEjecutivo')"> {{ getErrorMessage('nombreEjecutivo') }}</small>
+                        </div>
+
+                        <div class="field">
+                            <label>Teléfono</label>
+                            <input type="number" class="no-spinners" formControlName="telefonoEjecutivo" placeholder="Ingrese un número de telefono"/>
+                            <small class="error" *ngIf="isInvalid('telefonoEjecutivo')"> {{ getErrorMessage('telefonoEjecutivo') }}</small>
+                        </div>
+                        
+
+
+                        <div class="field">
+                            <label>Correo electrónico</label>
+                            <input type="email" formControlName="correoEjecutivo" placeholder="Ej: correo@ejemplo.com" />
+                            <small class="error" *ngIf="isInvalid('correoEjecutivo')"> {{ getErrorMessage('correoEjecutivo') }}</small>
+                        </div>
+
+                        <div class="field">
+                            <label>Cotización Válida Hasta</label>
+                            <input type="date" formControlName="cotizacionValidaHasta" />
+                            <small class="error" *ngIf="isInvalid('cotizacionValidaHasta')"> {{ getErrorMessage('cotizacionValidaHasta') }}</small>
+                        </div>
+                    </div>
+
+                    <!-- Derecha: lista de checks estilo “clásico” -->
+                    <div class="stack checks-panel">
+                        <div class="check-row">
+                            <span>Concepto Ciudad Viva</span>
+                            <input type="checkbox" formControlName="conceptoCiudadViva" />
+                        </div>
+
+                        <div class="check-row">
+                            <span>Actividades del Proyecto</span>
+                            <input type="checkbox" formControlName="actividadesProyecto" />
+                        </div>
+
+                        <div class="check-row">
+                            <span>Link 360</span>
+                            <input type="checkbox" formControlName="link360" />
+                        </div>
+
+                        <div class="check-row">
+                            <span>Cotización en dólares</span>
+                            <input type="checkbox" formControlName="cotizacionDolares" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="actions">
+                <button type="submit" class="btn primary">Generar Plan de pagos</button>
+            </div>
+        </form>
+
+        <!-- TABLA (Imagen 3) -->
+        <div class="card table-card" *ngIf="showPlan" [formGroup]="form">
+
+            <div class="section-title"></div>
+
+            <div class="fieldset">
+                <div class="legend">PLAN DE PAGOS</div>
+
+                <div class="table-wrap">
+                    <table class="plan-table">
+                        <thead>
+                            <tr>
+                                <th colspan="2" class="center">Financiación Del Apartamento</th>
+                                <th colspan="2" class="center divider-left">Financiación De Adicionales</th>
+                            </tr>
+                            <tr>
+                                <th class="center">Fecha Cuota</th>
+                                <th class="center">Valor Cuota</th>
+                                <th class="center divider-left">Fecha Cuota</th>
+                                <th class="center">Valor Cuota</th>
+                            </tr>
+                        </thead>
+
+                        <tbody formArrayName="plan">
+                            <tr *ngFor="let row of plan.controls; let i = index" [formGroupName]="i">
+                                <td><input class="cell" type="date" formControlName="fechaApto" /></td>
+                                <td><input class="cell" type="text" formControlName="valorApto" placeholder="$" /></td>
+                                <td><input class="cell" type="date" formControlName="fechaAdic" /></td>
+                                <td><input class="cell" type="text" formControlName="valorAdic" placeholder="$" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="actions center">
+                <button type="button" class="btn primary" (click)="generarCotizacion()">Generar Cotización</button>
+            </div>
+        </div>
+    </div>
+</div>

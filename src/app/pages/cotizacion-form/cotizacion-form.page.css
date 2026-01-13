@@ -1,0 +1,323 @@
+.app-shell {
+  min-height: 100vh;
+  position: relative;
+  color: #1b1b1b;
+  overflow-x: hidden;
+}
+
+.glass-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(900px 500px at 20% 10%, rgba(255, 196, 0, 0.25), transparent 60%),
+    radial-gradient(800px 600px at 80% 20%, rgba(0, 140, 255, 0.18), transparent 60%),
+    radial-gradient(900px 700px at 40% 90%, rgba(255, 196, 0, 0.18), transparent 60%),
+    linear-gradient(135deg, #f6f6f6, #ededed);
+  filter: blur(0px);
+}
+
+.page {
+  position: relative;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 16px 60px;
+}
+
+.top-pill {
+  margin: 0 auto 16px;
+  width: fit-content;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(10px);
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  backdrop-filter: blur(10px);
+}
+
+.form-card {
+  padding: 18px;
+}
+
+.table-card {
+  margin-top: 18px;
+  padding: 18px;
+}
+
+.card-header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.hint {
+  margin-top: 6px;
+  color: rgba(0,0,0,0.55);
+  font-size: 13px;
+}
+
+.section-title {
+  margin: 18px 0 10px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(0,0,0,0.08);
+  font-weight: 700;
+  color: rgba(0,0,0,0.75);
+}
+
+.grid {
+  display: grid;
+  gap: 12px;
+}
+
+.grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+@media (max-width: 900px) {
+  .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+}
+
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(0,0,0,0.65);
+  margin-bottom: 6px;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: rgba(255,255,255,0.9);
+  outline: none;
+}
+
+.field input:focus,
+.field select:focus {
+  border-color: rgba(255, 174, 0, 0.8);
+  box-shadow: 0 0 0 4px rgba(255, 174, 0, 0.18);
+}
+
+.field.checkbox label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  padding: 0 10px;
+  border-radius: 12px;
+  border: 1px dashed rgba(0,0,0,0.18);
+  background: rgba(255,255,255,0.65);
+}
+
+.error {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #b42318;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+  gap: 10px;
+}
+
+.actions.center { justify-content: center; }
+
+.btn {
+  height: 42px;
+  border-radius: 999px;
+  padding: 0 16px;
+  border: 1px solid rgba(0,0,0,0.12);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.btn.primary {
+  background: #f6b800;
+  border-color: rgba(0,0,0,0.12);
+}
+
+.btn.primary:hover { filter: brightness(0.98); }
+
+.btn.ghost {
+  background: rgba(255,255,255,0.8);
+}
+
+.row-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.table-wrap {
+  margin-top: 12px;
+  overflow: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: rgba(255,255,255,0.75);
+}
+
+.plan-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+}
+
+.plan-table th,
+.plan-table td {
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  padding: 10px;
+  text-align: left;
+  font-size: 13px;
+}
+
+.plan-table thead th {
+  background: rgba(0,0,0,0.03);
+  font-weight: 800;
+}
+
+.cell {
+  width: 100%;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.12);
+  padding: 0 10px;
+  background: rgba(255,255,255,0.9);
+}
+/* Caja tipo “formulario” (similar al look del PDF viejo, pero moderno) */
+.fieldset {
+  margin-top: 10px;
+  padding: 18px 14px 16px;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 16px;
+  position: relative;
+  background: rgba(255,255,255,0.55);
+}
+
+.legend {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.9);
+  border: 1px solid rgba(0,0,0,0.12);
+  font-weight: 800;
+  font-size: 12px;
+  color: rgba(0,0,0,0.65);
+}
+
+/* Layouts compactos como el form “clásico” */
+.grid-3-compact {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr 1.1fr;
+  gap: 14px;
+}
+
+.grid-2-split {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 14px;
+}
+
+.stack {
+  display: grid;
+  gap: 12px;
+}
+
+/* Check estilo clásico: texto a la izquierda, checkbox pequeño a la derecha */
+.check-row {
+  display: grid;
+  grid-template-columns: 1fr 15px;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px dashed rgba(0,0,0,0.18);
+  background: rgba(255,255,255,0.65);
+  font-weight: 700;
+  color: rgba(0,0,0,0.7);
+}
+
+.check-row input[type="checkbox"] {
+  width: 12px;
+  height: 12px;
+  margin: 0;
+  accent-color: #f6b800; /* se ve alineado con tu botón amarillo */
+}
+
+/* Panel de checks derecho en cotización */
+.checks-panel {
+  align-content: normal;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .grid-3-compact { grid-template-columns: 1fr; }
+  .grid-2-split { grid-template-columns: 1fr; }
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled {
+  background: rgba(0,0,0,0.06) !important;
+  color: rgba(0,0,0,0.55) !important;
+  border-color: rgba(0,0,0,0.10) !important;
+  cursor: not-allowed;
+  box-shadow: inset 0 0 0 9999px rgba(0,0,0,0.02);
+}
+
+input:disabled::placeholder {
+  color: rgba(0,0,0,0.35);
+}
+
+/* Centrado de textos en encabezados */
+.plan-table th.center {
+  text-align: center !important;
+}
+
+/* Línea vertical que divide las 2 secciones (en headers) */
+.plan-table thead .divider-left {
+  border-left: 2px solid rgba(0,0,0,0.18) !important;
+}
+
+/* Línea vertical que divide las 2 secciones (en body) */
+.plan-table tbody td:nth-child(3) {
+  border-left: 2px solid rgba(0,0,0,0.18);
+}
+
+/* Que el borde se vea continuo y limpio */
+.plan-table th,
+.plan-table td {
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+/* Chrome, Safari, Edge, Opera */
+.no-spinners::-webkit-outer-spin-button,
+.no-spinners::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.no-spinners[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
