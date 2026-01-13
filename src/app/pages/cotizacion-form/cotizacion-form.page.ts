@@ -23,12 +23,11 @@ export class CotizacionFormPage {
     showPlan = false;
 
     form!: FormGroup;
-
     asesores: Asesor[] = [];
     cargandoAsesores = false;
     errorAsesores = '';
 
-    constructor(private fb: FormBuilder, private router: Router, private asesoresService: AsesoresService) {
+    constructor(private fb: FormBuilder, private router: Router, private asesoresService: AsesoresService, private state: CotizacionStateService) {
 
 
         this.form = this.fb.group({
@@ -110,7 +109,28 @@ export class CotizacionFormPage {
         this.cargarAsesores();
         this.listenEjecutivoChanges();
 
+        // ✅ Restaurar estado si venimos del preview
+        const savedForm = this.state.load<any>();
+        if (savedForm) {
+            // valores simples
+            this.form.patchValue(savedForm, { emitEvent: false });
+
+            // restaurar plan (FormArray)
+            if (Array.isArray(savedForm.plan)) {
+                this.plan.clear();
+                for (const row of savedForm.plan) {
+                    this.plan.push(this.fb.group({
+                        fechaApto: new FormControl(row.fechaApto ?? ''),
+                        valorApto: new FormControl(row.valorApto ?? ''),
+                        fechaAdic: new FormControl(row.fechaAdic ?? ''),
+                        valorAdic: new FormControl(row.valorAdic ?? ''),
+                    }));
+                }
+            }
+        }
+
     }
+
 
     private cargarAsesores() {
         this.cargandoAsesores = true;
@@ -173,6 +193,9 @@ export class CotizacionFormPage {
     }
 
     generarCotizacion() {
+
+        this.state.save(this.form.getRawValue());
+        
         this.cotizacionNo += 1;
 
         localStorage.setItem('cotizacionNo', String(this.cotizacionNo));

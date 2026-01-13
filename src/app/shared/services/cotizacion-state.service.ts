@@ -1,24 +1,19 @@
 import { Injectable } from '@angular/core';
 
-export type CotizacionState = {
-  formRaw: any;        // getRawValue() completo (incluye disabled)
-  showPlan: boolean;
-  cotizacionNo: number;
-};
-
 @Injectable({ providedIn: 'root' })
 export class CotizacionStateService {
-  private state: CotizacionState | null = null;
+  private key = 'cotizacion_form_state_v1';
 
-  setState(s: CotizacionState) {
-    this.state = s;
+  save(value: any) {
+    localStorage.setItem(this.key, JSON.stringify(value));
   }
 
-  getState(): CotizacionState | null {
-    return this.state;
+  load<T = any>(): T | null {
+    const raw = localStorage.getItem(this.key);
+    return raw ? (JSON.parse(raw) as T) : null;
   }
 
   clear() {
-    this.state = null;
+    localStorage.removeItem(this.key);
   }
 }
