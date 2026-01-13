@@ -10,7 +10,7 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CotizacionStateService } from '../../shared/services/cotizacion-state.service';
-
+import { AsesoresService, Asesor } from '../../shared/services/asesores.service';
 
 @Component({
     selector: 'app-cotizacion-form-page',
@@ -24,7 +24,11 @@ export class CotizacionFormPage {
 
     form!: FormGroup;
 
-    constructor(private fb: FormBuilder, private router: Router) {
+    asesores: Asesor[] = [];
+    cargandoAsesores = false;
+    errorAsesores = '';
+
+    constructor(private fb: FormBuilder, private router: Router, private asesoresService: AsesoresService) {
 
 
         this.form = this.fb.group({
@@ -76,7 +80,7 @@ export class CotizacionFormPage {
             fechaUltimaCuotaAdic: [''],
 
 
-            nombreEjecutivo: ['', [Validators.required, Validators.maxLength(60)]],
+            nombreEjecutivo: [null, [Validators.required]],
             telefonoEjecutivo: ['', [
                 Validators.required,
                 Validators.maxLength(10),
@@ -103,6 +107,42 @@ export class CotizacionFormPage {
         this.setupParqueaderoRule();
         this.setupCalculos();
 
+        this.cargarAsesores();
+        this.listenEjecutivoChanges();
+
+    }
+
+    private cargarAsesores() {
+        this.cargandoAsesores = true;
+        this.errorAsesores = '';
+
+        this.asesoresService.getAsesoresActivos().subscribe({
+            next: (data) => {
+                this.asesores = data ?? [];
+                this.cargandoAsesores = false;
+            },
+            error: (err) => {
+                this.cargandoAsesores = false;
+                this.errorAsesores = 'No fue posible cargar los asesores.';
+                console.error(err);
+            }
+        });
+    }
+
+    private listenEjecutivoChanges() {
+        this.form.get('nombreEjecutivo')!.valueChanges.subscribe((id: number | null) => {
+            const asesor = this.asesores.find(a => a.id === Number(id));
+            if (!asesor) return;
+
+            // Autollenar
+            this.form.patchValue({
+                telefonoEjecutivo: asesor.telefono ?? '',
+                correoEjecutivo: asesor.email ?? '',
+            }, { emitEvent: false });
+
+            localStorage.setItem('asesor_nombre', asesor.nombre_completo ?? '');
+            localStorage.setItem('asesor_img', asesor.link_img ?? '');
+        });
     }
 
     get plan(): FormArray<FormGroup> {

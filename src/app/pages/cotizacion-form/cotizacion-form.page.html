@@ -20,13 +20,16 @@
                             <option value="NIT">PASAPORTE</option>
                             <option value="PAS">CE</option>
                         </select>
-                        <small class="error" *ngIf="isInvalid('tipoDocumento')"> {{ getErrorMessage('tipoDocumento') }}</small>
+                        <small class="error" *ngIf="isInvalid('tipoDocumento')"> {{ getErrorMessage('tipoDocumento')
+                            }}</small>
                     </div>
 
                     <div class="field">
                         <label>No Documento</label>
-                        <input type="number" class="no-spinners" formControlName="noDocumento" placeholder="Ingrese un numero de documento"/>
-                        <small class="error" *ngIf="isInvalid('noDocumento')"> {{ getErrorMessage('noDocumento') }}</small>
+                        <input type="number" class="no-spinners" formControlName="noDocumento"
+                            placeholder="Ingrese un numero de documento" />
+                        <small class="error" *ngIf="isInvalid('noDocumento')"> {{ getErrorMessage('noDocumento')
+                            }}</small>
                     </div>
 
                     <div class="field">
@@ -37,19 +40,19 @@
 
                     <div class="field">
                         <label>Apellidos</label>
-                        <input type="text" formControlName="apellidos"  placeholder="Ingrese los apellidos" />
+                        <input type="text" formControlName="apellidos" placeholder="Ingrese los apellidos" />
                         <small class="error" *ngIf="isInvalid('apellidos')"> {{ getErrorMessage('apellidos') }}</small>
                     </div>
 
                     <div class="field">
                         <label>Dirección</label>
-                        <input type="text" formControlName="direccion"  placeholder="Ingrese una dirección"/>
+                        <input type="text" formControlName="direccion" placeholder="Ingrese una dirección" />
                         <small class="error" *ngIf="isInvalid('direccion')"> {{ getErrorMessage('direccion') }}</small>
                     </div>
 
                     <div class="field">
                         <label>Teléfono</label>
-                        <input type="tel" formControlName="telefono"  placeholder="Ingrese un número de teléfono"/>
+                        <input type="tel" formControlName="telefono" placeholder="Ingrese un número de teléfono" />
                         <small class="error" *ngIf="isInvalid('telefono')"> {{ getErrorMessage('telefono') }}</small>
                     </div>
 
@@ -105,31 +108,38 @@
                             <option>101</option>
                             <option>102</option>
                         </select>
-                        <small class="error" *ngIf="isInvalid('apartamento')"> {{ getErrorMessage('apartamento') }}</small>
+                        <small class="error" *ngIf="isInvalid('apartamento')"> {{ getErrorMessage('apartamento')
+                            }}</small>
                     </div>
 
                     <div class="field">
                         <label>Valor total</label>
                         <input type="number" class="no-spinners" formControlName="valorTotal" placeholder="$" />
-                        <small class="error" *ngIf="isInvalid('valorTotal')"> {{ getErrorMessage('valorTotal') }}</small>
+                        <small class="error" *ngIf="isInvalid('valorTotal')"> {{ getErrorMessage('valorTotal')
+                            }}</small>
                     </div>
 
                     <div class="field">
                         <label>Beneficio ante valorización</label>
-                        <input type="number" class="no-spinners" formControlName="beneficioValorizacion" placeholder="$" />
-                        <small class="error" *ngIf="isInvalid('beneficioValorizacion')"> {{ getErrorMessage('beneficioValorizacion') }}</small>
+                        <input type="number" class="no-spinners" formControlName="beneficioValorizacion"
+                            placeholder="$" />
+                        <small class="error" *ngIf="isInvalid('beneficioValorizacion')"> {{
+                            getErrorMessage('beneficioValorizacion') }}</small>
                     </div>
 
                     <div class="field">
                         <label>Beneficio Pronta Separación</label>
-                        <input type="number" class="no-spinners" formControlName="beneficioProntaSeparacion" placeholder="$" />
-                        <small class="error" *ngIf="isInvalid('beneficioProntaSeparacion')"> {{ getErrorMessage('beneficioProntaSeparacion') }}</small>
+                        <input type="number" class="no-spinners" formControlName="beneficioProntaSeparacion"
+                            placeholder="$" />
+                        <small class="error" *ngIf="isInvalid('beneficioProntaSeparacion')"> {{
+                            getErrorMessage('beneficioProntaSeparacion') }}</small>
                     </div>
 
-                     <div class="field">
+                    <div class="field">
                         <label>Valor Especial Hoy</label>
                         <input appCopCurrency type="text" formControlName="valorEspecialHoy" placeholder="$" />
-                        <small class="error" *ngIf="isInvalid('valorEspecialHoy')"> {{ getErrorMessage('valorEspecialHoy') }}</small>
+                        <small class="error" *ngIf="isInvalid('valorEspecialHoy')"> {{
+                            getErrorMessage('valorEspecialHoy') }}</small>
                     </div>
 
                     <div class="field">
@@ -153,25 +163,29 @@
                             <option>95</option>
                             <option>100</option>
                         </select>
-                        <small class="error" *ngIf="isInvalid('porcentajeCuotaInicial')"> {{ getErrorMessage('porcentajeCuotaInicial') }}</small>
+                        <small class="error" *ngIf="isInvalid('porcentajeCuotaInicial')"> {{
+                            getErrorMessage('porcentajeCuotaInicial') }}</small>
                     </div>
 
                     <div class="field">
                         <label>Valor Cuota Inicial</label>
                         <input appCopCurrency type="text" formControlName="valorCuotaInicial" placeholder="$" />
-                        <small class="error" *ngIf="isInvalid('valorCuotaInicial')"> {{ getErrorMessage('valorCuotaInicial') }}</small>
+                        <small class="error" *ngIf="isInvalid('valorCuotaInicial')"> {{
+                            getErrorMessage('valorCuotaInicial') }}</small>
                     </div>
 
                     <div class="field">
                         <label>Fecha de la última cuota</label>
                         <input type="date" formControlName="fechaUltimaCuota" />
-                        <small class="error" *ngIf="isInvalid('fechaUltimaCuota')"> {{ getErrorMessage('fechaUltimaCuota') }}</small>
+                        <small class="error" *ngIf="isInvalid('fechaUltimaCuota')"> {{
+                            getErrorMessage('fechaUltimaCuota') }}</small>
                     </div>
 
                     <div class="field">
                         <label>Cantidad de cuotas</label>
                         <input type="number" class="no-spinners" formControlName="cantidadCuotas" />
-                        <small class="error" *ngIf="isInvalid('cantidadCuotas')"> {{ getErrorMessage('cantidadCuotas') }}</small>
+                        <small class="error" *ngIf="isInvalid('cantidadCuotas')"> {{ getErrorMessage('cantidadCuotas')
+                            }}</small>
                     </div>
                 </div>
             </div>
@@ -209,13 +223,15 @@
                                 <option value="1">1</option>
                                 <option value="2">2</option>
                             </select>
-                            <small class="error" *ngIf="isInvalid('cantidadParqueaderos')"> {{ getErrorMessage('cantidadParqueaderos') }}</small>
+                            <small class="error" *ngIf="isInvalid('cantidadParqueaderos')"> {{
+                                getErrorMessage('cantidadParqueaderos') }}</small>
                         </div>
 
                         <div class="field">
                             <label>Cuotas de financiación</label>
                             <input type="number" class="no-spinners" formControlName="cuotasFinanciacion" />
-                            <small class="error" *ngIf="isInvalid('cuotasFinanciacion')"> {{ getErrorMessage('cuotasFinanciacion') }}</small>
+                            <small class="error" *ngIf="isInvalid('cuotasFinanciacion')"> {{
+                                getErrorMessage('cuotasFinanciacion') }}</small>
                         </div>
                     </div>
 
@@ -224,13 +240,15 @@
                         <div class="field">
                             <label>Valor Total Adicionales</label>
                             <input type="text" formControlName="valorTotalAdicionales" placeholder="$" />
-                            <small class="error" *ngIf="isInvalid('valorTotalAdicionales')"> {{ getErrorMessage('valorTotalAdicionales') }}</small>
+                            <small class="error" *ngIf="isInvalid('valorTotalAdicionales')"> {{
+                                getErrorMessage('valorTotalAdicionales') }}</small>
                         </div>
 
                         <div class="field">
                             <label>Fecha última cuota</label>
                             <input type="date" formControlName="fechaUltimaCuotaAdic" />
-                            <small class="error" *ngIf="isInvalid('fechaUltimaCuotaAdic')"> {{ getErrorMessage('fechaUltimaCuotaAdic') }}</small>
+                            <small class="error" *ngIf="isInvalid('fechaUltimaCuotaAdic')"> {{
+                                getErrorMessage('fechaUltimaCuotaAdic') }}</small>
                         </div>
                     </div>
                 </div>
@@ -248,31 +266,47 @@
                         <div class="field">
                             <label>Nombre del Ejecutivo</label>
                             <select formControlName="nombreEjecutivo">
-                                <option value="" disabled>Seleccionar</option>
-                                <option>Ejecutivo 1</option>
-                                <option>Ejecutivo 2</option>
+                                <option [ngValue]="null" disabled>Seleccionar</option>
+
+                                <option *ngIf="cargandoAsesores" [ngValue]="null" disabled>
+                                    Cargando asesores...
+                                </option>
+
+                                <option *ngFor="let a of asesores" [ngValue]="a.id">
+                                    {{ a.nombre_completo }}
+                                </option>
                             </select>
-                            <small class="error" *ngIf="isInvalid('nombreEjecutivo')"> {{ getErrorMessage('nombreEjecutivo') }}</small>
+
+                            <small class="error" *ngIf="errorAsesores">{{ errorAsesores }}</small>
+                            <small class="error" *ngIf="isInvalid('nombreEjecutivo')">
+                                {{ getErrorMessage('nombreEjecutivo') }}
+                            </small>
+
                         </div>
 
                         <div class="field">
                             <label>Teléfono</label>
-                            <input type="number" class="no-spinners" formControlName="telefonoEjecutivo" placeholder="Ingrese un número de telefono"/>
-                            <small class="error" *ngIf="isInvalid('telefonoEjecutivo')"> {{ getErrorMessage('telefonoEjecutivo') }}</small>
+                            <input type="number" class="no-spinners" formControlName="telefonoEjecutivo"
+                                placeholder="Ingrese un número de telefono" />
+                            <small class="error" *ngIf="isInvalid('telefonoEjecutivo')"> {{
+                                getErrorMessage('telefonoEjecutivo') }}</small>
                         </div>
-                        
+
 
 
                         <div class="field">
                             <label>Correo electrónico</label>
-                            <input type="email" formControlName="correoEjecutivo" placeholder="Ej: correo@ejemplo.com" />
-                            <small class="error" *ngIf="isInvalid('correoEjecutivo')"> {{ getErrorMessage('correoEjecutivo') }}</small>
+                            <input type="email" formControlName="correoEjecutivo"
+                                placeholder="Ej: correo@ejemplo.com" />
+                            <small class="error" *ngIf="isInvalid('correoEjecutivo')"> {{
+                                getErrorMessage('correoEjecutivo') }}</small>
                         </div>
 
                         <div class="field">
                             <label>Cotización Válida Hasta</label>
                             <input type="date" formControlName="cotizacionValidaHasta" />
-                            <small class="error" *ngIf="isInvalid('cotizacionValidaHasta')"> {{ getErrorMessage('cotizacionValidaHasta') }}</small>
+                            <small class="error" *ngIf="isInvalid('cotizacionValidaHasta')"> {{
+                                getErrorMessage('cotizacionValidaHasta') }}</small>
                         </div>
                     </div>
 

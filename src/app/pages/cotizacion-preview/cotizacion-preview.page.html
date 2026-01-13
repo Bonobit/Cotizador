@@ -13,8 +13,21 @@
     </div>
 
     <div class="preview card">
-      <div class="preview-inner">
-        <div class="big">PREVISUALIZACIÓN<br />DEL PDF</div>
+      <div class="sheet">
+
+        <!-- Portada -->
+        <img class="pdf-img" [src]="portadaUrl" alt="PDF">
+
+        <!-- Sección asesor pegada debajo -->
+        <div class="asesor-banner" *ngIf="asesorImg">
+          <img class="asesor-img" [src]="asesorImg" alt="Asesor">
+          <div class="asesor-overlay">
+            <div class="asesor-label">Asesor</div>
+            <div class="asesor-nombre">{{ asesorNombre }}</div>
+          </div>
+        </div>
+
+
       </div>
     </div>
   </div>

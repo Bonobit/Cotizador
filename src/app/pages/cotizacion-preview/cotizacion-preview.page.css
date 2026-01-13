@@ -88,3 +88,91 @@
   text-align: center;
   color: rgba(0,0,0,0.6);
 }
+
+.preview,
+.preview.card,
+.preview-inner,
+.sheet {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* la hoja: ocupa todo el card y no se limita a 900px */
+.sheet {
+  margin: 0;
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 10px 24px rgba(0,0,0,.10);
+}
+
+/* ✅ portada: siempre full width, mantiene proporción */
+.portada {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 70vh;      /* opcional: evita que se coma toda la pantalla */
+  object-fit: cover;     /* llena el ancho bonito */
+  object-position: center;
+}
+
+/* barra asesor pegada */
+.asesor-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: #fff;
+  border-top: 1px solid rgba(0,0,0,.06);
+}
+
+.sheet{
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #fff;
+}
+
+.pdf-img{
+  display: block;
+  width: 100%;
+  height: auto;        /* ✅ mantiene proporción */
+}
+
+.asesor-banner{
+  position: relative;
+  width: 100%;
+}
+
+/* ✅ imagen asesor full width */
+.asesor-img{
+  display: block;
+  width: 100%;
+  height: 100%;      /* ajusta: 180-320 según te guste */
+  object-fit: inherit;
+  object-position: center;
+}
+
+/* texto encima */
+.asesor-overlay{
+  position: absolute;
+  left: 16px;
+  bottom: 14px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(0,0,0,.45);
+  color: #fff;
+  backdrop-filter: blur(4px);
+}
+
+.asesor-label{
+  font-size: 12px;
+  opacity: .85;
+}
+
+.asesor-nombre{
+  font-size: 18px;
+  font-weight: 800;
+}
