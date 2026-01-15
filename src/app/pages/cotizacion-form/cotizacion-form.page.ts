@@ -19,6 +19,7 @@ import { AsesoresService, Asesor } from '../../shared/services/asesores.service'
     templateUrl: './cotizacion-form.page.html',
     styleUrls: ['./cotizacion-form.page.css'],
 })
+
 export class CotizacionFormPage {
     showPlan = false;
 
@@ -28,7 +29,6 @@ export class CotizacionFormPage {
     errorAsesores = '';
 
     constructor(private fb: FormBuilder, private router: Router, private asesoresService: AsesoresService, private state: CotizacionStateService) {
-
 
         this.form = this.fb.group({
             tipoDocumento: ['', Validators.required],
@@ -95,12 +95,8 @@ export class CotizacionFormPage {
             cotizacionValidaHasta: ['', Validators.required],
 
             plan: this.fb.array([]),
-
-
         });
 
-
-        this.seedPlanRows(20);
         const saved = localStorage.getItem('cotizacionNo');
         this.cotizacionNo = saved ? Number(saved) : 1;
         this.setupParqueaderoRule();
@@ -169,10 +165,6 @@ export class CotizacionFormPage {
         return this.form.get('plan') as FormArray<FormGroup>;
     }
 
-    private seedPlanRows(n: number) {
-        for (let i = 0; i < n; i++) this.plan.push(this.createPlanRow());
-    }
-
     private createPlanRow() {
         return this.fb.group({
             fechaApto: new FormControl(''),
@@ -182,20 +174,23 @@ export class CotizacionFormPage {
         });
     }
 
-
     generarPlan() {
+
         if (this.form.invalid) {
             this.form.markAllAsTouched();
             this.showPlan = false;
             return;
         }
+        this.plan.clear();
+        const cantidadCuotas = this.form.get('cantidadCuotas')?.value;
+        for (let i = 0; i < cantidadCuotas; i++) this.plan.push(this.createPlanRow());
         this.showPlan = true;
     }
 
     generarCotizacion() {
 
         this.state.save(this.form.getRawValue());
-        
+
         this.cotizacionNo += 1;
 
         localStorage.setItem('cotizacionNo', String(this.cotizacionNo));
@@ -267,10 +262,28 @@ export class CotizacionFormPage {
             const vt = toNum(valorTotal.value);
             const bv = toNum(benefVal.value);
             const bp = toNum(benefPronta.value);
+            const porcentajeBeneficio = 0.5;
+            const maxBeneficio = vt * porcentajeBeneficio;
+            const totalBeneficios = bv + bp;
+
+            if (totalBeneficios > maxBeneficio) {
+                // Marcar erroen los controles
+                benefVal.setErrors({ benefitsExceeded: true });
+                benefPronta.setErrors({ benefitsExceeded: true });
+            } else {
+                // Limpiar error específico si ya cumple
+                if (benefVal.hasError('benefitsExceeded')) {
+                    benefVal.setErrors(null);
+                    benefVal.updateValueAndValidity({ emitEvent: false });
+                }
+                if (benefPronta.hasError('benefitsExceeded')) {
+                    benefPronta.setErrors(null);
+                    benefPronta.updateValueAndValidity({ emitEvent: false });
+                }
+            }
 
             const especial = Math.max(vt - bv - bp, 0);
             valorEspecial.setValue(especial, { emitEvent: false });
-
             const p = toNum(porcentaje.value);
             const cuotaIni = Math.round(especial * (p / 100));
             valorCuotaInicial.setValue(cuotaIni, { emitEvent: false });
@@ -359,6 +372,10 @@ export class CotizacionFormPage {
         if (c.hasError('max')) {
             const max = c.getError('max')?.max;
             return `El campo "${label}" debe ser menor o igual a ${max}.`;
+        }
+
+        if (c.hasError('benefitsExceeded')) {
+            return `La suma de beneficios excede el 50% del valor total.`;
         }
 
         return `El campo "${label}" es inválido.`;
