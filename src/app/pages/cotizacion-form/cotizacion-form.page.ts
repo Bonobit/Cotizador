@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DestroyRef } from '@angular/core';
 import {
     FormArray,
     FormBuilder,
@@ -28,7 +29,7 @@ export class CotizacionFormPage {
     cargandoAsesores = false;
     errorAsesores = '';
 
-    constructor(private fb: FormBuilder, private router: Router, private asesoresService: AsesoresService, private state: CotizacionStateService) {
+    constructor(private fb: FormBuilder, private router: Router, private asesoresService: AsesoresService, private state: CotizacionStateService, private destroyRef: DestroyRef) {
 
         this.form = this.fb.group({
             tipoDocumento: ['', Validators.required],
@@ -202,7 +203,6 @@ export class CotizacionFormPage {
         const c = this.form.get(name);
         return !!c && !c.disabled && c.invalid && (c.touched || c.dirty);
     }
-
 
     cotizacionNo = 1;
 
