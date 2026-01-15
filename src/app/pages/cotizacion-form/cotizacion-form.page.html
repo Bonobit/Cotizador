@@ -12,7 +12,7 @@
                 <!-- Información del usuario -->
                 <div class="grid grid-2">
                     <div class="field">
-                        <label>Tipo Documento</label>
+                        <label>Tipo de documento</label>
                         <select formControlName="tipoDocumento">
                             <option value="" disabled>Seleccionar</option>
                             <option value="CC">CC</option>
@@ -25,7 +25,7 @@
                     </div>
 
                     <div class="field">
-                        <label>No Documento</label>
+                        <label>Número de Documento</label>
                         <input type="number" class="no-spinners" formControlName="noDocumento"
                             placeholder="Ingrese un numero de documento" />
                         <small class="error" *ngIf="isInvalid('noDocumento')"> {{ getErrorMessage('noDocumento')
@@ -128,7 +128,7 @@
                     </div>
 
                     <div class="field">
-                        <label>Beneficio Pronta Separación</label>
+                        <label>Beneficio pronta separación</label>
                         <input type="number" class="no-spinners" formControlName="beneficioProntaSeparacion"
                             placeholder="$" />
                         <small class="error" *ngIf="isInvalid('beneficioProntaSeparacion')"> {{
@@ -136,7 +136,7 @@
                     </div>
 
                     <div class="field">
-                        <label>Valor Especial Hoy</label>
+                        <label>Valor especial hoy</label>
                         <input appCopCurrency type="text" formControlName="valorEspecialHoy" placeholder="$" />
                         <small class="error" *ngIf="isInvalid('valorEspecialHoy')"> {{
                             getErrorMessage('valorEspecialHoy') }}</small>
@@ -168,7 +168,7 @@
                     </div>
 
                     <div class="field">
-                        <label>Valor Cuota Inicial</label>
+                        <label>Valor cuota inicial</label>
                         <input appCopCurrency type="text" formControlName="valorCuotaInicial" placeholder="$" />
                         <small class="error" *ngIf="isInvalid('valorCuotaInicial')"> {{
                             getErrorMessage('valorCuotaInicial') }}</small>
@@ -238,7 +238,7 @@
                     <!-- Col 3: inputs -->
                     <div class="stack">
                         <div class="field">
-                            <label>Valor Total Adicionales</label>
+                            <label>Valor total adicionales</label>
                             <input type="text" formControlName="valorTotalAdicionales" placeholder="$" />
                             <small class="error" *ngIf="isInvalid('valorTotalAdicionales')"> {{
                                 getErrorMessage('valorTotalAdicionales') }}</small>
@@ -264,7 +264,7 @@
                     <!-- Izquierda: inputs ordenados -->
                     <div class="stack">
                         <div class="field">
-                            <label>Nombre del Ejecutivo</label>
+                            <label>Nombre del ejecutivo</label>
                             <select formControlName="nombreEjecutivo">
                                 <option [ngValue]="null" disabled>Seleccionar</option>
 
@@ -303,7 +303,7 @@
                         </div>
 
                         <div class="field">
-                            <label>Cotización Válida Hasta</label>
+                            <label>Cotización válida hasta</label>
                             <input type="date" formControlName="cotizacionValidaHasta" />
                             <small class="error" *ngIf="isInvalid('cotizacionValidaHasta')"> {{
                                 getErrorMessage('cotizacionValidaHasta') }}</small>
