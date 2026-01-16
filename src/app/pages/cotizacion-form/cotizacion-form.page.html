@@ -82,13 +82,21 @@
                 <div class="grid grid-3">
                     <div class="field">
                         <label>Proyecto</label>
-                        <select formControlName="proyecto">
-                            <option value="" disabled>Seleccionar</option>
-                            <option>NOGALES</option>
-                            <option>CANARIAS</option>
-                            <option>DEHESA</option>
+                        <select formControlName="proyecto" >
+                            <option [ngValue]="null" disabled>Seleccionar</option>
+
+                            <option *ngIf="cargandoProyectos" [ngValue]="null" disabled>
+                                Cargando proyectos...
+                            </option>
+
+                            <option *ngFor="let a of proyectos" [ngValue]="a.id">
+                                {{ a.nombre }}
+                            </option>
                         </select>
-                        <small class="error" *ngIf="isInvalid('proyecto')"> {{ getErrorMessage('proyecto') }}</small>
+
+                        <small class="error" *ngIf="errorProyectos">{{ errorProyectos }}</small>
+                        <small class="error" *ngIf="isInvalid('proyecto')">
+                            {{ getErrorMessage('proyecto') }}</small>
                     </div>
 
                     <div class="field">
