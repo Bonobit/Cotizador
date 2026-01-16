@@ -36,7 +36,8 @@ export class CotizacionFormPage {
             noDocumento: ['', [
                 Validators.maxLength(10),
                 Validators.pattern(/^[0-9]+$/),
-                Validators.required
+                Validators.required,
+                Validators.min(0)
             ]],
 
             nombres: ['', [Validators.required, Validators.maxLength(60)]],
@@ -127,7 +128,6 @@ export class CotizacionFormPage {
         }
 
     }
-
 
     private cargarAsesores() {
         this.cargandoAsesores = true;
@@ -336,6 +336,10 @@ export class CotizacionFormPage {
         correoEjecutivo: 'Correo del ejecutivo',
     };
 
+    get porcentajesCuotaInicial() {
+        return Array.from({ length: 17 }, (_, i) => 20 + i * 5);
+    }
+
     getErrorMessage(controlName: string): string {
         const c = this.form.get(controlName);
         if (!c) return '';
@@ -380,7 +384,4 @@ export class CotizacionFormPage {
 
         return `El campo "${label}" es inválido.`;
     }
-
-
 }
-

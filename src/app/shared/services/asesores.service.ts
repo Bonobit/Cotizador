@@ -9,14 +9,14 @@ export interface Asesor {
   telefono: string;
   email: string;
   activo: boolean;
-  link_img?: string;
+  link_img: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class AsesoresService {
   private baseUrl = environment.supabaseUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAsesoresActivos(): Observable<Asesor[]> {
     const url = `${this.baseUrl}/rest/v1/asesores`;
