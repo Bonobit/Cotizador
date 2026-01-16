@@ -12,6 +12,7 @@ import {
 import { Router } from '@angular/router';
 import { CotizacionStateService } from '../../shared/services/cotizacion-state.service';
 import { AsesoresService, Asesor } from '../../shared/services/asesores.service';
+import { ProyectosService, Proyectos } from '../../shared/services/proyectos.service';
 
 @Component({
     selector: 'app-cotizacion-form-page',
@@ -27,10 +28,12 @@ export class CotizacionFormPage {
     form!: FormGroup;
     asesores: Asesor[] = [];
     cargandoAsesores = false;
+    proyectos: Proyectos[] = [];
+    cargandoProyectos = false;
     errorAsesores = '';
+    errorProyectos = '';
 
-    constructor(private fb: FormBuilder, private router: Router, private asesoresService: AsesoresService, private state: CotizacionStateService, private destroyRef: DestroyRef) {
-
+    constructor(private fb: FormBuilder, private router: Router, private asesoresService: AsesoresService, private proyectosService: ProyectosService, private state: CotizacionStateService, private destroyRef: DestroyRef) {
         this.form = this.fb.group({
             tipoDocumento: ['', Validators.required],
             noDocumento: ['', [
@@ -51,7 +54,7 @@ export class CotizacionFormPage {
             canal: ['', Validators.required],
 
             // Apartamento
-            proyecto: ['', Validators.required],
+            proyecto: [null, Validators.required],
             torre: ['', Validators.required],
             apartamento: ['', Validators.required],
 
@@ -106,6 +109,9 @@ export class CotizacionFormPage {
         this.cargarAsesores();
         this.listenEjecutivoChanges();
 
+        this.cargarProyectos();
+        this.listenProyectosChanges();
+
         // ✅ Restaurar estado si venimos del preview
         const savedForm = this.state.load<any>();
         if (savedForm) {
@@ -128,6 +134,38 @@ export class CotizacionFormPage {
 
     }
 
+    private cargarProyectos() {
+        this.cargandoProyectos = true;
+        this.errorProyectos = '';
+
+        this.proyectosService.getProyectosActivos().subscribe({
+            next: (data) => {
+                this.proyectos = data ?? [];
+                this.cargandoProyectos = false;
+            },
+            error: (err) => {
+                this.cargandoProyectos = false;
+                this.errorProyectos = 'No fue posible cargar los proyectos.';
+                console.error(err);
+            }
+        });
+ 
+    }
+
+    private listenProyectosChanges() {
+        this.form.get('proyecto')!.valueChanges.subscribe((id: number | null) => {
+            const proyecto = this.proyectos.find(a => a.id === Number(id));
+            if (!proyecto) return;
+
+            // Autollenar
+            this.form.patchValue({
+            }, { emitEvent: false });
+
+            localStorage.setItem('proyecto_nombre', proyecto.nombre ?? '');
+            localStorage.setItem('proyecto_logo', proyecto.logo_url ?? '');
+            localStorage.setItem('proyecto_recorrido', proyecto.link_recorrido_360 ?? '');
+        });
+    }
 
     private cargarAsesores() {
         this.cargandoAsesores = true;
@@ -349,7 +387,15 @@ export class CotizacionFormPage {
         if (c.hasError('email')) {
             return `El campo "${label}" debe ser un correo válido.`;
         }
+        if (c.hasError('maxlength')) {
+            const req = c.getError('maxlength')?.requiredLength;
+            return `El campo "${label}" debe tener máximo ${req} caracteres.`;
+        }
 
+        if (c.hasError('minlength')) {
+            const req = c.getError('minlength')?.requiredLength;
+            return `El campo "${label}" debe tener mínimo ${req} caracteres.`;
+        }
         if (c.hasError('pattern')) {
             return `El campo "${label}" tiene un formato inválido.`;
         }
