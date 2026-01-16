@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DestroyRef } from '@angular/core';
 import {
@@ -22,7 +22,7 @@ import { ProyectosService, Proyectos } from '../../shared/services/proyectos.ser
     styleUrls: ['./cotizacion-form.page.css'],
 })
 
-export class CotizacionFormPage {
+export class CotizacionFormPage implements OnInit {
     showPlan = false;
 
     form!: FormGroup;
@@ -33,7 +33,15 @@ export class CotizacionFormPage {
     errorAsesores = '';
     errorProyectos = '';
 
-    constructor(private fb: FormBuilder, private router: Router, private asesoresService: AsesoresService, private proyectosService: ProyectosService, private state: CotizacionStateService, private destroyRef: DestroyRef) {
+    constructor(
+        private fb: FormBuilder,
+        private router: Router,
+        private asesoresService: AsesoresService,
+        private proyectosService: ProyectosService,
+        private state: CotizacionStateService,
+        private destroyRef: DestroyRef,
+        private cdr: ChangeDetectorRef
+    ) {
         this.form = this.fb.group({
             tipoDocumento: ['', Validators.required],
             noDocumento: ['', [
@@ -106,7 +114,9 @@ export class CotizacionFormPage {
         this.cotizacionNo = saved ? Number(saved) : 1;
         this.setupParqueaderoRule();
         this.setupCalculos();
+    }
 
+    ngOnInit() {
         this.cargarAsesores();
         this.listenEjecutivoChanges();
 
@@ -132,7 +142,6 @@ export class CotizacionFormPage {
                 }
             }
         }
-
     }
 
     private cargarProyectos() {
@@ -143,14 +152,16 @@ export class CotizacionFormPage {
             next: (data) => {
                 this.proyectos = data ?? [];
                 this.cargandoProyectos = false;
+                this.cdr.markForCheck();
             },
             error: (err) => {
                 this.cargandoProyectos = false;
                 this.errorProyectos = 'No fue posible cargar los proyectos.';
                 console.error(err);
+                this.cdr.markForCheck();
             }
         });
- 
+
     }
 
     private listenProyectosChanges() {
@@ -176,11 +187,13 @@ export class CotizacionFormPage {
             next: (data) => {
                 this.asesores = data ?? [];
                 this.cargandoAsesores = false;
+                this.cdr.markForCheck();
             },
             error: (err) => {
                 this.cargandoAsesores = false;
                 this.errorAsesores = 'No fue posible cargar los asesores.';
                 console.error(err);
+                this.cdr.markForCheck();
             }
         });
     }

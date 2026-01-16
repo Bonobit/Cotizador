@@ -82,12 +82,8 @@
                 <div class="grid grid-3">
                     <div class="field">
                         <label>Proyecto</label>
-                        <select formControlName="proyecto" >
+                        <select formControlName="proyecto">
                             <option [ngValue]="null" disabled>Seleccionar</option>
-
-                            <option *ngIf="cargandoProyectos" [ngValue]="null" disabled>
-                                Cargando proyectos...
-                            </option>
 
                             <option *ngFor="let a of proyectos" [ngValue]="a.id">
                                 {{ a.nombre }}
