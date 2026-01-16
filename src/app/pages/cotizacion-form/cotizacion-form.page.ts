@@ -14,6 +14,7 @@ import { CotizacionStateService } from '../../shared/services/cotizacion-state.s
 import { AsesoresService, Asesor } from '../../shared/services/asesores.service';
 import { ProyectosService, Proyectos } from '../../shared/services/proyectos.service';
 
+
 @Component({
     selector: 'app-cotizacion-form-page',
     standalone: true,
@@ -111,6 +112,7 @@ export class CotizacionFormPage {
 
         this.cargarProyectos();
         this.listenProyectosChanges();
+        this.setupDocTypeRule();
 
         // ✅ Restaurar estado si venimos del preview
         const savedForm = this.state.load<any>();
@@ -133,7 +135,7 @@ export class CotizacionFormPage {
         }
 
     }
-
+    
     private cargarProyectos() {
         this.cargandoProyectos = true;
         this.errorProyectos = '';
@@ -149,7 +151,7 @@ export class CotizacionFormPage {
                 console.error(err);
             }
         });
- 
+
     }
 
     private listenProyectosChanges() {
