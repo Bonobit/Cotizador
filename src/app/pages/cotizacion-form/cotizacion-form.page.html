@@ -102,8 +102,8 @@
                         <label>Torre</label>
                         <select formControlName="torre">
                             <option value="" disabled>Seleccionar</option>
-                            <option>Torre 1</option>
-                            <option>Torre 2</option>
+                            <option *ngIf="cargandoApartamentos" disabled>Cargando...</option>
+                            <option *ngFor="let t of torres" [value]="t">{{ t }}</option>
                         </select>
                         <small class="error" *ngIf="isInvalid('torre')"> {{ getErrorMessage('torre') }}</small>
                     </div>
@@ -112,8 +112,9 @@
                         <label>Apartamento</label>
                         <select formControlName="apartamento">
                             <option value="" disabled>Seleccionar</option>
-                            <option>101</option>
-                            <option>102</option>
+                            <option *ngFor="let a of apartamentosFiltrados" [ngValue]="a.id">
+                                {{ a.numero_apto }}
+                            </option>
                         </select>
                         <small class="error" *ngIf="isInvalid('apartamento')"> {{ getErrorMessage('apartamento')
                             }}</small>
@@ -121,23 +122,21 @@
 
                     <div class="field">
                         <label>Valor total</label>
-                        <input type="number" class="no-spinners" formControlName="valorTotal" placeholder="$" />
+                        <input type="text" appCopCurrency formControlName="valorTotal" placeholder="$" />
                         <small class="error" *ngIf="isInvalid('valorTotal')"> {{ getErrorMessage('valorTotal')
                             }}</small>
                     </div>
 
                     <div class="field">
                         <label>Beneficio ante valorización</label>
-                        <input type="number" class="no-spinners" formControlName="beneficioValorizacion"
-                            placeholder="$" />
+                        <input type="text" appCopCurrency formControlName="beneficioValorizacion" placeholder="$" />
                         <small class="error" *ngIf="isInvalid('beneficioValorizacion')"> {{
                             getErrorMessage('beneficioValorizacion') }}</small>
                     </div>
 
                     <div class="field">
                         <label>Beneficio pronta separación</label>
-                        <input type="number" class="no-spinners" formControlName="beneficioProntaSeparacion"
-                            placeholder="$" />
+                        <input type="text" appCopCurrency formControlName="beneficioProntaSeparacion" placeholder="$" />
                         <small class="error" *ngIf="isInvalid('beneficioProntaSeparacion')"> {{
                             getErrorMessage('beneficioProntaSeparacion') }}</small>
                     </div>
@@ -234,7 +233,7 @@
                     <div class="stack">
                         <div class="field">
                             <label>Valor total adicionales</label>
-                            <input type="text" formControlName="valorTotalAdicionales" placeholder="$" />
+                            <input type="text" appCopCurrency formControlName="valorTotalAdicionales" placeholder="$" />
                             <small class="error" *ngIf="isInvalid('valorTotalAdicionales')"> {{
                                 getErrorMessage('valorTotalAdicionales') }}</small>
                         </div>
@@ -362,9 +361,11 @@
                         <tbody formArrayName="plan">
                             <tr *ngFor="let row of plan.controls; let i = index" [formGroupName]="i">
                                 <td><input class="cell" type="date" formControlName="fechaApto" /></td>
-                                <td><input class="cell" type="text" formControlName="valorApto" placeholder="$" /></td>
+                                <td><input class="cell" type="text" appCopCurrency formControlName="valorApto"
+                                        placeholder="$" /></td>
                                 <td><input class="cell" type="date" formControlName="fechaAdic" /></td>
-                                <td><input class="cell" type="text" formControlName="valorAdic" placeholder="$" /></td>
+                                <td><input class="cell" type="text" appCopCurrency formControlName="valorAdic"
+                                        placeholder="$" /></td>
                             </tr>
                         </tbody>
                     </table>

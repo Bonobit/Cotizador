@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { HttpClientModule } from '@angular/common/http';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { ClientesService } from '../../shared/services/clientes.service';
@@ -22,10 +23,10 @@ export class CotizacionPreviewPage {
   asesorNombre = '';
   asesorImg = '';
 
-  ngOnInit() {
-    this.asesorNombre = localStorage.getItem('asesor_nombre') ?? '';
-    this.asesorImg = localStorage.getItem('asesor_img') ?? '';
-  }
+  // Data for Template (restored for visibility if needed, or we rely on template accessing nothing? 
+  // Wait, template uses show360 and recorridoImg. We need those.)
+  show360 = false;
+  recorridoImg = '';
 
   private clientesService = inject(ClientesService);
   private cotizacionesService = inject(CotizacionesService);
@@ -33,15 +34,27 @@ export class CotizacionPreviewPage {
 
   constructor(private router: Router) { }
 
+  ngOnInit() {
+    this.asesorNombre = localStorage.getItem('asesor_nombre') ?? '';
+    this.asesorImg = localStorage.getItem('asesor_img') ?? '';
+
+    // Load state for 360 link
+    const form = this.state.load<any>();
+    if (form) {
+      this.show360 = !!form.link360;
+      this.recorridoImg = localStorage.getItem('proyecto_recorrido') ?? '';
+    }
+  }
+
   volver() {
     this.router.navigate(['/cotizacion-form']);
   }
 
   async generarPDF() {
-    // 1. Crear Cliente -> 2. Crear Cotización -> 3. Generar PDF
     const data = this.state.load<any>();
     if (!data) {
       console.error('No hay datos para generar cotización');
+      this._generatePDF(); // Fallback
       return;
     }
 
@@ -55,30 +68,89 @@ export class CotizacionPreviewPage {
       email: data.correo
     };
 
-    this.clientesService.createCliente(clientePayload).pipe(
+    this.clientesService.getClienteByDocumento(data.noDocumento).pipe(
+      switchMap((clientes: any[]) => {
+        if (clientes && clientes.length > 0) {
+          // Cliente ya existe
+          return of(clientes);
+        } else {
+          // Crear cliente
+          return this.clientesService.createCliente(clientePayload);
+        }
+      }),
       switchMap((clientes: any) => {
         const clienteId = clientes?.[0]?.id;
         if (!clienteId) {
           console.error('No se pudo obtener el ID del cliente');
+          alert('Error: No se pudo registrar el cliente. Verifique la consola.');
           return of(null);
         }
 
+        // Structured Payload as requested
         const cotizacionPayload = {
           cliente_id: clienteId,
           asesor_id: data.nombreEjecutivo,
           apartamento_id: null,
-          snapshot_datos: data
+          snapshot_datos: {
+            informacion_usuario: {
+              tipo_documento: data.tipoDocumento,
+              numero_documento: data.noDocumento,
+              nombres: data.nombres,
+              apellidos: data.apellidos,
+              correo: data.correo,
+              telefono: data.telefono,
+              canal: data.canal,
+              direccion: data.direccion
+            },
+            informacion_apartamento: {
+              proyecto: data.proyecto,
+              torre: data.torre,
+              apartamento: data.apartamento,
+              valor_total: data.valorTotal,
+              beneficio_valorizacion: data.beneficioValorizacion,
+              beneficio_pronta_separacion: data.beneficioProntaSeparacion,
+              valor_especial_hoy: data.valorEspecialHoy,
+              porcentaje_cuota_inicial: data.porcentajeCuotaInicial,
+              cantidad_cuotas: data.cantidadCuotas,
+              fecha_ultima_cuota: data.fechaUltimaCuota
+            },
+            informacion_adicionales: {
+              items_seleccionados: [
+                data.parqueadero ? 'Parqueadero' : null,
+                data.kitAcabados ? 'Kit de Acabados' : null,
+                data.kitDomotica ? 'Kit de domótica' : null
+              ].filter(Boolean),
+              cantidad_parqueaderos: data.cantidadParqueaderos,
+              cuotas_financiacion: data.cuotasFinanciacion,
+              valor_total_adicionales: data.valorTotalAdicionales,
+              fecha_ultima_cuota_adic: data.fechaUltimaCuotaAdic
+            },
+            informacion_cotizacion: {
+              asesor_id: data.nombreEjecutivo,
+              nombre_ejecutivo: this.asesorNombre,
+              telefono_ejecutivo: data.telefonoEjecutivo,
+              correo_ejecutivo: data.correoEjecutivo,
+              cotizacion_valida_hasta: data.cotizacionValidaHasta,
+              link_360: data.link360,
+              concepto_ciudad_viva: data.conceptoCiudadViva,
+              actividades_proyecto: data.actividadesProyecto
+            }
+          }
         };
 
         return this.cotizacionesService.crearCotizacion(cotizacionPayload);
       })
     ).subscribe({
       next: (res) => {
-        console.log('Cotización guardada exitosamente', res);
-        this._generatePDF();
+        if (res) {
+          console.log('Cotización guardada exitosamente', res);
+          this._generatePDF();
+        }
       },
       error: (err) => {
         console.error('Error en el proceso de guardado', err);
+        alert('Ocurrió un error al guardar la cotización. Revise la consola para más detalles.');
+        // Generar PDF de todos modos
         this._generatePDF();
       }
     });
@@ -127,8 +199,6 @@ export class CotizacionPreviewPage {
         if (heightLeft > 0) pdf.addPage();
       }
     }
-
     pdf.save('cotizacion.pdf');
   }
-
 }

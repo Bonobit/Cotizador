@@ -4,13 +4,13 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environments';
 
 export interface Apartamentos {
-  id: number;
+  id: string; // uuid
   proyecto_id: number;
   torre: string;
-  numero_apto: number;
+  numero_apto: string;
   area_total: number | null;
   precio_lista: number | null;
-  fecha_entrega: Date | null;
+  fecha_entrega: string | null; // date string
   estado: string;
 }
 
@@ -18,14 +18,16 @@ export interface Apartamentos {
 export class ApartamentosService {
   private baseUrl = environment.supabaseUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  getApartamentosActivos(): Observable<Apartamentos[]> {
+  getApartamentosByProyecto(proyectoId: number): Observable<Apartamentos[]> {
     const url = `${this.baseUrl}/rest/v1/apartamentos`;
 
     const params = new HttpParams()
       .set('select', 'id,proyecto_id,torre,numero_apto,area_total,precio_lista,fecha_entrega,estado')
-      .set('order', 'id.asc');
+      .set('proyecto_id', `eq.${proyectoId}`)
+      .set('estado', 'eq.DISPONIBLE')
+      .set('order', 'torre.asc,numero_apto.asc');
 
     const headers = new HttpHeaders({
       apikey: environment.supabaseAnonKey,
@@ -34,4 +36,5 @@ export class ApartamentosService {
 
     return this.http.get<Apartamentos[]>(url, { headers, params });
   }
+
 }

@@ -18,4 +18,13 @@ export class ClientesService {
 
         return this.http.post(url, payload, { headers });
     }
+
+    getClienteByDocumento(numeroDocumento: string) {
+        const url = `${this.baseUrl}/rest/v1/clientes?numero_documento=eq.${numeroDocumento}`;
+        const headers = new HttpHeaders({
+            apikey: environment.supabaseAnonKey,
+            Authorization: `Bearer ${environment.supabaseAnonKey}`,
+        });
+        return this.http.get<any[]>(url, { headers });
+    }
 }

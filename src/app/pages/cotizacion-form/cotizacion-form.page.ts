@@ -15,14 +15,17 @@ import { Router } from '@angular/router';
 import { CotizacionStateService } from '../../shared/services/cotizacion-state.service';
 import { AsesoresService, Asesor } from '../../shared/services/asesores.service';
 import { ProyectosService, Proyectos } from '../../shared/services/proyectos.service';
+import { ApartamentosService, Apartamentos } from '../../shared/services/apartamentos.service';
 import { CotizacionesService } from '../../shared/services/cotizaciones.service';
 
 
 
+import { CopCurrencyDirective } from '../../shared/directives/cop-currency.directive';
+
 @Component({
     selector: 'app-cotizacion-form-page',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule],
+    imports: [CommonModule, ReactiveFormsModule, CopCurrencyDirective],
     templateUrl: './cotizacion-form.page.html',
     styleUrls: ['./cotizacion-form.page.css'],
 })
@@ -39,6 +42,12 @@ export class CotizacionFormPage implements OnInit {
     errorAsesores = '';
     errorProyectos = '';
 
+    // Apartamentos logic
+    allApartamentos: Apartamentos[] = []; // Todos los del proyecto
+    apartamentosFiltrados: Apartamentos[] = []; // Los de la torre seleccionada
+    torres: string[] = []; // Lista de torres únicas
+    cargandoApartamentos = false;
+
     constructor(
         private fb: FormBuilder,
         private router: Router,
@@ -47,7 +56,8 @@ export class CotizacionFormPage implements OnInit {
         private state: CotizacionStateService,
         private destroyRef: DestroyRef,
         private cdr: ChangeDetectorRef,
-        private cotizacionesService: CotizacionesService
+        private cotizacionesService: CotizacionesService,
+        private apartamentosService: ApartamentosService
     ) {
         this.form = this.fb.group({
             tipoDocumento: ['', Validators.required],
@@ -74,7 +84,7 @@ export class CotizacionFormPage implements OnInit {
             torre: ['', Validators.required],
             apartamento: ['', Validators.required],
 
-            valorTotal: [null, Validators.required],
+            valorTotal: [{ value: null, disabled: true }, Validators.required],
             beneficioValorizacion: [0, Validators.required],
             beneficioProntaSeparacion: [0, Validators.required],
 
@@ -100,13 +110,13 @@ export class CotizacionFormPage implements OnInit {
 
 
             nombreEjecutivo: [null, [Validators.required]],
-            telefonoEjecutivo: ['', [
+            telefonoEjecutivo: [{ value: '', disabled: true }, [
                 Validators.required,
                 Validators.maxLength(10),
                 Validators.pattern(/^[0-9]{1,10}$/)
             ]],
 
-            correoEjecutivo: ['', [Validators.required, Validators.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/)]],
+            correoEjecutivo: [{ value: '', disabled: true }, [Validators.required, Validators.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/)]],
 
             conceptoCiudadViva: [false],
             actividadesProyecto: [false],
@@ -135,6 +145,8 @@ export class CotizacionFormPage implements OnInit {
 
         this.cargarProyectos();
         this.listenProyectosChanges();
+        this.listenTorreChanges();
+        this.listenApartamentoChanges();
         this.setupDocTypeRule();
 
         // Restaurar estado si venimos del preview
@@ -142,6 +154,38 @@ export class CotizacionFormPage implements OnInit {
         if (savedForm) {
             // valores simples
             this.form.patchValue(savedForm, { emitEvent: false });
+
+            // CRITICAL FIX: Restoration Logic
+            // If there's a selected project, we MUST load the apartments manually
+            // because patchValue with emitEvent:false won't trigger the listener
+            // that normally loads them.
+            if (savedForm.proyecto) {
+                const proyectoId = savedForm.proyecto;
+                this.cargandoApartamentos = true;
+
+                // We need to fetch the apartments to repopulate the dropdowns
+                this.apartamentosService.getApartamentosByProyecto(proyectoId).subscribe({
+                    next: (data) => {
+                        this.allApartamentos = data ?? [];
+
+                        // Rebuild towers list
+                        const t = new Set(this.allApartamentos.map(a => a.torre).filter(Boolean));
+                        this.torres = Array.from(t).sort();
+
+                        // Re-filter apartments if tower is selected
+                        if (savedForm.torre) {
+                            this.apartamentosFiltrados = this.allApartamentos.filter(a => a.torre === savedForm.torre);
+                        }
+
+                        this.cargandoApartamentos = false;
+                        this.cdr.markForCheck();
+                    },
+                    error: (err) => {
+                        console.error('Error loading apartments during restore:', err);
+                        this.cargandoApartamentos = false;
+                    }
+                });
+            }
 
             // restaurar plan (FormArray)
             if (Array.isArray(savedForm.plan)) {
@@ -181,16 +225,74 @@ export class CotizacionFormPage implements OnInit {
 
     private listenProyectosChanges() {
         this.form.get('proyecto')!.valueChanges.subscribe((id: number | null) => {
+            // Limpiar dependientes
+            this.form.patchValue({
+                torre: '',
+                apartamento: '',
+                valorTotal: null,
+                fechaUltimaCuota: ''
+            }, { emitEvent: false });
+
+            this.torres = [];
+            this.allApartamentos = [];
+            this.apartamentosFiltrados = [];
+
             const proyecto = this.proyectos.find(a => a.id === Number(id));
             if (!proyecto) return;
 
-            // Autollenar
-            this.form.patchValue({
-            }, { emitEvent: false });
-
+            // Guardar en local storage para preview
             localStorage.setItem('proyecto_nombre', proyecto.nombre ?? '');
             localStorage.setItem('proyecto_logo', proyecto.logo_url ?? '');
             localStorage.setItem('proyecto_recorrido', proyecto.link_recorrido_360 ?? '');
+
+            // Cargar apartamentos del proyecto
+            this.cargandoApartamentos = true;
+            this.apartamentosService.getApartamentosByProyecto(proyecto.id).subscribe({
+                next: (data) => {
+                    this.allApartamentos = data ?? [];
+                    // Extraer torres únicas
+                    const t = new Set(this.allApartamentos.map(a => a.torre).filter(Boolean));
+                    this.torres = Array.from(t).sort();
+                    this.cargandoApartamentos = false;
+                    this.cdr.markForCheck();
+                },
+                error: (err) => {
+                    console.error('Error cargando apartamentos', err);
+                    this.cargandoApartamentos = false;
+                }
+            });
+        });
+    }
+
+    private listenTorreChanges() {
+        this.form.get('torre')!.valueChanges.subscribe((torre: string) => {
+            this.form.patchValue({ apartamento: '', valorTotal: null }, { emitEvent: false });
+
+            if (!torre) {
+                this.apartamentosFiltrados = [];
+                return;
+            }
+
+            this.apartamentosFiltrados = this.allApartamentos.filter(a => a.torre === torre);
+            this.cdr.markForCheck();
+        });
+    }
+
+    private listenApartamentoChanges() {
+        this.form.get('apartamento')!.valueChanges.subscribe((aptoId: string) => {
+            const apto = this.allApartamentos.find(a => a.id === aptoId);
+            if (!apto) return;
+
+            const values: any = {};
+
+            if (apto.precio_lista) {
+                values.valorTotal = apto.precio_lista;
+            }
+            // Si hay fecha de entrega, podríamos usarla para fechaUltimaCuota?
+            // El usuario puede querer cambiarla, pero podríamos sugerirla.
+            // Por ahora solo valorTotal como pide la tarea principal.
+
+            this.form.patchValue(values);
         });
     }
 
@@ -259,7 +361,7 @@ export class CotizacionFormPage implements OnInit {
 
         this.state.save(this.form.getRawValue());
 
-        this.state.save(this.form.getRawValue());
+
 
         // Note: Logic for incrementing locally is removed as we rely on service/DB state
         // this.cotizacionNo += 1;
