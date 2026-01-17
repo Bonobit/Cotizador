@@ -1,8 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { ClientesService } from '../../shared/services/clientes.service';
+import { CotizacionStateService } from '../../shared/services/cotizacion-state.service';
+import { CotizacionesService } from '../../shared/services/cotizaciones.service';
+import { switchMap, of } from 'rxjs';
 
 @Component({
   selector: 'app-cotizacion-preview-page',
@@ -23,13 +27,64 @@ export class CotizacionPreviewPage {
     this.asesorImg = localStorage.getItem('asesor_img') ?? '';
   }
 
-  constructor(private router: Router) {}
+  private clientesService = inject(ClientesService);
+  private cotizacionesService = inject(CotizacionesService);
+  private state = inject(CotizacionStateService);
+
+  constructor(private router: Router) { }
 
   volver() {
     this.router.navigate(['/cotizacion-form']);
   }
 
   async generarPDF() {
+    // 1. Crear Cliente -> 2. Crear Cotización -> 3. Generar PDF
+    const data = this.state.load<any>();
+    if (!data) {
+      console.error('No hay datos para generar cotización');
+      return;
+    }
+
+    const clientePayload = {
+      tipo_documento: data.tipoDocumento,
+      numero_documento: data.noDocumento,
+      nombres: data.nombres,
+      apellidos: data.apellidos,
+      direccion: data.direccion,
+      telefono: data.telefono,
+      email: data.correo
+    };
+
+    this.clientesService.createCliente(clientePayload).pipe(
+      switchMap((clientes: any) => {
+        const clienteId = clientes?.[0]?.id;
+        if (!clienteId) {
+          console.error('No se pudo obtener el ID del cliente');
+          return of(null);
+        }
+
+        const cotizacionPayload = {
+          cliente_id: clienteId,
+          asesor_id: data.nombreEjecutivo,
+          apartamento_id: null,
+          snapshot_datos: data
+        };
+
+        return this.cotizacionesService.crearCotizacion(cotizacionPayload);
+      })
+    ).subscribe({
+      next: (res) => {
+        console.log('Cotización guardada exitosamente', res);
+        this._generatePDF();
+      },
+      error: (err) => {
+        console.error('Error en el proceso de guardado', err);
+        this._generatePDF();
+      }
+    });
+  }
+
+  private async _generatePDF() {
     const el = document.getElementById('pdf-content');
     if (!el) return;
 

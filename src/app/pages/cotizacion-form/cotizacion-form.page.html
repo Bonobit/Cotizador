@@ -2,7 +2,7 @@
     <div class="glass-bg"></div>
 
     <div class="page">
-        <div class="top-pill">COTIZACIÓN No {{cotizacionNoLabel}}</div>
+        <div class="top-pill">COTIZACIÓN No {{cotizacionNoLabel$ | async}}</div>
 
         <form class="card form-card" [formGroup]="form" (ngSubmit)="generarPlan()">
 

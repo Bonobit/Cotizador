@@ -1,4 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { map, startWith, catchError, shareReplay } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { DestroyRef } from '@angular/core';
 import {
@@ -13,6 +15,7 @@ import { Router } from '@angular/router';
 import { CotizacionStateService } from '../../shared/services/cotizacion-state.service';
 import { AsesoresService, Asesor } from '../../shared/services/asesores.service';
 import { ProyectosService, Proyectos } from '../../shared/services/proyectos.service';
+import { CotizacionesService } from '../../shared/services/cotizaciones.service';
 
 
 @Component({
@@ -24,6 +27,7 @@ import { ProyectosService, Proyectos } from '../../shared/services/proyectos.ser
 })
 
 export class CotizacionFormPage implements OnInit {
+    cotizacionNoLabel$!: Observable<string>;
     showPlan = false;
 
     form!: FormGroup;
@@ -41,7 +45,8 @@ export class CotizacionFormPage implements OnInit {
         private proyectosService: ProyectosService,
         private state: CotizacionStateService,
         private destroyRef: DestroyRef,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private cotizacionesService: CotizacionesService
     ) {
         this.form = this.fb.group({
             tipoDocumento: ['', Validators.required],
@@ -111,13 +116,19 @@ export class CotizacionFormPage implements OnInit {
             plan: this.fb.array([]),
         });
 
-        const saved = localStorage.getItem('cotizacionNo');
-        this.cotizacionNo = saved ? Number(saved) : 1;
         this.setupParqueaderoRule();
         this.setupCalculos();
     }
 
     ngOnInit() {
+        this.cotizacionNoLabel$ = this.cotizacionesService.getUltimaCotizacion().pipe(
+            map(data => {
+                const nextId = (data?.[0]?.serial_id || 0) + 1;
+                return String(nextId).padStart(4, '0');
+            }),
+            shareReplay(1)
+        );
+
         this.cargarAsesores();
         this.listenEjecutivoChanges();
 
@@ -125,7 +136,7 @@ export class CotizacionFormPage implements OnInit {
         this.listenProyectosChanges();
         this.setupDocTypeRule();
 
-        // ✅ Restaurar estado si venimos del preview
+        // Restaurar estado si venimos del preview
         const savedForm = this.state.load<any>();
         if (savedForm) {
             // valores simples
@@ -247,9 +258,11 @@ export class CotizacionFormPage implements OnInit {
 
         this.state.save(this.form.getRawValue());
 
-        this.cotizacionNo += 1;
+        this.state.save(this.form.getRawValue());
 
-        localStorage.setItem('cotizacionNo', String(this.cotizacionNo));
+        // Note: Logic for incrementing locally is removed as we rely on service/DB state
+        // this.cotizacionNo += 1;
+        // localStorage.setItem('cotizacionNo', String(this.cotizacionNo));
 
         this.router.navigate(['/preview']);
     }
@@ -259,11 +272,7 @@ export class CotizacionFormPage implements OnInit {
         return !!c && !c.disabled && c.invalid && (c.touched || c.dirty);
     }
 
-    cotizacionNo = 1;
-
-    get cotizacionNoLabel(): string {
-        return String(this.cotizacionNo).padStart(4, '0');
-    }
+    // cotizacionNo and getter removed in favor of observable
 
     private setupDocTypeRule() {
         const tipo = this.form.get('tipoDocumento')!;
