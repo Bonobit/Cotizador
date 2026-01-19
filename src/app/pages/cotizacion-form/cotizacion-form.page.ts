@@ -222,6 +222,12 @@ export class CotizacionFormPage implements OnInit {
 
     }
 
+    limpiarTodo() {
+        localStorage.clear();
+        sessionStorage.clear();
+        this.form.reset();
+        this.plan.clear();
+    }
 
     private listenProyectosChanges() {
         this.form.get('proyecto')!.valueChanges.subscribe((id: number | null) => {
@@ -268,6 +274,8 @@ export class CotizacionFormPage implements OnInit {
         this.form.get('torre')!.valueChanges.subscribe((torre: string) => {
             this.form.patchValue({ apartamento: '', valorTotal: null }, { emitEvent: false });
 
+            localStorage.setItem('torre_nombre', torre ?? '');
+
             if (!torre) {
                 this.apartamentosFiltrados = [];
                 return;
@@ -283,16 +291,20 @@ export class CotizacionFormPage implements OnInit {
             const apto = this.allApartamentos.find(a => a.id === aptoId);
             if (!apto) return;
 
-            const values: any = {};
+            const aptoLabel =
+                (apto as any).numero ??
+                (apto as any).apartamento ??
+                (apto as any).nombre ??
+                apto.id;
+
+            localStorage.setItem('apto_label', String(aptoLabel));
 
             if (apto.precio_lista) {
-                values.valorTotal = apto.precio_lista;
+                this.form.patchValue({ valorTotal: apto.precio_lista });
             }
-            // Si hay fecha de entrega, podríamos usarla para fechaUltimaCuota?
-            // El usuario puede querer cambiarla, pero podríamos sugerirla.
-            // Por ahora solo valorTotal como pide la tarea principal.
 
-            this.form.patchValue(values);
+
+
         });
     }
 
@@ -328,6 +340,8 @@ export class CotizacionFormPage implements OnInit {
 
             localStorage.setItem('asesor_nombre', asesor.nombre_completo ?? '');
             localStorage.setItem('asesor_img', asesor.link_img ?? '');
+            localStorage.setItem('asesor_telefono', asesor.telefono ?? '');
+            localStorage.setItem('asesor_email', asesor.email ?? '');
         });
     }
 
