@@ -174,9 +174,13 @@ export class CotizacionFormPage implements OnInit {
 
                         // Re-filter apartments if tower is selected
                         if (savedForm.torre) {
-                            this.apartamentosFiltrados = this.allApartamentos.filter(a => a.torre === savedForm.torre);
+                            localStorage.setItem('torre_nombre', savedForm.torre ?? '');
                         }
 
+                        if (savedForm.apartamento) {
+                            const apto = this.allApartamentos.find(a => a.id === savedForm.apartamento);
+                            if (apto) localStorage.setItem('apto_label', String(apto.numero_apto ?? ''));
+                        }
                         this.cargandoApartamentos = false;
                         this.cdr.markForCheck();
                     },
@@ -291,17 +295,12 @@ export class CotizacionFormPage implements OnInit {
             const apto = this.allApartamentos.find(a => a.id === aptoId);
             if (!apto) return;
 
-            const aptoLabel =
-                (apto as any).numero ??
-                (apto as any).apartamento ??
-                (apto as any).nombre ??
-                apto.id;
 
-            localStorage.setItem('apto_label', String(aptoLabel));
+            localStorage.setItem('apto_label', String(apto.numero_apto ?? ''));
 
-            if (apto.precio_lista) {
-                this.form.patchValue({ valorTotal: apto.precio_lista });
-            }
+            const values: any = {};
+            if (apto.precio_lista) values.valorTotal = apto.precio_lista;
+            this.form.patchValue(values);
 
 
 

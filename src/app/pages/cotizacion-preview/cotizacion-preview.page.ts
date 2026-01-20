@@ -28,6 +28,9 @@ export class CotizacionPreviewPage {
   show360 = false;
   recorridoImg = '';
 
+  torreNombre = '';
+  aptoLabel = '';
+
   private clientesService = inject(ClientesService);
   private cotizacionesService = inject(CotizacionesService);
   private state = inject(CotizacionStateService);
@@ -38,6 +41,8 @@ export class CotizacionPreviewPage {
     const data = this.state.load<any>();
     this.asesorNombre = localStorage.getItem('asesor_nombre') ?? '';
     this.asesorImg = localStorage.getItem('asesor_img') ?? '';
+    this.torreNombre = localStorage.getItem('torre_nombre') ?? '';
+    this.aptoLabel = localStorage.getItem('apto_label') ?? '';
     if (data) {
       this.asesorTelefono = this.asesorTelefono || (data.telefonoEjecutivo ?? '');
       this.asesorEmail = this.asesorEmail || (data.correoEjecutivo ?? '');
@@ -48,6 +53,14 @@ export class CotizacionPreviewPage {
     if (form) {
       this.show360 = !!form.link360;
       this.recorridoImg = localStorage.getItem('proyecto_recorrido') ?? '';
+      if (form) {
+        this.show360 = !!form.link360;
+        this.recorridoImg = localStorage.getItem('proyecto_recorrido') ?? '';
+
+        // ✅ NO usar form.apartamento (uuid). Solo usar lo guardado en localStorage.
+        this.aptoLabel = localStorage.getItem('apto_label') ?? this.aptoLabel;
+        this.torreNombre = localStorage.getItem('torre_nombre') ?? this.torreNombre;
+      }
     }
   }
 
