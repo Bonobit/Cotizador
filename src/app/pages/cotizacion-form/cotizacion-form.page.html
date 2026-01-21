@@ -101,8 +101,8 @@
                     <div class="field">
                         <label>Torre</label>
                         <select formControlName="torre">
-                            <option value="" disabled>Seleccionar</option>
-                            <option *ngIf="cargandoApartamentos" disabled>Cargando...</option>
+                            <option [ngValue]="null" disabled>Seleccionar</option>
+                            <option *ngIf="cargandoApartamentos" [ngValue]="null" disabled>Cargando...</option>
                             <option *ngFor="let t of torres" [value]="t">{{ t }}</option>
                         </select>
                         <small class="error" *ngIf="isInvalid('torre')"> {{ getErrorMessage('torre') }}</small>
@@ -111,7 +111,7 @@
                     <div class="field">
                         <label>Apartamento</label>
                         <select formControlName="apartamento">
-                            <option value="" disabled>Seleccionar</option>
+                            <option [ngValue]="null" disabled>Seleccionar</option>
                             <option *ngFor="let a of apartamentosFiltrados" [ngValue]="a.id">
                                 {{ a.numero_apto }}
                             </option>

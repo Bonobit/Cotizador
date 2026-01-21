@@ -265,7 +265,7 @@
 
   display: flex;
 
-  font-size: clamp(26px, 3.4vw, 56px);
+  font-size: clamp(48px, 3.4vw, 56px);
   font-weight: 1000;
   color: #7b1730;
   white-space: nowrap;
@@ -288,7 +288,7 @@
   color: #fff;
   padding: 0.55% 1.25%;
   border-radius: 999px;
-  font-size: clamp(1px, 2.1vw, 20px);
+  font-size: clamp(1px, 2.1%, 20px);
   font-weight: 800;
   text-transform: uppercase;
 }

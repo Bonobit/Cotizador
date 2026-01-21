@@ -50,19 +50,19 @@ export class CotizacionPreviewPage {
 
     // Load state for 360 link
     const form = this.state.load<any>();
+
     if (form) {
       this.show360 = !!form.link360;
       this.recorridoImg = localStorage.getItem('proyecto_recorrido') ?? '';
-      if (form) {
-        this.show360 = !!form.link360;
-        this.recorridoImg = localStorage.getItem('proyecto_recorrido') ?? '';
+      this.torreNombre = this.torreNombre || (form.torre ?? '');
 
-        // ✅ NO usar form.apartamento (uuid). Solo usar lo guardado en localStorage.
-        this.aptoLabel = localStorage.getItem('apto_label') ?? this.aptoLabel;
-        this.torreNombre = localStorage.getItem('torre_nombre') ?? this.torreNombre;
-      }
+      // ✅ NO usar form.apartamento (uuid). Solo usar lo guardado en localStorage.
+      this.aptoLabel = localStorage.getItem('apto_label') ?? this.aptoLabel;
+      this.torreNombre = localStorage.getItem('torre_nombre') ?? this.torreNombre;
+      if (this.torreNombre) localStorage.setItem('torre_nombre', this.torreNombre);
     }
   }
+
 
   volver() {
     this.router.navigate(['/cotizacion-form']);
