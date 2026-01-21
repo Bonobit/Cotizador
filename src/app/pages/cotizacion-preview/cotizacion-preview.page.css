@@ -186,3 +186,109 @@
   margin: 0;
   background: #fff;
 }
+.portada-wrap{
+  position: relative;
+  width: 100%;
+}
+
+.pdf-img{
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.pdf-block{
+  width: 100%;
+}
+
+.portada-wrap{
+  position: relative; /* <- esto hace que el overlay siga a la imagen */
+  width: 100%;
+}
+
+.pdf-img{
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.ov{
+  position: absolute;
+  z-index: 30;
+  pointer-events: none;
+  font-family: Arial, sans-serif;
+}
+.ov-footer{
+  position: absolute;
+  left: 0;
+  width: 100%;
+
+ 
+  top: 90.5%;
+  height: 9.5%;
+
+  z-index: 10;
+  pointer-events: none;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 7%;
+  color: #fff;
+}
+
+.ov-footer__name{ 
+  font-weight: 800; 
+  font-size: 20px; 
+  white-space: nowrap; 
+}
+.ov-footer__phone{ 
+  font-weight: 600; 
+  font-size: 16px; 
+  white-space: nowrap; 
+}
+.ov-footer__email{ 
+  font-weight: 700; 
+  font-size: 16px; 
+  white-space: nowrap; 
+}
+
+.ov-apto{
+  position: absolute;
+  z-index: 30;
+  pointer-events: none;
+
+  left: 52%;    
+  top: 63.8%;    
+  width: 16%;      /* ajusta hasta que cubra el espacio del número */
+  height: 6%; 
+
+  display: flex;
+
+  font-size: clamp(48px, 3.4vw, 56px);
+  font-weight: 1000;
+  color: #7b1730;
+  white-space: nowrap;
+}
+
+.ov-torre{
+  position: absolute;
+  z-index: 30;
+  pointer-events: none;
+  left: 10.4%;    
+  top: 67.5%;    
+  width: 16.4%;      
+  height: 1.7%;    
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #7b1730;
+  color: #fff;
+  padding: 0.55% 1.25%;
+  border-radius: 999px;
+  font-size: clamp(1px, 2.1%, 20px);
+  font-weight: 800;
+  text-transform: uppercase;
+}

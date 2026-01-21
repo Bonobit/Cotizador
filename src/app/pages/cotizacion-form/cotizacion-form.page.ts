@@ -173,9 +173,13 @@ export class CotizacionFormPage implements OnInit {
 
                         // Re-filter apartments if tower is selected
                         if (savedForm.torre) {
-                            this.apartamentosFiltrados = this.allApartamentos.filter(a => a.torre === savedForm.torre);
+                            localStorage.setItem('torre_nombre', savedForm.torre ?? '');
                         }
 
+                        if (savedForm.apartamento) {
+                            const apto = this.allApartamentos.find(a => a.id === savedForm.apartamento);
+                            if (apto) localStorage.setItem('apto_label', String(apto.numero_apto ?? ''));
+                        }
                         this.cargandoApartamentos = false;
                         this.cdr.markForCheck();
                     },
@@ -221,6 +225,12 @@ export class CotizacionFormPage implements OnInit {
 
     }
 
+    limpiarTodo() {
+        localStorage.clear();
+        sessionStorage.clear();
+        this.form.reset();
+        this.plan.clear();
+    }
 
     private listenProyectosChanges() {
         this.form.get('proyecto')!.valueChanges.subscribe((id: number | null) => {
@@ -267,6 +277,8 @@ export class CotizacionFormPage implements OnInit {
         this.form.get('torre')!.valueChanges.subscribe((torre: string) => {
             this.form.patchValue({ apartamento: '', valorTotal: null }, { emitEvent: false });
 
+            localStorage.setItem('torre_nombre', torre ?? '');
+
             if (!torre) {
                 this.apartamentosFiltrados = [];
                 return;
@@ -282,16 +294,15 @@ export class CotizacionFormPage implements OnInit {
             const apto = this.allApartamentos.find(a => a.id === aptoId);
             if (!apto) return;
 
+
+            localStorage.setItem('apto_label', String(apto.numero_apto ?? ''));
+
             const values: any = {};
-
-            if (apto.precio_lista) {
-                values.valorTotal = apto.precio_lista;
-            }
-            // Si hay fecha de entrega, podríamos usarla para fechaUltimaCuota?
-            // El usuario puede querer cambiarla, pero podríamos sugerirla.
-            // Por ahora solo valorTotal como pide la tarea principal.
-
+            if (apto.precio_lista) values.valorTotal = apto.precio_lista;
             this.form.patchValue(values);
+
+
+
         });
     }
 
@@ -327,6 +338,8 @@ export class CotizacionFormPage implements OnInit {
 
             localStorage.setItem('asesor_nombre', asesor.nombre_completo ?? '');
             localStorage.setItem('asesor_img', asesor.link_img ?? '');
+            localStorage.setItem('asesor_telefono', asesor.telefono ?? '');
+            localStorage.setItem('asesor_email', asesor.email ?? '');
         });
     }
 

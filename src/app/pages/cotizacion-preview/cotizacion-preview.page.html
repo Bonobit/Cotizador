@@ -14,19 +14,26 @@
 
     <div class="preview card">
       <div id="pdf-content" class="sheet">
+        <div class="portada-wrap">
+          <img class="pdf-img" [src]="portadaUrl" alt="portada" />
 
-        <!-- Portada -->
-        <img class="pdf-img" [src]="portadaUrl" alt="PDF">
+          <div class="asesor-layer" *ngIf="asesorImg">
+            <img class="asesor-img" [src]="asesorImg" alt="Asesor" />
 
-        <!-- Sección asesor pegada debajo -->
-        <div class="asesor-banner" *ngIf="asesorImg">
-          <img class="asesor-img" [src]="asesorImg" alt="Asesor">
-          <div class="asesor-overlay">
-            <div class="asesor-label">Asesor</div>
-            <div class="asesor-nombre">{{ asesorNombre }}</div>
+            <div class="ov ov-apto" *ngIf="aptoLabel">{{ aptoLabel }}</div>
+            <div class="ov ov-torre" *ngIf="torreNombre">{{ torreNombre }}</div>
+
+            <div class="ov-footer" *ngIf="asesorNombre || asesorTelefono || asesorEmail">
+              <div class="ov-footer__name">{{ asesorNombre }}</div>
+              <div class="ov-footer__phone">cel: {{ asesorTelefono }}</div>
+              <div class="ov-footer__email">{{ asesorEmail }}</div>
+            </div>
           </div>
         </div>
       </div>
+
+
+
     </div>
   </div>
 </div>

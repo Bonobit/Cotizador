@@ -22,11 +22,14 @@ export class CotizacionPreviewPage {
 
   asesorNombre = '';
   asesorImg = '';
+  asesorTelefono = '';
+  asesorEmail = '';
 
-  // Data for Template (restored for visibility if needed, or we rely on template accessing nothing? 
-  // Wait, template uses show360 and recorridoImg. We need those.)
   show360 = false;
   recorridoImg = '';
+
+  torreNombre = '';
+  aptoLabel = '';
 
   private clientesService = inject(ClientesService);
   private cotizacionesService = inject(CotizacionesService);
@@ -35,16 +38,31 @@ export class CotizacionPreviewPage {
   constructor(private router: Router) { }
 
   ngOnInit() {
+    const data = this.state.load<any>();
     this.asesorNombre = localStorage.getItem('asesor_nombre') ?? '';
     this.asesorImg = localStorage.getItem('asesor_img') ?? '';
+    this.torreNombre = localStorage.getItem('torre_nombre') ?? '';
+    this.aptoLabel = localStorage.getItem('apto_label') ?? '';
+    if (data) {
+      this.asesorTelefono = this.asesorTelefono || (data.telefonoEjecutivo ?? '');
+      this.asesorEmail = this.asesorEmail || (data.correoEjecutivo ?? '');
+    }
 
     // Load state for 360 link
     const form = this.state.load<any>();
+
     if (form) {
       this.show360 = !!form.link360;
       this.recorridoImg = localStorage.getItem('proyecto_recorrido') ?? '';
+      this.torreNombre = this.torreNombre || (form.torre ?? '');
+
+      // ✅ NO usar form.apartamento (uuid). Solo usar lo guardado en localStorage.
+      this.aptoLabel = localStorage.getItem('apto_label') ?? this.aptoLabel;
+      this.torreNombre = localStorage.getItem('torre_nombre') ?? this.torreNombre;
+      if (this.torreNombre) localStorage.setItem('torre_nombre', this.torreNombre);
     }
   }
+
 
   volver() {
     this.router.navigate(['/cotizacion-form']);
@@ -128,8 +146,8 @@ export class CotizacionPreviewPage {
             informacion_cotizacion: {
               asesor_id: data.nombreEjecutivo,
               nombre_ejecutivo: this.asesorNombre,
-              telefono_ejecutivo: data.telefonoEjecutivo,
-              correo_ejecutivo: data.correoEjecutivo,
+              telefono_ejecutivo: this.asesorTelefono,
+              correo_ejecutivo: this.asesorEmail,
               cotizacion_valida_hasta: data.cotizacionValidaHasta,
               link_360: data.link360,
               concepto_ciudad_viva: data.conceptoCiudadViva,
