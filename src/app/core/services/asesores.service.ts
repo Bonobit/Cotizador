@@ -1,0 +1,28 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environments';
+import { Asesor } from '@core/models/asesor.model';
+
+@Injectable({ providedIn: 'root' })
+export class AsesoresService {
+    private baseUrl = environment.supabaseUrl;
+
+    constructor(private http: HttpClient) { }
+
+    getAsesoresActivos(): Observable<Asesor[]> {
+        const url = `${this.baseUrl}/rest/v1/asesores`;
+
+        const params = new HttpParams()
+            .set('select', 'id,nombre_completo,telefono,email,activo,link_img')
+            .set('activo', 'eq.true')
+            .set('order', 'nombre_completo.asc');
+
+        const headers = new HttpHeaders({
+            apikey: environment.supabaseAnonKey,
+            Authorization: `Bearer ${environment.supabaseAnonKey}`,
+        });
+
+        return this.http.get<Asesor[]>(url, { headers, params });
+    }
+}

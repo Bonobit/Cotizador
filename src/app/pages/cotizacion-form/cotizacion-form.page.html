@@ -213,7 +213,6 @@
                         <div class="field">
                             <label>Cantidad</label>
                             <select formControlName="cantidadParqueaderos">
-                                <option value="0">0</option>
                                 <option value="1">1</option>
                                 <option value="2">2</option>
                             </select>
@@ -347,6 +346,7 @@
                     <table class="plan-table">
                         <thead>
                             <tr>
+                                <th rowspan="2" class="center">No.</th>
                                 <th colspan="2" class="center">Financiación Del Apartamento</th>
                                 <th colspan="2" class="center divider-left">Financiación De Adicionales</th>
                             </tr>
@@ -360,12 +360,15 @@
 
                         <tbody formArrayName="plan">
                             <tr *ngFor="let row of plan.controls; let i = index" [formGroupName]="i">
-                                <td><input class="cell" type="date" formControlName="fechaApto" /></td>
-                                <td><input class="cell" type="text" appCopCurrency formControlName="valorApto"
-                                        placeholder="$" /></td>
-                                <td><input class="cell" type="date" formControlName="fechaAdic" /></td>
-                                <td><input class="cell" type="text" appCopCurrency formControlName="valorAdic"
-                                        placeholder="$" /></td>
+                                <td class="center">{{ i + 1 }}</td>
+                                <td><input *ngIf="i < cantidadCuotasValue" class="cell" type="date"
+                                        formControlName="fechaApto" /></td>
+                                <td><input *ngIf="i < cantidadCuotasValue" class="cell" type="text" appCopCurrency
+                                        formControlName="valorApto" placeholder="$" /></td>
+                                <td><input *ngIf="i < cuotasAdicValue" class="cell" type="date"
+                                        formControlName="fechaAdic" /></td>
+                                <td><input *ngIf="i < cuotasAdicValue" class="cell" type="text" appCopCurrency
+                                        formControlName="valorAdic" placeholder="$" /></td>
                             </tr>
                         </tbody>
                     </table>

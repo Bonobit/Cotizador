@@ -4,9 +4,9 @@ import { Router } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { ClientesService } from '../../shared/services/clientes.service';
-import { CotizacionStateService } from '../../shared/services/cotizacion-state.service';
-import { CotizacionesService } from '../../shared/services/cotizaciones.service';
+import { ClientesService } from '@core/services/clientes.service';
+import { CotizacionStateService } from '@core/services/cotizacion-state.service';
+import { CotizacionesService } from '@core/services/cotizaciones.service';
 import { switchMap, of } from 'rxjs';
 
 @Component({
