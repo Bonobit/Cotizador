@@ -350,27 +350,44 @@
                             <tr>
                                 <th rowspan="2" class="center">No.</th>
                                 <th colspan="2" class="center">Financiación Del Apartamento</th>
-                                <th colspan="2" class="center divider-left">Financiación De Adicionales</th>
+                                <th *ngIf="cuotasAdicValue > 0" colspan="2" class="center divider-left">Financiación De
+                                    Adicionales</th>
                             </tr>
                             <tr>
                                 <th class="center">Fecha Cuota</th>
                                 <th class="center">Valor Cuota</th>
-                                <th class="center divider-left">Fecha Cuota</th>
-                                <th class="center">Valor Cuota</th>
+                                <th *ngIf="cuotasAdicValue > 0" class="center divider-left">Fecha Cuota</th>
+                                <th *ngIf="cuotasAdicValue > 0" class="center">Valor Cuota</th>
                             </tr>
                         </thead>
 
                         <tbody formArrayName="plan">
                             <tr *ngFor="let row of plan.controls; let i = index" [formGroupName]="i">
                                 <td class="center">{{ i + 1 }}</td>
-                                <td><input *ngIf="i < cantidadCuotasValue" class="cell" type="date"
-                                        formControlName="fechaApto" /></td>
-                                <td><input *ngIf="i < cantidadCuotasValue" class="cell" type="text" appCopCurrency
-                                        formControlName="valorApto" placeholder="$" /></td>
-                                <td><input *ngIf="i < cuotasAdicValue" class="cell" type="date"
-                                        formControlName="fechaAdic" /></td>
-                                <td><input *ngIf="i < cuotasAdicValue" class="cell" type="text" appCopCurrency
-                                        formControlName="valorAdic" placeholder="$" /></td>
+                                <td>
+                                    <input *ngIf="i < cantidadCuotasValue" class="cell" type="date"
+                                        formControlName="fechaApto" />
+                                    <span *ngIf="i >= cantidadCuotasValue"
+                                        class="placeholder center">-----------------------</span>
+                                </td>
+                                <td>
+                                    <input *ngIf="i < cantidadCuotasValue" class="cell" type="text" appCopCurrency
+                                        formControlName="valorApto" placeholder="$" />
+                                    <span *ngIf="i >= cantidadCuotasValue"
+                                        class="placeholder center">-----------------------</span>
+                                </td>
+                                <td *ngIf="cuotasAdicValue > 0">
+                                    <input *ngIf="i < cuotasAdicValue" class="cell" type="date"
+                                        formControlName="fechaAdic" />
+                                    <span *ngIf="i >= cuotasAdicValue"
+                                        class="placeholder center">-----------------------</span>
+                                </td>
+                                <td *ngIf="cuotasAdicValue > 0">
+                                    <input *ngIf="i < cuotasAdicValue" class="cell" type="text" appCopCurrency
+                                        formControlName="valorAdic" placeholder="$" />
+                                    <span *ngIf="i >= cuotasAdicValue"
+                                        class="placeholder center">-----------------------</span>
+                                </td>
                             </tr>
                         </tbody>
                     </table>

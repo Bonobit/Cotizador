@@ -52,8 +52,14 @@ export class CopCurrencyDirective implements ControlValueAccessor, OnInit {
             return;
         }
 
+        let val = value;
+        // Si entra un número, redondearlo para evitar decimales
+        if (typeof val === 'number') {
+            val = Math.round(val);
+        }
+
         // Limpiar para asegurar que es numero
-        const clean = String(value).replace(/[^0-9]/g, '');
+        const clean = String(val).replace(/[^0-9]/g, '');
         if (!clean) {
             this.el.nativeElement.value = '';
             return;

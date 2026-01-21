@@ -218,5 +218,10 @@ export class CotizacionPreviewPage {
       }
     }
     pdf.save('cotizacion.pdf');
+
+    // Limpiar y redirigir
+    localStorage.clear();
+    sessionStorage.clear();
+    this.router.navigate(['/cotizacion-form']);
   }
 }

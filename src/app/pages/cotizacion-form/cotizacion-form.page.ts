@@ -117,7 +117,7 @@ export class CotizacionFormPage implements OnInit {
 
             conceptoCiudadViva: [false],
             actividadesProyecto: [false],
-            link360: [false],
+            link360: [{ value: false, disabled: true }],
             cotizacionDolares: [false],
             cotizacionValidaHasta: ['', Validators.required],
 
@@ -382,6 +382,14 @@ export class CotizacionFormPage implements OnInit {
         const fechasApto = this.calcularFechas(cantidadCuotas, fechaUltima);
         const fechasAdic = this.calcularFechas(cuotasAdic, fechaUltimaAdic);
 
+        // Calcular valores monetarios
+        const valorEspecial = this.form.get('valorEspecialHoy')?.value || 0;
+        const inicial = this.form.get('valorCuotaInicial')?.value || 0;
+        const valorMensualApto = cantidadCuotas > 0 ? Math.round((valorEspecial - inicial) / cantidadCuotas) : 0;
+
+        const totalAdic = this.form.get('valorTotalAdicionales')?.value || 0;
+        const valorMensualAdic = cuotasAdic > 0 ? Math.round(totalAdic / cuotasAdic) : 0;
+
         // Usamos el máximo número de filas para cubrir ambos casos
         const totalRows = Math.max(cantidadCuotas, cuotasAdic);
 
@@ -390,10 +398,10 @@ export class CotizacionFormPage implements OnInit {
             const isAdicActive = i < cuotasAdic;
 
             this.plan.push(this.fb.group({
-                fechaApto: [{ value: isAptoActive ? (fechasApto[i] || '') : '', disabled: !isAptoActive }],
-                valorApto: [{ value: '', disabled: !isAptoActive }],
-                fechaAdic: [{ value: isAdicActive ? (fechasAdic[i] || '') : '', disabled: !isAdicActive }],
-                valorAdic: [{ value: '', disabled: !isAdicActive }],
+                fechaApto: [{ value: isAptoActive ? (fechasApto[i] || '') : '', disabled: true }],
+                valorApto: [{ value: isAptoActive ? valorMensualApto : '', disabled: true }],
+                fechaAdic: [{ value: isAdicActive ? (fechasAdic[i] || '') : '', disabled: true }],
+                valorAdic: [{ value: isAdicActive ? valorMensualAdic : '', disabled: true }],
             }));
         }
 
