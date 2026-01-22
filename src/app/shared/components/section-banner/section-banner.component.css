@@ -1,0 +1,59 @@
+.section-banner {
+  --banner-bg: #7b1f2a;   /* vino */
+  --cream: #f6f4ec;       /* crema */
+  --text: #ffffff;
+
+  position: relative;
+  background: var(--banner-bg);
+  color: var(--text);
+
+  /* “marcos” crema arriba y abajo */
+  border-top: 18px solid var(--cream);
+  border-bottom: 18px solid var(--cream);
+
+  /* alto y espaciado interno */
+  padding: 18px 24px;
+
+  /* si quieres que ocupe todo el ancho del contenedor padre */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* contenido alineado y con “margen” interno bonito */
+.section-banner__inner {
+  max-width: 980px;         /* opcional: centra el texto y no lo estira */
+  margin: 0 auto;
+}
+
+.section-banner__title {
+  margin: 0;
+  font-size: 44px;
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.section-banner__subtitle {
+  margin: 6px 0 0 0;
+  font-size: 18px;
+  opacity: 0.9;
+}
+
+/* Sombra inferior suave tipo “fade” */
+.section-banner::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 26px;
+  pointer-events: none;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.22),
+    rgba(0, 0, 0, 0.00)
+  );
+
+  filter: blur(6px);
+  opacity: 0.55;
+}

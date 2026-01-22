@@ -44,12 +44,8 @@
 
         </div>
 
-        <section class="section-banner">
-          <div class="section-banner__inner">
-            <h2 class="section-banner__title">Actividades del proyecto</h2>
-            <p class="section-banner__subtitle">+20 Actividades para disfrutar</p>
-          </div>
-        </section>
+        <app-section-banner *ngIf="showActividades" title="Actividades del proyecto" subtitle="+20 Actividades para disfrutar" variant="vino"></app-section-banner>
+
 
       </div>
     </div>

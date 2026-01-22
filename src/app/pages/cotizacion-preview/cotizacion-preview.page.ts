@@ -7,13 +7,14 @@ import jsPDF from 'jspdf';
 import { ClientesService } from '@core/services/clientes.service';
 import { CotizacionStateService } from '@core/services/cotizacion-state.service';
 import { CotizacionesService } from '@core/services/cotizaciones.service';
+import { SectionBannerComponent } from '../../shared/components/section-banner/section-banner.component';
 
 import { switchMap, of } from 'rxjs';
 
 @Component({
   selector: 'app-cotizacion-preview-page',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, SectionBannerComponent],
   templateUrl: './cotizacion-preview.page.html',
   styleUrls: ['./cotizacion-preview.page.css'],
 })
@@ -35,6 +36,7 @@ export class CotizacionPreviewPage {
   showConceptoCiudadViva = false;
   ubicacionImg = '';
   ciudadVivaImg = '';
+  showActividades = false;
 
   private clientesService = inject(ClientesService);
   private cotizacionesService = inject(CotizacionesService);
@@ -56,6 +58,7 @@ export class CotizacionPreviewPage {
     if (data) {
       this.asesorTelefono = data.telefonoEjecutivo ?? '';
       this.asesorEmail = data.correoEjecutivo ?? '';
+      this.showActividades = !!data.actividadesProyecto;
 
 
 
