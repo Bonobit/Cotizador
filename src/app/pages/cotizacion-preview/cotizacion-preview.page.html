@@ -30,10 +30,26 @@
             </div>
           </div>
         </div>
+
+
+        <div class="ciudad-viva-section" *ngIf="showConceptoCiudadViva">
+
+          <div class="cv-img-block" *ngIf="ubicacionImg">
+            <img class="cv-img" [src]="ubicacionImg" alt="Ubicación del Proyecto" />
+          </div>
+
+          <div class="cv-img-block" *ngIf="ciudadVivaImg">
+            <img class="cv-img" [src]="ciudadVivaImg" alt="Concepto Ciudad Viva" />
+          </div>
+
+        </div>
+
+        <section class="section-banner">
+          <div class="section-banner__inner">
+            <h2 class="section-banner__title">Actividades del proyecto</h2>
+            <p class="section-banner__subtitle">+20 Actividades para disfrutar</p>
+          </div>
+        </section>
+
       </div>
-
-
-
     </div>
-  </div>
-</div>

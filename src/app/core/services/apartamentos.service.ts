@@ -14,7 +14,7 @@ export class ApartamentosService {
         const url = `${this.baseUrl}/rest/v1/apartamentos`;
 
         const params = new HttpParams()
-            .set('select', 'id,proyecto_id,torre,numero_apto,area_total,precio_lista,fecha_entrega,estado')
+            .set('select', 'id,proyecto_id,torre,numero_apto,area_total,precio_lista,fecha_entrega,estado,apartamento_img,plano_img')
             .set('proyecto_id', `eq.${proyectoId}`)
             .set('estado', 'eq.DISPONIBLE')
             .set('order', 'torre.asc,numero_apto.asc');

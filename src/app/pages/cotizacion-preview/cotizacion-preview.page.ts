@@ -7,6 +7,7 @@ import jsPDF from 'jspdf';
 import { ClientesService } from '@core/services/clientes.service';
 import { CotizacionStateService } from '@core/services/cotizacion-state.service';
 import { CotizacionesService } from '@core/services/cotizaciones.service';
+
 import { switchMap, of } from 'rxjs';
 
 @Component({
@@ -31,6 +32,10 @@ export class CotizacionPreviewPage {
   torreNombre = '';
   aptoLabel = '';
 
+  showConceptoCiudadViva = false;
+  ubicacionImg = '';
+  ciudadVivaImg = '';
+
   private clientesService = inject(ClientesService);
   private cotizacionesService = inject(CotizacionesService);
   private state = inject(CotizacionStateService);
@@ -39,28 +44,54 @@ export class CotizacionPreviewPage {
 
   ngOnInit() {
     const data = this.state.load<any>();
+
+
     this.asesorNombre = localStorage.getItem('asesor_nombre') ?? '';
     this.asesorImg = localStorage.getItem('asesor_img') ?? '';
+
+
     this.torreNombre = localStorage.getItem('torre_nombre') ?? '';
     this.aptoLabel = localStorage.getItem('apto_label') ?? '';
+
     if (data) {
-      this.asesorTelefono = this.asesorTelefono || (data.telefonoEjecutivo ?? '');
-      this.asesorEmail = this.asesorEmail || (data.correoEjecutivo ?? '');
+      this.asesorTelefono = data.telefonoEjecutivo ?? '';
+      this.asesorEmail = data.correoEjecutivo ?? '';
+
+
+
+      if (!this.torreNombre && data.torre) {
+        this.torreNombre = data.torre;
+        localStorage.setItem('torre_nombre', data.torre);
+      }
+
+
+      if (!this.aptoLabel) {
+        this.aptoLabel = localStorage.getItem('apto_label') ?? '';
+      }
+
+      this.showConceptoCiudadViva = !!data?.conceptoCiudadViva;
+      if (this.showConceptoCiudadViva) {
+        this.ubicacionImg = localStorage.getItem('proyecto_ubicacion_img') ?? '';
+        this.ciudadVivaImg = localStorage.getItem('proyecto_ciudadviva_img') ?? '';
+      }
+  
+
     }
 
-    // Load state for 360 link
+
     const form = this.state.load<any>();
 
     if (form) {
       this.show360 = !!form.link360;
       this.recorridoImg = localStorage.getItem('proyecto_recorrido') ?? '';
-      this.torreNombre = this.torreNombre || (form.torre ?? '');
-
-      // ✅ NO usar form.apartamento (uuid). Solo usar lo guardado en localStorage.
-      this.aptoLabel = localStorage.getItem('apto_label') ?? this.aptoLabel;
-      this.torreNombre = localStorage.getItem('torre_nombre') ?? this.torreNombre;
-      if (this.torreNombre) localStorage.setItem('torre_nombre', this.torreNombre);
     }
+
+    console.log('Preview loaded:', {
+      torreNombre: this.torreNombre,
+      aptoLabel: this.aptoLabel,
+      asesorNombre: this.asesorNombre,
+      data: data
+    });
   }
 
 
@@ -89,10 +120,8 @@ export class CotizacionPreviewPage {
     this.clientesService.getClienteByDocumento(data.noDocumento).pipe(
       switchMap((clientes: any[]) => {
         if (clientes && clientes.length > 0) {
-          // Cliente ya existe
           return of(clientes);
         } else {
-          // Crear cliente
           return this.clientesService.createCliente(clientePayload);
         }
       }),
@@ -104,7 +133,6 @@ export class CotizacionPreviewPage {
           return of(null);
         }
 
-        // Structured Payload as requested
         const cotizacionPayload = {
           cliente_id: clienteId,
           asesor_id: data.nombreEjecutivo,
@@ -168,7 +196,6 @@ export class CotizacionPreviewPage {
       error: (err) => {
         console.error('Error en el proceso de guardado', err);
         alert('Ocurrió un error al guardar la cotización. Revise la consola para más detalles.');
-        // Generar PDF de todos modos
         this._generatePDF();
       }
     });
@@ -178,34 +205,29 @@ export class CotizacionPreviewPage {
     const el = document.getElementById('pdf-content');
     if (!el) return;
 
-    // ✅ mejora calidad (más nítido)
     const scale = 2;
 
     const canvas = await html2canvas(el, {
       scale,
-      useCORS: true,          // para imágenes de Supabase
-      backgroundColor: null,  // sin fondo extra
+      useCORS: true,
+      backgroundColor: null,
       windowWidth: el.scrollWidth,
       windowHeight: el.scrollHeight,
     });
 
     const imgData = canvas.toDataURL('image/jpeg', 1.0);
 
-    // PDF tamaño A4 en px usando jsPDF con "mm"
     const pdf = new jsPDF('p', 'mm', 'a4');
 
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
 
-    // dimensiones de la imagen en mm, ajustada para ocupar TODO el ancho
     const imgWidth = pageWidth;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-    // ✅ Si cabe en 1 página, la metemos full
     if (imgHeight <= pageHeight) {
       pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
     } else {
-      // ✅ Multi-página sin espacios blancos (corta por altura)
       let y = 0;
       let heightLeft = imgHeight;
 
@@ -219,7 +241,6 @@ export class CotizacionPreviewPage {
     }
     pdf.save('cotizacion.pdf');
 
-    // Limpiar y redirigir
     localStorage.clear();
     sessionStorage.clear();
     this.router.navigate(['/cotizacion-form']);

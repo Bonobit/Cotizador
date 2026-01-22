@@ -154,26 +154,23 @@ export class CotizacionFormPage implements OnInit {
             this.updateAdicionalesState();
             this.recalculateAll();
 
-            // CRITICAL FIX: Restoration Logic
-            // If there's a selected project, we MUST load the apartments manually
-            // because patchValue with emitEvent:false won't trigger the listener
-            // that normally loads them.
             if (savedForm.proyecto) {
                 const proyectoId = savedForm.proyecto;
                 this.cargandoApartamentos = true;
 
-                // We need to fetch the apartments to repopulate the dropdowns
                 this.apartamentosService.getApartamentosByProyecto(proyectoId).subscribe({
                     next: (data) => {
                         this.allApartamentos = data ?? [];
 
-                        // Rebuild towers list
                         const t = new Set(this.allApartamentos.map(a => a.torre).filter(Boolean));
                         this.torres = Array.from(t).sort();
 
-                        // Re-filter apartments if tower is selected
                         if (savedForm.torre) {
-                            localStorage.setItem('torre_nombre', savedForm.torre ?? '');
+                            localStorage.setItem('torre_nombre', savedForm.torre);
+                            
+                            this.apartamentosFiltrados = this.allApartamentos.filter(
+                                a => a.torre === savedForm.torre
+                            );
                         }
 
                         if (savedForm.apartamento) {
@@ -190,7 +187,6 @@ export class CotizacionFormPage implements OnInit {
                 });
             }
 
-            // restaurar plan (FormArray)
             if (Array.isArray(savedForm.plan)) {
                 this.plan.clear();
                 for (const row of savedForm.plan) {
@@ -254,6 +250,10 @@ export class CotizacionFormPage implements OnInit {
             localStorage.setItem('proyecto_logo', proyecto.logo_url ?? '');
             localStorage.setItem('proyecto_recorrido', proyecto.link_recorrido_360 ?? '');
 
+            localStorage.setItem('proyecto_ubicacion_img', proyecto.ubicacion_img ?? '');
+            localStorage.setItem('proyecto_ciudadviva_img', proyecto.ciudadviva_img ?? '');
+
+            
             // Cargar apartamentos del proyecto
             this.cargandoApartamentos = true;
             this.apartamentosService.getApartamentosByProyecto(proyecto.id).subscribe({
@@ -419,20 +419,13 @@ export class CotizacionFormPage implements OnInit {
         const day = parseInt(parts[2], 10);
 
         for (let i = 0; i < cantidad; i++) {
-            // Calculamos hacia atrás desde la última cuota
-            // La fila i corresponde a (cantidad - 1 - i) meses antes de la última
             const monthsToSubtract = cantidad - 1 - i;
-
-            // new Date maneja meses negativos correctamente (ej: mes -1 es dic del año anterior)
             const d = new Date(year, month - monthsToSubtract, 1);
-
-            // Ajustar el día al final del mes si es necesario (ej: 31 feb -> 28 feb)
             const maxDays = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
             const finalDay = Math.min(day, maxDays);
 
             d.setDate(finalDay);
 
-            // Formatear a YYYY-MM-DD para el input type="date"
             const y = d.getFullYear();
             const m = String(d.getMonth() + 1).padStart(2, '0');
             const da = String(d.getDate()).padStart(2, '0');

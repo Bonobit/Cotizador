@@ -14,7 +14,7 @@ export class ProyectosService {
         const url = `${this.baseUrl}/rest/v1/proyectos`;
 
         const params = new HttpParams()
-            .set('select', 'id,nombre,logo_url,link_recorrido_360')
+            .set('select', 'id,nombre,logo_url,link_recorrido_360,ubicacion_img,ciudadviva_img')
             .set('order', 'id.asc');
 
         const headers = new HttpHeaders({

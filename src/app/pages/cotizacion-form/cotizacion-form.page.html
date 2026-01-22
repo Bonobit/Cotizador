@@ -336,7 +336,6 @@
             </div>
         </form>
 
-        <!-- TABLA (Imagen 3) -->
         <div class="card table-card" *ngIf="showPlan" [formGroup]="form">
 
             <div class="section-title"></div>
@@ -350,8 +349,7 @@
                             <tr>
                                 <th rowspan="2" class="center">No.</th>
                                 <th colspan="2" class="center">Financiación Del Apartamento</th>
-                                <th *ngIf="cuotasAdicValue > 0" colspan="2" class="center divider-left">Financiación De
-                                    Adicionales</th>
+                                <th *ngIf="cuotasAdicValue> 0" colspan="2" class="center divider-left">Financiación De Adicionales</th>
                             </tr>
                             <tr>
                                 <th class="center">Fecha Cuota</th>
