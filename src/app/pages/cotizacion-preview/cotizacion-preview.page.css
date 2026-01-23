@@ -375,3 +375,6 @@
 .plano-meta strong {
   color: rgba(0, 0, 0, 0.85);
 }
+.section-banner.no-fade::after{
+  display: none;
+}

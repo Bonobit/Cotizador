@@ -8,13 +8,14 @@ import { ClientesService } from '@core/services/clientes.service';
 import { CotizacionStateService } from '@core/services/cotizacion-state.service';
 import { CotizacionesService } from '@core/services/cotizaciones.service';
 import { SectionBannerComponent } from '../../shared/components/section/section-actividades.components';
+import { FooterAprobacionComponent } from '@shared/components/footer-aprobacion/footer-aprobacion.components';
 
 import { switchMap, of } from 'rxjs';
 
 @Component({
   selector: 'app-cotizacion-preview-page',
   standalone: true,
-  imports: [CommonModule, SectionBannerComponent],
+  imports: [CommonModule,SectionBannerComponent,FooterAprobacionComponent],
   templateUrl: './cotizacion-preview.page.html',
   styleUrls: ['./cotizacion-preview.page.css'],
 })

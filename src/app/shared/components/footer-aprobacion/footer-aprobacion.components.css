@@ -1,0 +1,93 @@
+.footer-ap{
+  position: relative;
+  width: 100%;
+  background: #0000;
+  background-color: #f6f4ec;
+  
+}
+
+/* Imagen base */
+.footer-ap__bg{
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Texto encima (la caja roja que marcaste) */
+.footer-ap__overlay{
+  position: absolute;
+  left: 60px;         /* ✅ ubicación como el PDF */
+  top: 30px;          /* ✅ baja un poco para que cuadre */
+  width: 520px;       /* ✅ ancho fijo para que no cambie con pantalla */
+  z-index: 2;
+
+  color: rgba(0,0,0,.72);
+  font-family: Arial, Helvetica, sans-serif; /* similar al render del PDF */
+  
+}
+
+/* Título "Aprobación." grande gris */
+.footer-ap__overlay h2{
+  margin: 0 0 10px;
+  font-size: 44px;       /* ✅ grande como el PDF */
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: rgba(0,0,0,.65);
+  line-height: 1.05;
+}
+
+/* Párrafos del cuerpo */
+.footer-ap__overlay p{
+  margin: 0 0 14px;
+  font-size: 15px;       /* ✅ tamaño PDF */
+  line-height: 1.45;
+  color: rgba(0,0,0,.62);
+}
+
+/* “Una vez…” con un poquito más de separación arriba */
+.footer-ap__list-title{
+  margin-top: 18px;
+  margin-bottom: 10px;
+  color: rgba(0,0,0,.62);
+}
+
+/* Lista 1-4 más marcada */
+.footer-ap__list{
+  margin: 0 0 18px 22px;
+  padding: 0;
+  font-size: 16px;
+  line-height: 1.3;
+  color: rgba(0,0,0,.70);
+}
+
+.footer-ap__list li{
+  margin: 4px 0;
+}
+
+.footer-ap__list li strong{
+  font-weight: 800;
+}
+
+/* Botón grande, centrado visualmente y con sombra */
+.footer-ap__btn{
+  margin-top: 8px;
+  background: #7b1f2a;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 22px;
+  font-size: 16px;
+  font-weight: 800;
+  font-style: italic;        /* ✅ en el PDF se ve itálico */
+  cursor: pointer;
+
+  box-shadow: 0 6px 14px rgba(0,0,0,.18);
+}
+.section-block{
+  background:#fff;
+  padding: 0 22px;
+  box-sizing: border-box;
+
+  border-radius: 16px;   /* ✅ card redondeada */
+  overflow: hidden;      /* ✅ recorta lo que se salga (footer incluido) */
+}
