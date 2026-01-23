@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environments';
 import { Apartamentos } from '@core/models/apartamento.model';
+import { catchError } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class ApartamentosService {
@@ -26,4 +27,26 @@ export class ApartamentosService {
 
         return this.http.get<Apartamentos[]>(url, { headers, params });
     }
+
+    getApartamentoById(aptoId: string): Observable<Apartamentos> {
+        const url = `${this.baseUrl}/rest/v1/apartamentos`;
+
+        const params = new HttpParams()
+            .set(
+                'select',
+                'id,proyecto_id,torre,numero_apto,area_total,precio_lista,fecha_entrega,estado,apartamento_img,plano_img'
+            )
+            .set('id', `eq.${aptoId}`)
+            .set('limit', '1');
+
+        const headers = new HttpHeaders({
+            apikey: environment.supabaseAnonKey,
+            Authorization: `Bearer ${environment.supabaseAnonKey}`,
+            // 👇 Esto hace que PostgREST te devuelva UN objeto, no un array
+            Accept: 'application/vnd.pgrst.object+json',
+        });
+
+        return this.http.get<Apartamentos>(url, { headers, params });
+    }
 }
+

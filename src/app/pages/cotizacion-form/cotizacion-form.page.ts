@@ -80,6 +80,7 @@ export class CotizacionFormPage implements OnInit {
             // Apartamento
             proyecto: [null, Validators.required],
             torre: ['', Validators.required],
+            apartamento_id: [null],
             apartamento: ['', Validators.required],
 
             valorTotal: [{ value: null, disabled: true }, Validators.required],
@@ -167,7 +168,7 @@ export class CotizacionFormPage implements OnInit {
 
                         if (savedForm.torre) {
                             localStorage.setItem('torre_nombre', savedForm.torre);
-                            
+
                             this.apartamentosFiltrados = this.allApartamentos.filter(
                                 a => a.torre === savedForm.torre
                             );
@@ -198,9 +199,12 @@ export class CotizacionFormPage implements OnInit {
                     }));
                 }
             }
-        }
-    }
 
+
+        }
+
+        
+    }
     private cargarProyectos() {
         this.cargandoProyectos = true;
         this.errorProyectos = '';
@@ -232,6 +236,7 @@ export class CotizacionFormPage implements OnInit {
         this.form.get('proyecto')!.valueChanges.subscribe((id: number | null) => {
             // Limpiar dependientes
             this.form.patchValue({
+
                 torre: '',
                 apartamento: '',
                 valorTotal: null,
@@ -253,7 +258,7 @@ export class CotizacionFormPage implements OnInit {
             localStorage.setItem('proyecto_ubicacion_img', proyecto.ubicacion_img ?? '');
             localStorage.setItem('proyecto_ciudadviva_img', proyecto.ciudadviva_img ?? '');
 
-            
+
             // Cargar apartamentos del proyecto
             this.cargandoApartamentos = true;
             this.apartamentosService.getApartamentosByProyecto(proyecto.id).subscribe({
@@ -294,15 +299,16 @@ export class CotizacionFormPage implements OnInit {
             const apto = this.allApartamentos.find(a => a.id === aptoId);
             if (!apto) return;
 
-
+            // ✅ label
             localStorage.setItem('apto_label', String(apto.numero_apto ?? ''));
+
+            localStorage.setItem('apto_img', apto.apartamento_img ?? '');
+            localStorage.setItem('apto_plano_img', apto.plano_img ?? '');
+            localStorage.setItem('apto_area_total', String(apto.area_total ?? ''));
 
             const values: any = {};
             if (apto.precio_lista) values.valorTotal = apto.precio_lista;
             this.form.patchValue(values);
-
-
-
         });
     }
 

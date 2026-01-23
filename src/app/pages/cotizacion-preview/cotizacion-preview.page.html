@@ -43,9 +43,47 @@
           </div>
 
         </div>
+        <div class="section-block"><app-section-banner *ngIf="showActividades" title="Actividades del proyecto"
+            subtitle="+20 Actividades para disfrutar" variant="vino"
+            imageUrl="assets/actividades/actividades.png"></app-section-banner></div>
 
-        <app-section-banner *ngIf="showActividades" title="Actividades del proyecto" subtitle="+20 Actividades para disfrutar" variant="vino"></app-section-banner>
 
+        <div class="apto-section" *ngIf="apartamentoImg">
+          <app-section-banner [title]="'Tu apartamento ' + (aptoLabel || '')"
+            subtitle="Te invitamos a que conozcas tu apartamento" variant="vino"></app-section-banner>
+
+          <div class="apto-img-block">
+            <img class="apto-img" [src]="apartamentoImg" alt="Imagen del apartamento" />
+          </div>
+        </div>
+
+        <!-- ✅ SECCIÓN: Plano arquitectónico (SIEMPRE) -->
+        <div class="apto-section" *ngIf="planoImg">
+          <div class="section-block"> <app-section-banner title="Plano arquitectónico"
+              [subtitle]="'Apartamento - ' + (aptoLabel || '')" variant="vino"></app-section-banner></div>
+
+
+          <div class="plano-meta" *ngIf="areaTotal">
+            <span>Área Construida:</span>
+            <strong>{{ areaTotal }} m2</strong>
+          </div>
+
+          <div class="apto-img-block">
+            <img class="apto-img" [src]="planoImg" alt="Plano del apartamento" />
+          </div>
+        </div>
+
+        <div class="section-block">
+          <app-section-banner title="Costo de tu inversión" variant="vino">
+          </app-section-banner>
+
+          <!-- TODO tu contenido COP aquí -->
+          <div class="costo-box">
+            <!-- tabla / filas / totales / vigencia -->
+          </div>
+        </div>
+
+        
 
       </div>
     </div>

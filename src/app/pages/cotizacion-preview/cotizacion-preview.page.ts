@@ -7,7 +7,7 @@ import jsPDF from 'jspdf';
 import { ClientesService } from '@core/services/clientes.service';
 import { CotizacionStateService } from '@core/services/cotizacion-state.service';
 import { CotizacionesService } from '@core/services/cotizaciones.service';
-import { SectionBannerComponent } from '../../shared/components/section-banner/section-banner.component';
+import { SectionBannerComponent } from '../../shared/components/section/section-actividades.components';
 
 import { switchMap, of } from 'rxjs';
 
@@ -38,6 +38,11 @@ export class CotizacionPreviewPage {
   ciudadVivaImg = '';
   showActividades = false;
 
+  apartamentoImg = '';
+  planoImg = '';
+  areaTotal: number | null = null;
+  showCotizacionDolares = false;
+
   private clientesService = inject(ClientesService);
   private cotizacionesService = inject(CotizacionesService);
   private state = inject(CotizacionStateService);
@@ -54,12 +59,16 @@ export class CotizacionPreviewPage {
 
     this.torreNombre = localStorage.getItem('torre_nombre') ?? '';
     this.aptoLabel = localStorage.getItem('apto_label') ?? '';
+    this.apartamentoImg = localStorage.getItem('apto_img') ?? '';
+    this.planoImg = localStorage.getItem('apto_plano_img') ?? '';
 
+    const a = localStorage.getItem('apto_area_total');
+    this.areaTotal = a ? Number(a) : null;
     if (data) {
       this.asesorTelefono = data.telefonoEjecutivo ?? '';
       this.asesorEmail = data.correoEjecutivo ?? '';
       this.showActividades = !!data.actividadesProyecto;
-
+      this.showCotizacionDolares = !!data.cotizacionDolares;
 
 
       if (!this.torreNombre && data.torre) {
@@ -77,7 +86,7 @@ export class CotizacionPreviewPage {
         this.ubicacionImg = localStorage.getItem('proyecto_ubicacion_img') ?? '';
         this.ciudadVivaImg = localStorage.getItem('proyecto_ciudadviva_img') ?? '';
       }
-  
+
 
     }
 

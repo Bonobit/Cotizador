@@ -8,8 +8,8 @@
   color: var(--text);
 
   /* “marcos” crema arriba y abajo */
-  border-top: 18px solid var(--cream);
-  border-bottom: 18px solid var(--cream);
+  border-top: 16px solid var(--cream);
+  border-bottom: 16px solid var(--cream);
 
   /* alto y espaciado interno */
   padding: 18px 24px;
@@ -21,15 +21,14 @@
 
 /* contenido alineado y con “margen” interno bonito */
 .section-banner__inner {
-  max-width: 980px;         /* opcional: centra el texto y no lo estira */
-  margin: 0 auto;
+  width: 100%;
 }
 
 .section-banner__title {
   margin: 0;
   font-size: 44px;
-  font-weight: 800;
-  line-height: 1.05;
+  font-weight: 550;
+  line-height: 0.7;
 }
 
 .section-banner__subtitle {
@@ -56,4 +55,16 @@
 
   filter: blur(6px);
   opacity: 0.55;
+}
+
+.actividades-img{
+  width: 100%;
+  display: block;
+  border-radius: 16px;
+}
+
+.section-block {
+  background: #fff;
+  padding: 0 22px;   /* este es el “aire” blanco a los lados */
+  box-sizing: border-box;
 }

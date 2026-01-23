@@ -14,12 +14,15 @@ type BannerVariant = 'vino' | 'azul' | 'negro';
         <p class="section-banner__subtitle" *ngIf="subtitle">{{ subtitle }}</p>
       </div>
     </section>
+    <img *ngIf="show && imageUrl" class="actividades-img" [src]="imageUrl" alt="" />
   `,
-  styleUrls: ['./section-banner.component.css'],
+  styleUrls: ['./section-components.css'],
 })
 export class SectionBannerComponent {
   @Input() show = true;
   @Input() title = '';
   @Input() subtitle?: string;
   @Input() variant: BannerVariant = 'vino';
+  @Input() imageUrl?: string;
+
 }
