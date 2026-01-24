@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -8,4 +8,6 @@ import { CommonModule } from '@angular/common';
   templateUrl: './footer-aprobacion.components.html',
   styleUrls: ['./footer-aprobacion.components.css'],
 })
-export class FooterAprobacionComponent {}
+export class FooterAprobacionComponent {
+  @Input() nombre: string = '';
+}

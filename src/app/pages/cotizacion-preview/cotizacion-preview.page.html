@@ -35,7 +35,20 @@
 
         <div class="ciudad-viva-section" *ngIf="showConceptoCiudadViva">
 
-          <div class="cv-img-block" *ngIf="ubicacionImg">
+          <div class="cv-img-block relative-container" *ngIf="ubicacionImg">
+            <!-- New Description Block Overlay -->
+            <div class="cv-description-card overlay">
+              <div class="cv-text">
+                El proyecto está ubicado dentro de <strong>ciudad viva</strong>, que nace del concepto de
+                <strong>"ciudades dentro de ciudades"</strong>, donde buscamos que cada persona tenga todo lo que
+                necesita
+                a tan solo <strong>5 minutos de su vivienda</strong>: servicios, entretenimiento, centros comerciales y
+                vías de acceso principales, promoviendo el bienestar integral y el ahorro de tiempo.
+              </div>
+              <div class="cv-logo-placeholder">
+                <img src="assets/logos/ciudadviva.png" alt="Ciudad Viva" />
+              </div>
+            </div>
             <img class="cv-img" [src]="ubicacionImg" alt="Ubicación del Proyecto" />
           </div>
 
@@ -53,8 +66,50 @@
           <app-section-banner [title]="'Tu apartamento ' + (aptoLabel || '')"
             subtitle="Te invitamos a que conozcas tu apartamento" variant="vino"></app-section-banner>
 
-          <div class="apto-img-block">
+          <div class="apto-img-block relative-container">
             <img class="apto-img" [src]="apartamentoImg" alt="Imagen del apartamento" />
+
+            <div class="tower-panel overlay">
+              <div class="tower-block">
+                <div class="tower-header">TORRE 1</div>
+                <div class="tower-list">
+                  <span>Sección 1</span><span>Sección 5</span>
+                  <span>Sección 2</span><span>Sección 6</span>
+                  <span>Sección 3</span><span>Sección 7</span>
+                  <span>Sección 4</span><span>Sección 8</span>
+                </div>
+              </div>
+
+              <div class="tower-block">
+                <div class="tower-header red">TORRE 2</div>
+                <div class="tower-list">
+                  <span>Sección 9</span><span>Sección 13</span>
+                  <span>Sección 10</span><span>Sección 14</span>
+                  <span>Sección 11</span><span>Sección 15</span>
+                  <span>Sección 12</span><span class="active">Sección 16</span>
+                </div>
+              </div>
+
+              <div class="tower-block">
+                <div class="tower-header">TORRE 3</div>
+                <div class="tower-list">
+                  <span>Sección 16</span><span>Sección 20</span>
+                  <span>Sección 17</span><span>Sección 21</span>
+                  <span>Sección 18</span><span>Sección 22</span>
+                  <span>Sección 19</span><span>Sección 23</span>
+                </div>
+              </div>
+
+              <div class="tower-block">
+                <div class="tower-header">TORRE 4</div>
+                <div class="tower-list">
+                  <span>Sección 24</span><span>Sección 29</span>
+                  <span>Sección 25</span><span>Sección 30</span>
+                  <span>Sección 26</span><span>Sección 31</span>
+                  <span>Sección 27</span><span>Sección 32</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -72,21 +127,172 @@
           <div class="apto-img-block">
             <img class="apto-img" [src]="planoImg" alt="Plano del apartamento" />
           </div>
+
+          <div class="plano-description">
+            <p>
+              El proyecto cuenta con una distribución funcional que incluye sala, comedor, cocina, zona de ropas y dos
+              habitaciones. La tercera habitación es opcional, permitiendo al cliente decidir si desea agregarla según
+              sus necesidades o preferencias.
+            </p>
+            <div class="cta-text">
+              CONFÍRMALE AL LÍDER DEL PROYECTO, ¿CUÁL ELIGES?
+            </div>
+          </div>
         </div>
 
         <div class="section-block">
           <app-section-banner title="Costo de tu inversión" variant="vino"></app-section-banner>
 
-          <!-- TODO tu contenido COP aquí -->
-          <div class="costo-box">
-            <!-- tabla / filas / totales / vigencia -->
+          <div class="content-pad">
+            <!-- INFO + APTO -->
+            <div class="invoice-info">
+              <!-- Si hay factura real usar {{ data.noFactura }} -->
+              <span>N° de factura: {{ data.noDocumento || '01234' }}</span>
+              <span>Fecha de creación: {{ currDate | date:'dd/MM/yyyy' }}</span>
+            </div>
+
+            <div class="apto-title">
+              {{ data.torre || 'Torre' }}
+              Apartamento {{ aptoLabel }}
+            </div>
+
+            <!-- TABLA PRINCIPAL COP -->
+            <div class="table-wrapper">
+              <table class="costo-table">
+                <thead>
+                  <tr>
+                    <th>CONCEPTO</th>
+                    <th>VALOR</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="total-row">
+                    <td>VALOR DEL APARTAMENTO</td>
+                    <td>{{ (data.valorTotal || 350000000) | currency:'USD':'symbol':'1.0-0' }} COP</td>
+                  </tr>
+                  <tr>
+                    <td>BENEFICIO DEL PROGRAMA</td>
+                    <td>{{ (data.beneficioValorizacion || 25000000) | currency:'USD':'symbol':'1.0-0' }} COP</td>
+                  </tr>
+                  <tr>
+                    <td>SEPARACIÓN</td>
+                    <td>{{ (data.beneficioProntaSeparacion || 5000000) | currency:'USD':'symbol':'1.0-0' }} COP</td>
+                  </tr>
+                  <tr>
+                    <td>VALOR CUOTA INICIAL {{ data.porcentajeCuotaInicial || 30 }}%</td>
+                    <td>{{ (data.valorCuotaInicial || 105000000) | currency:'USD':'symbol':'1.0-0' }} COP</td>
+                  </tr>
+                  <tr>
+                    <td>VALOR CUOTA DEL MES</td>
+                    <!-- Si no existe campo específico, poner 0 o calcular -->
+                    <td>{{ (data.valorCuotaMensualReal || 2500000) | currency:'USD':'symbol':'1.0-0' }} COP</td>
+                  </tr>
+                  <tr>
+                    <td>VALOR CUOTA CON LINEA DE PRODUCTO</td>
+                    <td>{{ (data.valorCuotaLineaProducto || 1500000) | currency:'USD':'symbol':'1.0-0' }} COP</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- VIGENCIA -->
+            <!-- VIGENCIA -->
+            <div class="vigencia-badge">
+              Esta cotización tiene vigencia {{ (data.cotizacionValidaHasta || currDate) | date:'dd / MM / yy' }}
+            </div>
+
+            <!-- MONEDA EXTRANJERA (Solo si aplica) -->
+            <div *ngIf="showCotizacionDolares">
+              <div class="section-title">Cotización Moneda extranjera</div>
+              <div class="section-subtitle">Dólar</div>
+
+              <div class="financing-header" style="display: flex; justify-content: space-between;">
+                <span>APARTAMENTO</span>
+                <span>VALOR (DÓLAR)</span>
+              </div>
+              <div class="financing-body">
+                <div class="financing-row">
+                  <span>VALOR DE LA INVERSIÓN</span>
+                  <span>{{ (data.valorInversionDolares || 85000) | currency:'USD':'symbol':'1.0-0' }}</span>
+                </div>
+                <div class="financing-row">
+                  <span>CUOTA DE SEPARACIÓN</span>
+                  <span>{{ (data.cuotaSeparacionDolares || 1200) | currency:'USD':'symbol':'1.0-0' }}</span>
+                </div>
+                <div class="financing-row">
+                  <span>VALOR CUOTA INICIAL</span>
+                  <span>{{ (data.valorCuotaInicialDolares || 25000) | currency:'USD':'symbol':'1.0-0' }}</span>
+                </div>
+                <div class="financing-row">
+                  <span>VALOR FINAL</span>
+                  <span>{{ (data.valorFinalDolares || 58800) | currency:'USD':'symbol':'1.0-0' }}</span>
+                </div>
+                <div class="financing-row">
+                  <span>VALOR CUOTA MENSUAL</span>
+                  <span>{{ (data.valorCuotaMensualDolares || 650) | currency:'USD':'symbol':'1.0-0' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- FINANCIACION BANCARIA -->
+            <div class="financing-header">FINANCIACIÓN BANCARIA</div>
+            <div class="financing-body">
+              <div class="financing-row highlight">
+                <span>VALOR</span>
+                <span class="val">{{ (data.valorFinanciacion || 245000000) | currency:'USD':'symbol':'1.0-0' }}
+                  COP</span>
+              </div>
+              <div class="financing-row">
+                <span>TASA DE INTERES ANUAL</span>
+                <span class="val">{{ data.tasaInteresAnual || '12.5' }} %</span>
+              </div>
+              <div class="financing-row">
+                <span>AÑOS DE FINANCIAMIENTO</span>
+                <span class="val">{{ data.anosFinanciamiento || '20' }}</span>
+              </div>
+              <div class="financing-row highlight">
+                <span>CUOTA BANCARIA ESTIMADA</span>
+                <span class="val">{{ (data.cuotaBancariaEstimada || 2800000) | currency:'USD':'symbol':'1.0-0' }}
+                  COP</span>
+              </div>
+            </div>
+
+            <!-- VALORIZACION Y RENTABILIDAD -->
+            <div class="financing-header">VALORIZACIÓN Y RENTABILIDAD</div>
+            <div class="financing-body">
+              <div class="financing-row">
+                <span>VALORIZACIÓN METRO CUADRADO</span>
+                <span class="val">{{ (data.valorizacionM2 || 8500000) | currency:'USD':'symbol':'1.0-0' }} COP</span>
+              </div>
+              <div class="financing-row">
+                <span>VALORIZACIÓN A ENTREGA (14%)</span>
+                <span class="val">{{ (data.valorizacionEntrega || 42000000) | currency:'USD':'symbol':'1.0-0' }}
+                  COP</span>
+              </div>
+              <div class="financing-row">
+                <span>TIR (%)</span>
+                <span class="val">{{ data.tir || '18.5' }}%</span>
+              </div>
+              <div class="financing-row">
+                <span>ASESORÍA EN INVERSIÓN</span>
+                <span class="val">$ 0</span>
+              </div>
+              <div class="financing-row highlight">
+                <span>RETORNO</span>
+                <span class="val">{{ (data.retorno || 156000000) | currency:'USD':'symbol':'1.0-0' }}</span>
+              </div>
+            </div>
+
+            <!-- APROBACION -->
+
+
           </div>
         </div>
 
 
-        
+
       </div>
 
-      <app-footer-aprobacion></app-footer-aprobacion>
-   
+      <app-footer-aprobacion [nombre]="(data.nombres || '') + ' ' + (data.apellidos || '')"></app-footer-aprobacion>
+
     </div>

@@ -15,7 +15,7 @@ import { switchMap, of } from 'rxjs';
 @Component({
   selector: 'app-cotizacion-preview-page',
   standalone: true,
-  imports: [CommonModule,SectionBannerComponent,FooterAprobacionComponent],
+  imports: [CommonModule, SectionBannerComponent, FooterAprobacionComponent],
   templateUrl: './cotizacion-preview.page.html',
   styleUrls: ['./cotizacion-preview.page.css'],
 })
@@ -44,6 +44,9 @@ export class CotizacionPreviewPage {
   areaTotal: number | null = null;
   showCotizacionDolares = false;
 
+  data: any = {};
+  currDate = new Date();
+
   private clientesService = inject(ClientesService);
   private cotizacionesService = inject(CotizacionesService);
   private state = inject(CotizacionStateService);
@@ -52,6 +55,14 @@ export class CotizacionPreviewPage {
 
   ngOnInit() {
     const data = this.state.load<any>();
+    this.data = data || {};
+
+    // Extraer valor cuota mensual del plan
+    if (this.data.plan && Array.isArray(this.data.plan) && this.data.plan.length > 0) {
+      // Tomamos el primer valor de cuota de apartamento que encuentre
+      const firstRow = this.data.plan[0];
+      this.data.valorCuotaMensualReal = firstRow.valorApto || 0;
+    }
 
 
     this.asesorNombre = localStorage.getItem('asesor_nombre') ?? '';

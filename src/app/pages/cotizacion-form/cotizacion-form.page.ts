@@ -203,7 +203,7 @@ export class CotizacionFormPage implements OnInit {
 
         }
 
-        
+
     }
     private cargarProyectos() {
         this.cargandoProyectos = true;
@@ -213,6 +213,14 @@ export class CotizacionFormPage implements OnInit {
             next: (data) => {
                 this.proyectos = data ?? [];
                 this.cargandoProyectos = false;
+
+                // Preseleccionar Nogales y bloquear
+                const nogales = this.proyectos.find(p => p.nombre?.toLowerCase().includes('nogales'));
+                if (nogales) {
+                    this.form.patchValue({ proyecto: nogales.id });
+                    this.form.get('proyecto')?.disable();
+                }
+
                 this.cdr.markForCheck();
             },
             error: (err) => {
