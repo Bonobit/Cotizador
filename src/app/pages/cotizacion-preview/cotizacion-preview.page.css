@@ -98,7 +98,8 @@
   border-radius: 18px;
   overflow: hidden;
   box-shadow: 0 10px 24px rgba(0, 0, 0, .10);
-  overflow: visible; /* <-- importante */
+  overflow: visible;
+  /* <-- importante */
 }
 
 
@@ -110,13 +111,18 @@
   object-fit: cover;
   object-position: center;
 }
-.portada-logo{
+
+.portada-logo {
   position: absolute;
-  left: 0;     /* 👈 mueve izq/der */
-  top: 1060px;     /* 👈 mueve arriba/abajo */
-  width: 420px;   /* 👈 tamaño */
+  left: 0;
+  /* 👈 mueve izq/der */
+  top: 1060px;
+  /* 👈 mueve arriba/abajo */
+  width: 420px;
+  /* 👈 tamaño */
   height: auto;
-  z-index: 5;     /* por encima de la imagen */
+  z-index: 5;
+  /* por encima de la imagen */
   opacity: .9;
 }
 
@@ -174,7 +180,7 @@
 
 
 
-.portada-wrap{
+.portada-wrap {
 
   position: relative;
   width: 100%;
@@ -253,10 +259,10 @@
 
 
 
-  left: 51.4%;  
-  top: 63.9%;    
-  width: auto;   
-  height: 6%; 
+  left: 51.4%;
+  top: 63.9%;
+  width: auto;
+  height: 6%;
 
 
   display: flex;
@@ -268,7 +274,7 @@
   color: #8C1D2D;
   white-space: nowrap;
   line-height: 1;
-  
+
 }
 
 
@@ -278,12 +284,12 @@
   pointer-events: none;
 
 
-  left: 10.2%;    
-  top: 69.1%;    
-  width: auto;   
-  min-width: 17%; 
-  height: auto;  
-  padding: 0.6% 1.8%; 
+  left: 10.2%;
+  top: 69.1%;
+  width: auto;
+  min-width: 17%;
+  height: auto;
+  padding: 0.6% 1.8%;
 
 
   display: flex;
@@ -298,7 +304,7 @@
   text-transform: uppercase;
   white-space: nowrap;
   line-height: 1.2;
-  
+
 }
 
 .ciudad-viva-section {
@@ -325,10 +331,10 @@
 }
 
 
-.cv-img-block + .cv-img-block {
+.cv-img-block+.cv-img-block {
   border-top: 26px solid rgba(107, 102, 102, 0.05);
-  background-color:#faf8f0f6;
-  
+  background-color: #faf8f0f6;
+
 
 }
 
@@ -336,14 +342,14 @@
 .cv-img-block {
   line-height: 0;
   font-size: 0;
-  
+
 }
 
 .cv-img {
 
-  vertical-align: top; 
-  
-  
+  vertical-align: top;
+
+
 
 }
 
@@ -367,13 +373,14 @@
   object-fit: cover;
   object-position: center;
   vertical-align: top;
-  border-top:26px solid #f6f4ec;;
+  border-top: 26px solid #f6f4ec;
+  ;
 }
 
 /* Separador tipo “franja” como el que ya usas */
 
-.apto-section + .apto-section {
-  border-top:8px solid rgba(107, 102, 102, 0.05);
+.apto-section+.apto-section {
+  border-top: 8px solid rgba(107, 102, 102, 0.05);
   background-color: #faf8f0f6;
 
 }
@@ -398,12 +405,6 @@
 
 /* --- NEW TEMPLATE STYLES --- */
 
-:root {
-  --color-primary: #8f2133;
-  --color-gold: #ffc400;
-  --border-radius: 12px;
-}
-
 /* HEADER ROJO */
 .main-header {
   background-color: var(--color-primary);
@@ -417,8 +418,8 @@
 
 .content-pad {
   padding: 30px;
-  background: #fff;
   border-radius: 0 0 12px 12px;
+  background: #faf8f0f6;
 }
 
 /* INFO FACTURA */
@@ -431,6 +432,7 @@
   color: #777;
   font-size: 14px;
   font-weight: 600;
+  
 }
 
 .apto-title {
@@ -444,12 +446,15 @@
 .table-wrapper {
   width: 100%;
   margin-bottom: 20px;
+
 }
 
 .costo-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 15px;
+
+
 }
 
 .costo-table th {
@@ -459,34 +464,41 @@
   padding: 8px 10px;
   text-transform: uppercase;
   font-size: 14px;
+
+
 }
 
 .costo-table th:last-child {
   text-align: right;
+
 }
 
 .costo-table td {
   padding: 8px 10px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #7a6060;
   color: #555;
   font-weight: 600;
+  background-color: #faf8f0f6;
 }
 
 .costo-table td:last-child {
   text-align: right;
   font-weight: 700;
   color: #333;
+
 }
 
 .costo-table tr:nth-child(even) {
   background-color: #fcfcfc;
+
 }
 
 .total-row td {
   font-weight: 900;
   font-size: 16px;
   color: #000;
-  border-top: 2px solid #ddd;
+  border-top: 2px solid;
+
 }
 
 /* VIGENCIA */
@@ -520,24 +532,6 @@
   font-style: italic;
 }
 
-/* TABLA ROJA */
-.red-table-container {
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid #eee;
-  margin-bottom: 25px;
-}
-
-.red-table-header {
-  background-color: #8f2133 !important;
-  color: #fff !important;
-  padding: 10px 15px;
-  display: flex;
-  justify-content: space-between;
-  font-weight: 800;
-  font-size: 14px;
-  text-transform: uppercase;
-}
 
 .financing-header {
   background-color: #8f2133 !important;
@@ -556,16 +550,22 @@
   border-radius: 0 0 8px 8px;
   margin-bottom: 25px;
   background: #fff;
+  overflow: hidden;
 }
 
 .financing-row {
   display: flex;
+
   justify-content: space-between;
   padding: 8px 15px;
-  border-bottom: 1px solid #eee;
   font-size: 14px;
   font-weight: 600;
-  color: #555;
+  color: #180404;
+  background: #ffffff;
+  align-items: center;
+  min-height: 34px;
+  box-shadow: inset 0 1.7px 0 rgba(0, 0, 0, .28);
+  border-bottom: none;
 }
 
 .financing-row:last-child {
@@ -744,7 +744,7 @@
 .cv-text {
   flex: 1;
   font-size: 16px;
-  color: #555;
+  color: #000000;
   line-height: 1.5;
 }
 
@@ -755,7 +755,7 @@
 }
 
 .cv-logo-placeholder {
-  width: 200px;
+  width: 300px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -782,11 +782,11 @@
 /* Ciudad Viva Description Card - Overlay */
 .cv-description-card.overlay {
   position: absolute;
-  top: -20px;
+  top: -10px;
   left: 50%;
   transform: translateX(-50%);
-  width: 90%;
-  max-width: 900px;
+  width: 100%;
+  max-width: 100%;
   background: transparent;
   box-shadow: none;
   border-radius: 12px;
@@ -824,4 +824,311 @@
   color: #444;
   font-size: 18px;
   text-transform: uppercase;
+}
+
+
+:root {
+  --paper: rgba(255, 255, 255, .92);
+  /* blanco tipo tarjeta */
+  --card-border: rgba(0, 0, 0, .12);
+  --row-line: rgba(0, 0, 0, .16);
+  --card-shadow: 0 10px 18px rgba(0, 0, 0, .10);
+}
+
+body {
+  background: var(--bg);
+}
+
+.container {
+  background: transparent;
+  box-shadow: none;
+}
+
+
+.container {
+  width: 100%;
+  max-width: 800px;
+  background: #faf8f0f6;
+  padding: 0;
+  border-radius: var(--border-radius);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* HEADER ROJO */
+.main-header {
+  background-color: var(--color-primary);
+  color: #faf8f0f6;
+  padding: 15px 30px;
+  font-size: 28px;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.content-pad::before {
+  content: "";
+  position: absolute;
+  inset: 40px 30px auto 30px;
+  height: 420px;
+  opacity: .10;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  filter: blur(.2px);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='700' viewBox='0 0 1200 700'%3E%3Cg fill='none' stroke='%238f2133' stroke-width='10' opacity='0.35'%3E%3Cpath d='M-50 220 C 220 120, 360 360, 650 240 S 1100 150, 1250 260'/%3E%3Cpath d='M-80 310 C 180 210, 360 450, 690 330 S 1120 250, 1280 360'/%3E%3Cpath d='M-120 410 C 160 310, 360 560, 720 430 S 1120 380, 1320 490'/%3E%3C/g%3E%3C/svg%3E");
+
+}
+
+.content-pad>* {
+  position: relative;
+  z-index: 1;
+
+}
+
+.invoice-info {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+  color: rgba(0, 0, 0, .55);
+}
+
+.apto-title {
+  margin-top: 6px;
+  margin-bottom: 14px;
+}
+
+.table-wrapper {
+  background: var(--card);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 10px 12px;
+}
+
+table {
+  font-size: 14px;
+
+}
+
+th {
+  color: #3b3b3b;
+  letter-spacing: .04em;
+  border-bottom: 1px solid var(--line);
+  padding: 10px 12px;
+}
+
+td {
+  border-bottom: 1px solid var(--line-soft);
+  padding: 10px 12px;
+}
+
+tr:nth-child(even) {
+  background: transparent;
+}
+
+
+
+/* VIGENCIA */
+.vigencia-badge {
+  display: inline-block;
+  background-color: var(--color-gold);
+  color: #000;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  margin-bottom: 30px;
+}
+
+/* SECCION MONEDA EXTRANJERA */
+.section-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #333;
+  margin-bottom: 2px;
+  padding-left: 15px;
+  border-left: 6px solid var(--color-primary);
+  line-height: 1;
+
+}
+
+.section-subtitle {
+  font-size: 16px;
+  color: #777;
+  margin-left: 21px;
+  /* align with text */
+  margin-bottom: 15px;
+  font-style: italic;
+}
+
+.red-table-container {
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(233, 226, 226, 0.7);
+  border: 1px solid rgba(37, 2, 2, 0.12);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, .10);
+  margin: 10px 0 22px;
+
+}
+
+/* header vino de la card */
+.red-table-header {
+  background: var(--color-primary);
+  color: rgba(255, 255, 255, .96);
+  padding: 10px 14px;
+  font-weight: 800;
+  font-size: 14px;
+  text-transform: uppercase;
+
+}
+
+/* filas con separadores grises */
+.red-table-row {
+  padding: 8px 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, .16);
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, .70);
+  background: rgba(253, 248, 248, 0.7);
+  ;
+
+}
+
+.red-table-row:last-child {
+  border-bottom: none;
+}
+
+/* valores a la derecha en vino */
+.red-table-row span:last-child {
+  color: var(--color-primary);
+  font-weight: 800;
+
+}
+
+/* FINANCIACION */
+.financing-header {
+  border-radius: 14px 14px 0 0;
+  padding: 10px 14px;
+}
+
+.financing-body {
+  background: var(--card);
+  border: 1px solid var(--line-soft);
+  border-top: none;
+  border-radius: 0 0 14px 14px;
+  box-shadow: var(--shadow);
+}
+
+.financing-row {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.financing-row:last-child {
+  border-bottom: none;
+}
+
+/* APROBACION */
+.approval-section {
+  margin-top: 40px;
+  position: relative;
+}
+
+.approval-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #444;
+  margin-bottom: 12px;
+}
+
+.approval-text {
+  font-size: 15px;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.steps-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 30px 20px;
+  font-weight: 700;
+  color: #333;
+  font-size: 15px;
+}
+
+.steps-list li {
+  margin-bottom: 4px;
+}
+
+.cta-btn {
+  background-color: var(--color-primary);
+  color: #faf8f0f6;
+  border: none;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 30px;
+  cursor: pointer;
+  font-style: italic;
+  text-decoration: none;
+  display: inline-block;
+  box-shadow: 0 4px 10px rgba(143, 33, 51, 0.3);
+}
+
+.cta-btn:hover {
+  background-color: #7a1c2b;
+}
+
+/* DECORATION (Placeholder for right bottom image) */
+.decoration-img {
+  position: absolute;
+  bottom: -30px;
+  right: -30px;
+  width: 150px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.section-head {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin: 18px 0 10px;
+}
+
+.section-head .bar {
+  width: 14px;
+  height: 48px;
+  background: var(--color-primary);
+  border-radius: 3px;
+  margin-top: 2px;
+}
+
+.section-title2 {
+  font-size: 28px;
+  font-weight: 800;
+  color: #2f2f2f;
+  line-height: 1.05;
+  margin: 0;
+  position: relative;
+  padding-bottom: 6px;
+}
+
+/* línea horizontal como en la derecha */
+.section-title2::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: -40px;
+  bottom: 0;
+  height: 2px;
+  background: rgba(0, 0, 0, .25);
+}
+
+.section-subtitle2 {
+  font-size: 18px;
+  font-style: italic;
+  color: rgba(0, 0, 0, .55);
+  margin-top: 6px;
 }
