@@ -1,6 +1,6 @@
 .section-banner {
   --banner-bg: #8C1D2D;   /* vino */
-  --cream: #f6f4ec;       /* crema */
+  --cream: #faf8f0f6;       /* crema */
   --text: #ffffff;
 
   position: relative;
@@ -36,7 +36,7 @@
   width: 100%;
   display: block;
   border-radius: 16px;
-  border-top:26px solid #f6f4ec;;
+  border-top:26px solid #faf8f0f6;
 }
 
 .section-block {
