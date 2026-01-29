@@ -85,7 +85,12 @@ export class CotizacionFormPage implements OnInit {
 
             valorTotal: [{ value: null, disabled: true }, Validators.required],
             beneficioValorizacion: [0, Validators.required],
+
+            conceptoBeneficioValorizacion: [''],
+
             beneficioProntaSeparacion: [0, Validators.required],
+
+            conceptoBeneficioProntaSeparacion: [''],
 
             valorEspecialHoy: [{ value: null, disabled: true }],
 
@@ -106,6 +111,8 @@ export class CotizacionFormPage implements OnInit {
             valorTotalAdicionales: [0],
             cuotasFinanciacion: [{ value: 0, disabled: true }],
             fechaUltimaCuotaAdic: [''],
+
+            aprobador: [{ value: '0', disabled: true }],
 
             nombreEjecutivo: [null, [Validators.required]],
             telefonoEjecutivo: [{ value: '', disabled: true }, [
@@ -553,6 +560,7 @@ export class CotizacionFormPage implements OnInit {
         const valorCuotaInicial = this.form.get('valorCuotaInicial')!;
         const fechaUlt = this.form.get('fechaUltimaCuota')!;
         const cantCuotas = this.form.get('cantidadCuotas')!;
+        const aprobador = this.form.get('aprobador')!;
 
         const fechaUltAdic = this.form.get('fechaUltimaCuotaAdic')!;
         const cuotasAdic = this.form.get('cuotasFinanciacion')!;
@@ -562,26 +570,17 @@ export class CotizacionFormPage implements OnInit {
         const vt = toNum(valorTotal.value);
         const bv = toNum(benefVal.value);
         const bp = toNum(benefPronta.value);
-        const porcentajeBeneficio = 0.5;
+        const porcentajeBeneficio = 0.15;
         const maxBeneficio = vt * porcentajeBeneficio;
         const totalBeneficios = bv + bp;
 
         if (totalBeneficios > maxBeneficio) {
-            // Marcar error en los controles
-            benefVal.setErrors({ benefitsExceeded: true });
-            benefPronta.setErrors({ benefitsExceeded: true });
-        } else {
-            // Limpiar error específico si ya cumple
-            if (benefVal.hasError('benefitsExceeded')) {
-                benefVal.setErrors(null);
-                benefVal.updateValueAndValidity({ emitEvent: false });
-            }
-            if (benefPronta.hasError('benefitsExceeded')) {
-                benefPronta.setErrors(null);
-                benefPronta.updateValueAndValidity({ emitEvent: false });
-            }
+            aprobador.enable({ emitEvent: false });
+        } 
+        else {
+            aprobador.setValue(false, { emitEvent: false });
+            aprobador.disable({ emitEvent: false });
         }
-
         const especial = Math.max(vt - bv - bp, 0);
         valorEspecial.setValue(especial, { emitEvent: false });
         const p = toNum(porcentaje.value);

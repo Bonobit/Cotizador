@@ -84,19 +84,89 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+
+.grid.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+
+.info-grid .field.full {
+  grid-column: 1 / -1;
+}
+
+#ValorTotal {
+  height: 46px;
+  font-weight: 700;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-top: 14px;
+}
+
+/* Card de beneficio */
+.benefit-card {
+  border: 1px solid rgba(0, 0, 0, .10);
+  border-radius: 16px;
+  background: #fff;
+  padding: 12px;
+}
+
+.benefit-head {
+  font-weight: 800;
+  font-size: 13px;
+  color: rgba(0, 0, 0, .70);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+
+
+.field textarea {
+  width: 100%;
+  min-height: 92px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.9);
+  outline: none;
+  resize: vertical;
+  font: inherit;
+}
+
+.field textarea:focus {
+  border-color: rgba(0, 0, 0, 0.22);
+}
+
+.finance-grid {
+  margin-top: 14px;
+}
+
+/* Responsive */
 @media (max-width: 900px) {
-  .grid-3 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .grid.grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .benefits-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .info-grid .field.full {
+    grid-column: 1 / -1;
   }
 }
 
-@media (max-width: 640px) {
-
-  .grid-2,
-  .grid-3 {
+@media (max-width: 520px) {
+  .grid.grid-3 {
     grid-template-columns: 1fr;
   }
 }
+
 
 .field label {
   display: block;
@@ -104,6 +174,7 @@
   font-weight: 700;
   color: rgba(0, 0, 0, 0.65);
   margin-bottom: 6px;
+  border-top: 10px solid transparent;
 }
 
 .field input,
@@ -115,6 +186,42 @@
   border: 1px solid rgba(0, 0, 0, 0.12);
   background: rgba(255, 255, 255, 0.9);
   outline: none;
+}
+
+.inline-check.input-like {
+  height: 40px;
+  /* mismo alto que tus inputs */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  
+  padding: 0 12px;
+  /* igual al input */
+  border-radius: 12px;
+  /* igual al input */
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.9);
+  box-sizing: border-box;
+  border: 1px dashed rgba(0, 0, 0, 0.18);
+}
+
+/* Evita que herede el punteado u otros estilos */
+.inline-check.input-like {
+  outline: none;
+}
+
+/* Texto */
+.inline-check.input-like span {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+/* Checkbox alineado */
+.inline-check.input-like input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
 }
 
 .field input:focus,
