@@ -20,6 +20,8 @@ import { ApartamentosService } from '@core/services/apartamentos.service';
 import { Apartamentos } from '@core/models/apartamento.model';
 import { CotizacionesService } from '@core/services/cotizaciones.service';
 import { CopCurrencyDirective } from '@shared/directives/cop-currency.directive';
+import { AdicionalesManagerService, ADICIONALES_CONFIG } from '@core/services/adicionales-manager.service';
+import { AdicionalConfig } from '@core/models/adicional-config.model';
 
 @Component({
     selector: 'app-cotizacion-form-page',
@@ -47,6 +49,9 @@ export class CotizacionFormPage implements OnInit {
     torres: string[] = []; // Lista de torres únicas
     cargandoApartamentos = false;
 
+    // Adicionales config
+    adicionalesConfig: AdicionalConfig[] = ADICIONALES_CONFIG;
+
     constructor(
         private fb: FormBuilder,
         private router: Router,
@@ -55,7 +60,8 @@ export class CotizacionFormPage implements OnInit {
         private state: CotizacionStateService,
         private cdr: ChangeDetectorRef,
         private cotizacionesService: CotizacionesService,
-        private apartamentosService: ApartamentosService
+        private apartamentosService: ApartamentosService,
+        private adicionalesManager: AdicionalesManagerService
     ) {
         this.form = this.fb.group({
             tipoDocumento: ['', Validators.required],
@@ -101,16 +107,8 @@ export class CotizacionFormPage implements OnInit {
             cantidadCuotas: [{ value: 0, disabled: true }],
 
 
-            parqueadero: [false],
-            cantidadParqueaderos: [{ value: '0', disabled: true }],
-
-            kitAcabados: [false],
-            kitDomotica: [false],
-
-
-            valorTotalAdicionales: [0],
-            cuotasFinanciacion: [{ value: 0, disabled: true }],
-            fechaUltimaCuotaAdic: [''],
+            // Adicionales - se generan dinámicamente desde el servicio
+            ...this.generateAdicionalesControls(),
 
             aprobador: [{ value: '0', disabled: true }],
 
@@ -159,7 +157,10 @@ export class CotizacionFormPage implements OnInit {
         if (savedForm) {
             // valores simples
             this.form.patchValue(savedForm, { emitEvent: false });
-            this.updateAdicionalesState();
+            // Actualizar estado de adicionales
+            this.adicionalesConfig.forEach(config => {
+                this.adicionalesManager.updateAdicionalState(this.form, config);
+            });
             this.recalculateAll();
 
             if (savedForm.proyecto) {
@@ -482,54 +483,46 @@ export class CotizacionFormPage implements OnInit {
         apply();
     }
 
-    private setupAdicionalesRule() {
-        // Subscribers
-        this.form.get('parqueadero')!.valueChanges.subscribe(() => this.updateAdicionalesState());
-        this.form.get('kitAcabados')!.valueChanges.subscribe(() => this.updateAdicionalesState());
-        this.form.get('kitDomotica')!.valueChanges.subscribe(() => this.updateAdicionalesState());
+    /**
+     * Genera los controles de formulario para todos los adicionales
+     */
+    private generateAdicionalesControls(): { [key: string]: any } {
+        let controls: { [key: string]: any } = {};
 
-        // Estado inicial
-        this.updateAdicionalesState();
+        this.adicionalesConfig.forEach(config => {
+            const adicControls = this.adicionalesManager.createFormControls(config);
+            controls = { ...controls, ...adicControls };
+        });
+
+        return controls;
     }
 
-    private updateAdicionalesState() {
-        const parqueadero = this.form.get('parqueadero')!;
-        const kitAcabados = this.form.get('kitAcabados')!;
-        const kitDomotica = this.form.get('kitDomotica')!;
-
-        const cantidad = this.form.get('cantidadParqueaderos')!;
-        const valorAdic = this.form.get('valorTotalAdicionales')!;
-        const fechaAdic = this.form.get('fechaUltimaCuotaAdic')!;
-
-        const cuotasAdic = this.form.get('cuotasFinanciacion')!;
-
-        // 1. Lógica específica de parqueadero
-        if (parqueadero.value) {
-            cantidad.enable({ emitEvent: false });
-            if (!cantidad.value || cantidad.value === '0') cantidad.setValue('1', { emitEvent: false });
-        } else {
-            cantidad.setValue('0', { emitEvent: false });
-            cantidad.disable({ emitEvent: false });
-        }
-
-        // 2. Lógica global de adicionales
-        const anySelected = parqueadero.value || kitAcabados.value || kitDomotica.value;
-
-        if (anySelected) {
-            if (valorAdic.disabled) valorAdic.enable({ emitEvent: false });
-            if (fechaAdic.disabled) fechaAdic.enable({ emitEvent: false });
-        } else {
-            if (valorAdic.enabled) {
-                valorAdic.setValue(0, { emitEvent: false });
-                valorAdic.disable({ emitEvent: false });
+    /**
+     * Configura las reglas y suscripciones para todos los adicionales
+     */
+    private setupAdicionalesRule() {
+        // Suscribirse a cambios de cada checkbox de adicional
+        this.adicionalesConfig.forEach(config => {
+            const checkboxControl = this.form.get(config.formControls.checkbox);
+            if (checkboxControl) {
+                checkboxControl.valueChanges.subscribe(() => {
+                    this.adicionalesManager.updateAdicionalState(this.form, config);
+                });
             }
-            if (fechaAdic.enabled) {
-                fechaAdic.setValue('', { emitEvent: false });
-                fechaAdic.disable({ emitEvent: false });
+
+            // Suscribirse a cambios de fecha para calcular cuotas
+            const fechaControl = this.form.get(config.formControls.fechaUltimaCuota);
+            if (fechaControl) {
+                fechaControl.valueChanges.subscribe(() => {
+                    this.adicionalesManager.calculateCuotasFinanciacion(this.form, config);
+                });
             }
-            // También limpiar el resultado calculado
-            cuotasAdic.setValue(0, { emitEvent: false });
-        }
+        });
+
+        // Aplicar estado inicial
+        this.adicionalesConfig.forEach(config => {
+            this.adicionalesManager.updateAdicionalState(this.form, config);
+        });
     }
 
     private setupCalculos() {
@@ -538,7 +531,6 @@ export class CotizacionFormPage implements OnInit {
         const benefPronta = this.form.get('beneficioProntaSeparacion')!;
         const porcentaje = this.form.get('porcentajeCuotaInicial')!;
         const fechaUlt = this.form.get('fechaUltimaCuota')!;
-        const fechaUltAdic = this.form.get('fechaUltimaCuotaAdic')!;
 
         // recalcular cuando cambien inputs clave
         valorTotal.valueChanges.subscribe(() => this.recalculateAll());
@@ -546,7 +538,6 @@ export class CotizacionFormPage implements OnInit {
         benefPronta.valueChanges.subscribe(() => this.recalculateAll());
         porcentaje.valueChanges.subscribe(() => this.recalculateAll());
         fechaUlt.valueChanges.subscribe(() => this.recalculateAll());
-        fechaUltAdic.valueChanges.subscribe(() => this.recalculateAll());
 
         this.recalculateAll();
     }
@@ -562,9 +553,6 @@ export class CotizacionFormPage implements OnInit {
         const cantCuotas = this.form.get('cantidadCuotas')!;
         const aprobador = this.form.get('aprobador')!;
 
-        const fechaUltAdic = this.form.get('fechaUltimaCuotaAdic')!;
-        const cuotasAdic = this.form.get('cuotasFinanciacion')!;
-
         const toNum = (v: any) => (v === null || v === undefined || v === '' ? 0 : Number(v) || 0);
 
         const vt = toNum(valorTotal.value);
@@ -576,7 +564,7 @@ export class CotizacionFormPage implements OnInit {
 
         if (totalBeneficios > maxBeneficio) {
             aprobador.enable({ emitEvent: false });
-        } 
+        }
         else {
             aprobador.setValue(false, { emitEvent: false });
             aprobador.disable({ emitEvent: false });
@@ -602,13 +590,11 @@ export class CotizacionFormPage implements OnInit {
             return Math.max(months, 0);
         };
 
-        // Cantidad de cuotas
+        // Cantidad de cuotas para el apartamento
         const m = calcMonths(fechaUlt.value);
         cantCuotas.setValue(m, { emitEvent: false });
 
-        // Cuotas adicionales
-        const mAdic = calcMonths(fechaUltAdic.value);
-        cuotasAdic.setValue(mAdic, { emitEvent: false });
+        // Las cuotas de adicionales ahora se calculan individualmente en el servicio
     }
 
     fieldLabels: Record<string, string> = {

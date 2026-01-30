@@ -234,201 +234,78 @@
             <div class="fieldset">
                 <div class="legend">INFORMACIÓN DE ADICIONALES</div>
 
-
-                <div class="fieldset">
+                <!-- Iteración dinámica sobre todos los adicionales -->
+                <ng-container *ngFor="let config of adicionalesConfig; let last = last">
                     <div class="stack">
                         <div class="check-row">
-                            <span>Parqueadero</span>
-                            <input type="checkbox" formControlName="parqueadero" />
+                            <span>{{ config.displayName }}</span>
+                            <input type="checkbox" [formControlName]="config.formControls.checkbox" />
                         </div>
                     </div>
-                    <div class="grid grid-2" *ngIf="form.get('parqueadero')?.value">
-                        <div class="field">
+
+                    <div class="grid grid-2" *ngIf="form.get(config.formControls.checkbox)?.value">
+                        <!-- Campo de cantidad solo si es necesario -->
+                        <div class="field" *ngIf="config.hasQuantity && config.formControls.cantidad">
                             <label>Cantidad</label>
-                            <select formControlName="cantidadParqueaderos">
+                            <select [formControlName]="config.formControls.cantidad">
                                 <option value="1">1</option>
                                 <option value="2">2</option>
                             </select>
-                            <small class="error" *ngIf="isInvalid('cantidadParqueaderos')"> {{
-                                getErrorMessage('cantidadParqueaderos') }}</small>
+                            <small class="error" *ngIf="isInvalid(config.formControls.cantidad)">
+                                {{ getErrorMessage(config.formControls.cantidad) }}
+                            </small>
                         </div>
 
                         <div class="field">
-                            <label>Valor total de parqueaderos</label>
-                            <input type="text" appCopCurrency formControlName="valorTotalParqueaderos"
+                            <label>Valor total de {{ config.displayName.toLowerCase() }}</label>
+                            <input type="text" appCopCurrency [formControlName]="config.formControls.valorTotal"
                                 placeholder="$" />
-                            <small class="error" *ngIf="isInvalid('valorTotalParqueaderos')"> {{
-                                getErrorMessage('valorTotalParqueaderos') }}</small>
+                            <small class="error" *ngIf="isInvalid(config.formControls.valorTotal)">
+                                {{ getErrorMessage(config.formControls.valorTotal) }}
+                            </small>
                         </div>
+
                         <div class="field">
-                            <label>Beneficio parqueadero</label>
-                            <input type="text" appCopCurrency formControlName="valorTotalAdicionales" placeholder="$" />
-                            <small class="error" *ngIf="isInvalid('valorTotalAdicionales')"> {{
-                                getErrorMessage('valorTotalAdicionales') }}</small>
-                        </div>
-                        <div class="field">
-                            <label>Valor cuota parqueadero</label>
-                            <input type="text" class="no-spinners" appCopCurrency formControlName="valorCuota"
+                            <label>Beneficio {{ config.displayName.toLowerCase() }}</label>
+                            <input type="text" appCopCurrency [formControlName]="config.formControls.beneficio"
                                 placeholder="$" />
-                            <small class="error" *ngIf="isInvalid('valorCuota')"> {{
-                                getErrorMessage('valorCuota') }}</small>
+                            <small class="error" *ngIf="isInvalid(config.formControls.beneficio)">
+                                {{ getErrorMessage(config.formControls.beneficio) }}
+                            </small>
+                        </div>
+
+                        <div class="field">
+                            <label>Valor cuota {{ config.displayName.toLowerCase() }}</label>
+                            <input type="text" class="no-spinners" appCopCurrency
+                                [formControlName]="config.formControls.valorCuota" placeholder="$" />
+                            <small class="error" *ngIf="isInvalid(config.formControls.valorCuota)">
+                                {{ getErrorMessage(config.formControls.valorCuota) }}
+                            </small>
                         </div>
 
                         <div class="field">
                             <label>Fecha última cuota</label>
-                            <input type="date" formControlName="fechaUltimaCuotaAdic" />
-                            <small class="error" *ngIf="isInvalid('fechaUltimaCuotaAdic')"> {{
-                                getErrorMessage('fechaUltimaCuotaAdic') }}</small>
+                            <input type="date" [formControlName]="config.formControls.fechaUltimaCuota" />
+                            <small class="error" *ngIf="isInvalid(config.formControls.fechaUltimaCuota)">
+                                {{ getErrorMessage(config.formControls.fechaUltimaCuota) }}
+                            </small>
                         </div>
+
                         <div class="field">
                             <label>Cuotas de financiación</label>
-                            <input type="number" class="no-spinners" formControlName="cuotasFinanciacion" />
-                            <small class="error" *ngIf="isInvalid('cuotasFinanciacion')"> {{
-                                getErrorMessage('cuotasFinanciacion') }}</small>
+                            <input type="number" class="no-spinners"
+                                [formControlName]="config.formControls.cuotasFinanciacion" />
+                            <small class="error" *ngIf="isInvalid(config.formControls.cuotasFinanciacion)">
+                                {{ getErrorMessage(config.formControls.cuotasFinanciacion) }}
+                            </small>
                         </div>
                     </div>
 
-                </div>
-                <div class="fieldset">
-                    <div class="stack">
-                        <div class="check-row">
-                            <span>Kit de Acabados</span>
-                            <input type="checkbox" formControlName="kitAcabados" />
-                        </div>
-                    </div>
-                    <div class="grid grid-2" *ngIf="form.get('kitAcabados')?.value">
-
-                        <div class="field">
-                            <label>Valor total de parqueaderos</label>
-                            <input type="text" appCopCurrency formControlName="valorTotalParqueaderos"
-                                placeholder="$" />
-                            <small class="error" *ngIf="isInvalid('valorTotalParqueaderos')"> {{
-                                getErrorMessage('valorTotalParqueaderos') }}</small>
-                        </div>
-                        <div class="field">
-                            <label>Beneficio parqueadero</label>
-                            <input type="text" appCopCurrency formControlName="valorTotalAdicionales" placeholder="$" />
-                            <small class="error" *ngIf="isInvalid('valorTotalAdicionales')"> {{
-                                getErrorMessage('valorTotalAdicionales') }}</small>
-                        </div>
-                        <div class="field">
-                            <label>Valor cuota parqueadero</label>
-                            <input type="text" class="no-spinners" appCopCurrency formControlName="valorCuota"
-                                placeholder="$" />
-                            <small class="error" *ngIf="isInvalid('valorCuota')"> {{
-                                getErrorMessage('valorCuota') }}</small>
-                        </div>
-
-                        <div class="field">
-                            <label>Fecha última cuota</label>
-                            <input type="date" formControlName="fechaUltimaCuotaAdic" />
-                            <small class="error" *ngIf="isInvalid('fechaUltimaCuotaAdic')"> {{
-                                getErrorMessage('fechaUltimaCuotaAdic') }}</small>
-                        </div>
-                        <div class="field">
-                            <label>Cuotas de financiación</label>
-                            <input type="number" class="no-spinners" formControlName="cuotasFinanciacion" />
-                            <small class="error" *ngIf="isInvalid('cuotasFinanciacion')"> {{
-                                getErrorMessage('cuotasFinanciacion') }}</small>
-                        </div>
-                    </div>
-
-                </div>
-                <div class="fieldset">
-                    <div class="stack">
-                        <div class="check-row">
-                            <span>Kit de domótica</span>
-                            <input type="checkbox" formControlName="kitDomotica" />
-                        </div>
-                    </div>
-                    <div class="grid grid-2" *ngIf="form.get('kitDomotica')?.value">
-                        <div class="field">
-                            <label>Valor total de parqueaderos</label>
-                            <input type="text" appCopCurrency formControlName="valorTotalParqueaderos"
-                                placeholder="$" />
-                            <small class="error" *ngIf="isInvalid('valorTotalParqueaderos')"> {{
-                                getErrorMessage('valorTotalParqueaderos') }}</small>
-                        </div>
-                        <div class="field">
-                            <label>Beneficio parqueadero</label>
-                            <input type="text" appCopCurrency formControlName="valorTotalAdicionales" placeholder="$" />
-                            <small class="error" *ngIf="isInvalid('valorTotalAdicionales')"> {{
-                                getErrorMessage('valorTotalAdicionales') }}</small>
-                        </div>
-                        <div class="field">
-                            <label>Valor cuota parqueadero</label>
-                            <input type="text" class="no-spinners" appCopCurrency formControlName="valorCuota"
-                                placeholder="$" />
-                            <small class="error" *ngIf="isInvalid('valorCuota')"> {{
-                                getErrorMessage('valorCuota') }}</small>
-                        </div>
-
-                        <div class="field">
-                            <label>Fecha última cuota</label>
-                            <input type="date" formControlName="fechaUltimaCuotaAdic" />
-                            <small class="error" *ngIf="isInvalid('fechaUltimaCuotaAdic')"> {{
-                                getErrorMessage('fechaUltimaCuotaAdic') }}</small>
-                        </div>
-                        <div class="field">
-                            <label>Cuotas de financiación</label>
-                            <input type="number" class="no-spinners" formControlName="cuotasFinanciacion" />
-                            <small class="error" *ngIf="isInvalid('cuotasFinanciacion')"> {{
-                                getErrorMessage('cuotasFinanciacion') }}</small>
-                        </div>
-                    </div>
-
-                </div>
-                <div class="fieldset">
-                    <div class="stack">
-                        <div class="check-row">
-                            <span>Deposito</span>
-                            <input type="checkbox" formControlName="deposito" />
-                        </div>
-                    </div>
-                    <div class="grid grid-2" *ngIf="form.get('deposito')?.value">
-
-                        <div class="field">
-                            <label>Valor total de parqueaderos</label>
-                            <input type="text" appCopCurrency formControlName="valorTotalParqueaderos"
-                                placeholder="$" />
-                            <small class="error" *ngIf="isInvalid('valorTotalParqueaderos')"> {{
-                                getErrorMessage('valorTotalParqueaderos') }}</small>
-                        </div>
-                        <div class="field">
-                            <label>Beneficio parqueadero</label>
-                            <input type="text" appCopCurrency formControlName="valorTotalAdicionales" placeholder="$" />
-                            <small class="error" *ngIf="isInvalid('valorTotalAdicionales')"> {{
-                                getErrorMessage('valorTotalAdicionales') }}</small>
-                        </div>
-                        <div class="field">
-                            <label>Valor cuota parqueadero</label>
-                            <input type="text" class="no-spinners" appCopCurrency formControlName="valorCuota"
-                                placeholder="$" />
-                            <small class="error" *ngIf="isInvalid('valorCuota')"> {{
-                                getErrorMessage('valorCuota') }}</small>
-                        </div>
-
-                        <div class="field">
-                            <label>Fecha última cuota</label>
-                            <input type="date" formControlName="fechaUltimaCuotaAdic" />
-                            <small class="error" *ngIf="isInvalid('fechaUltimaCuotaAdic')"> {{
-                                getErrorMessage('fechaUltimaCuotaAdic') }}</small>
-                        </div>
-                        <div class="field">
-                            <label>Cuotas de financiación</label>
-                            <input type="number" class="no-spinners" formControlName="cuotasFinanciacion" />
-                            <small class="error" *ngIf="isInvalid('cuotasFinanciacion')"> {{
-                                getErrorMessage('cuotasFinanciacion') }}</small>
-                        </div>
-                    </div>
-
-                </div>
-
-
-
+                    <!-- Separador entre adicionales (excepto el último) -->
+                    <div class="section-title" *ngIf="!last"></div>
+                </ng-container>
 
             </div>
-
 
             <div class="section-title"></div>
 
