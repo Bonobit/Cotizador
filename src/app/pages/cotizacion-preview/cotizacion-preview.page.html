@@ -12,14 +12,34 @@
       </label>
     </div>
 
+
+
     <div class="preview card">
-      <div id="pdf-content" class="sheet">
+      <!-- Skeleton Loader -->
+      <div *ngIf="isLoading" class="skeleton-wrapper">
+        <div class="skeleton-header"></div>
+        <div class="skeleton-image skeleton-shimmer"></div>
+        <div class="skeleton-content">
+          <div class="skeleton-line skeleton-shimmer"></div>
+          <div class="skeleton-line skeleton-shimmer short"></div>
+          <div class="skeleton-line skeleton-shimmer"></div>
+        </div>
+        <div class="skeleton-table skeleton-shimmer"></div>
+        <div class="skeleton-footer">
+          <div class="skeleton-line skeleton-shimmer short"></div>
+          <div class="skeleton-line skeleton-shimmer"></div>
+        </div>
+      </div>
+
+      <div id="pdf-content" class="sheet" [class.content-loading]="isLoading">
         <div class="portada-wrap">
-          <img class="pdf-img" [src]="portadaUrl" alt="portada" />
+          <img class="pdf-img" [src]="portadaUrl" alt="portada" (load)="onImageLoad()"
+            (error)="onImageError('portada')" />
           <img class="portada-logo" src="assets/logos/logo.png" alt="Celeus Group" />
 
           <div class="asesor-layer" *ngIf="asesorImg">
-            <img class="asesor-img" [src]="asesorImg" alt="Asesor" />
+            <img class="asesor-img" [src]="asesorImg" alt="Asesor" (load)="onImageLoad()"
+              (error)="onImageError('asesor')" />
 
             <div class="ov ov-apto" *ngIf="aptoLabel">{{ aptoLabel }}</div>
             <div class="ov ov-torre" *ngIf="torreNombre">{{ torreNombre }}</div>
@@ -49,11 +69,13 @@
                 <img src="assets/logos/ciudadviva.png" alt="Ciudad Viva" />
               </div>
             </div>
-            <img class="cv-img" [src]="ubicacionImg" alt="Ubicación del Proyecto" />
+            <img class="cv-img" [src]="ubicacionImg" alt="Ubicación del Proyecto" (load)="onImageLoad()"
+              (error)="onImageError('ubicacion')" />
           </div>
 
           <div class="cv-img-block" *ngIf="ciudadVivaImg">
-            <img class="cv-img" [src]="ciudadVivaImg" alt="Concepto Ciudad Viva" />
+            <img class="cv-img" [src]="ciudadVivaImg" alt="Concepto Ciudad Viva" (load)="onImageLoad()"
+              (error)="onImageError('ciudadviva')" />
           </div>
 
         </div>
@@ -67,7 +89,8 @@
             subtitle="Te invitamos a que conozcas tu apartamento" variant="vino"></app-section-banner>
 
           <div class="apto-img-block relative-container">
-            <img class="apto-img" [src]="apartamentoImg" alt="Imagen del apartamento" />
+            <img class="apto-img" [src]="apartamentoImg" alt="Imagen del apartamento" (load)="onImageLoad()"
+              (error)="onImageError('apartamento')" />
 
             <div class="tower-panel overlay">
               <div class="tower-block">
@@ -125,7 +148,8 @@
           </div>
 
           <div class="apto-img-block">
-            <img class="apto-img" [src]="planoImg" alt="Plano del apartamento" />
+            <img class="apto-img" [src]="planoImg" alt="Plano del apartamento" (load)="onImageLoad()"
+              (error)="onImageError('plano')" />
           </div>
 
           <div class="plano-description">
@@ -286,13 +310,14 @@
             <!-- APROBACION -->
 
 
+
           </div>
         </div>
 
 
 
-      </div>
+        <app-footer-aprobacion [nombre]="(data.nombres || '') + ' ' + (data.apellidos || '')"></app-footer-aprobacion>
 
-      <app-footer-aprobacion [nombre]="(data.nombres || '') + ' ' + (data.apellidos || '')"></app-footer-aprobacion>
+      </div>
 
     </div>
