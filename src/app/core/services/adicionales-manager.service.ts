@@ -130,7 +130,7 @@ export class AdicionalesManagerService {
 
             controls.valorTotal?.enable({ emitEvent: false });
             controls.beneficio?.enable({ emitEvent: false });
-            controls.valorCuota?.enable({ emitEvent: false });
+            // controls.valorCuota?.enable({ emitEvent: false }); // Mantener deshabilitado
             controls.fechaUltimaCuota?.enable({ emitEvent: false });
             // cuotasFinanciacion permanece disabled ya que es calculado
         } else {
@@ -157,6 +157,32 @@ export class AdicionalesManagerService {
     }
 
     /**
+     * Calcula el valor de la cuota para un adicional
+     */
+    calculateValorCuota(form: FormGroup, config: AdicionalConfig): void {
+        const valorTotalControl = form.get(config.formControls.valorTotal);
+        const beneficioControl = form.get(config.formControls.beneficio);
+        const cuotasControl = form.get(config.formControls.cuotasFinanciacion);
+        const valorCuotaControl = form.get(config.formControls.valorCuota);
+
+        if (!valorTotalControl || !cuotasControl || !valorCuotaControl) return;
+
+        const toNum = (v: any) => (v === null || v === undefined || v === '' ? 0 : Number(String(v).replace(/[^0-9.-]+/g, "")) || 0);
+
+        const valorTotal = toNum(valorTotalControl.value);
+        const beneficio = beneficioControl ? toNum(beneficioControl.value) : 0;
+        const cuotas = toNum(cuotasControl.value);
+
+        let valorCuota = 0;
+        if (cuotas > 0) {
+            const valorFinanciar = Math.max(valorTotal - beneficio, 0);
+            valorCuota = Math.round(valorFinanciar / cuotas);
+        }
+
+        valorCuotaControl.setValue(valorCuota, { emitEvent: false });
+    }
+
+    /**
      * Calcula las cuotas de financiación para un adicional basado en su fecha última de cuota
      */
     calculateCuotasFinanciacion(form: FormGroup, config: AdicionalConfig): void {
@@ -169,6 +195,9 @@ export class AdicionalesManagerService {
         const months = this.calcMonths(fechaStr);
 
         cuotasControl.setValue(months, { emitEvent: false });
+
+        // Recalcular valor cuota ya que cambiaron las cuotas
+        this.calculateValorCuota(form, config);
     }
 
     /**

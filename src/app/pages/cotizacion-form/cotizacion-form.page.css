@@ -52,6 +52,32 @@
   padding: 18px;
 }
 
+/* Grid para mostrar planes lado a lado */
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+  margin-top: 18px;
+}
+
+/* Si hay una sola columna (no adicionales), ocupar todo el ancho */
+.plans-grid.single-column {
+  grid-template-columns: 1fr;
+}
+
+/* Asegurar que las cards dentro del grid tengan el mismo ancho */
+.plans-grid>.card {
+  min-width: 0;
+  width: 100%;
+}
+
+/* En pantallas pequeñas, apilar verticalmente */
+@media (max-width: 1024px) {
+  .plans-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .card-header h2 {
   margin: 0;
   font-size: 18px;
@@ -194,7 +220,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  
+
   padding: 0 12px;
   /* igual al input */
   border-radius: 12px;
@@ -289,7 +315,8 @@
 
 .table-wrap {
   margin-top: 12px;
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
   border-radius: 12px;
   border: 1px solid rgba(0, 0, 0, 0.08);
   background: rgba(255, 255, 255, 0.75);
@@ -299,6 +326,11 @@
   width: 100%;
   border-collapse: collapse;
   min-width: 760px;
+}
+
+/* Remover min-width cuando está dentro del grid de dos columnas para que ocupe todo el espacio */
+.plans-grid .plan-table {
+  min-width: unset;
 }
 
 .plan-table th,
@@ -323,7 +355,7 @@
   background: rgba(255, 255, 255, 0.9);
 }
 
-/* Caja tipo “formulario” (similar al look del PDF viejo, pero moderno) */
+/* Caja tipo "formulario" (similar al look del PDF viejo, pero moderno) */
 .fieldset {
   margin-top: 10px;
   padding: 18px 14px 16px;
@@ -345,9 +377,10 @@
   font-weight: 800;
   font-size: 12px;
   color: rgba(0, 0, 0, 0.65);
+  white-space: nowrap;
 }
 
-/* Layouts compactos como el form “clásico” */
+/* Layouts compactos como el form "clásico" */
 .grid-3-compact {
   display: grid;
   grid-template-columns: 1fr 1.1fr 1.1fr;
@@ -467,4 +500,78 @@ input:disabled::placeholder {
   color: rgba(0, 0, 0, 0.4);
   font-weight: 700;
   padding: 8px 0;
+}
+
+/* ============================================
+   ESTILOS PARA SISTEMA DE PESTAÑAS (TABS)
+   ============================================ */
+
+/* Navegación de tabs */
+.tabs-nav {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.08);
+  overflow-x: auto;
+  overflow-y: hidden;
+  /* Forzar ocultar scroll vertical */
+}
+
+.tab-btn {
+  padding: 0.75rem 0.8rem;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.5);
+  transition: all 0.25s ease;
+  white-space: nowrap;
+  position: relative;
+  bottom: -2px;
+}
+
+.tab-btn:hover {
+  color: rgba(0, 0, 0, 0.75);
+  background: rgba(246, 184, 0, 0.08);
+  border-radius: 8px 8px 0 0;
+}
+
+.tab-btn.active {
+  color: #f6b800;
+  font-weight: 800;
+  border-bottom-color: #f6b800;
+  background: rgba(246, 184, 0, 0.05);
+  border-radius: 8px 8px 0 0;
+}
+
+/* Contenido del tab con animación de entrada */
+.tab-content {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive tabs */
+@media (max-width: 768px) {
+  .tabs-nav {
+    gap: 0.25rem;
+  }
+
+  .tab-btn {
+    padding: 0.6rem 1rem;
+    font-size: 12px;
+  }
 }

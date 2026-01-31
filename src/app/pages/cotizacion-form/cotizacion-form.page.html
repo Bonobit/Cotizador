@@ -395,66 +395,95 @@
             </div>
         </form>
 
-        <div class="card table-card" *ngIf="showPlan" [formGroup]="form">
+        <!-- Contenedor Grid para ambos planes lado a lado -->
+        <div class="plans-grid" *ngIf="showPlan" [class.single-column]="getAdicionalesSeleccionados().length === 0">
+            <!-- SECCIÓN 1: Plan de Pagos del Apartamento -->
+            <div class="card table-card" [formGroup]="form">
 
-            <div class="section-title"></div>
+                <div class="section-title"></div>
 
-            <div class="fieldset">
-                <div class="legend">PLAN DE PAGOS</div>
+                <div class="fieldset">
+                    <div class="legend">PLAN DE PAGOS DEL APARTAMENTO</div>
 
-                <div class="table-wrap">
-                    <table class="plan-table">
-                        <thead>
-                            <tr>
-                                <th rowspan="2" class="center">No.</th>
-                                <th colspan="2" class="center">Financiación Del Apartamento</th>
-                                <th *ngIf="cuotasAdicValue> 0" colspan="2" class="center divider-left">Financiación De
-                                    Adicionales</th>
-                            </tr>
-                            <tr>
-                                <th class="center">Fecha Cuota</th>
-                                <th class="center">Valor Cuota</th>
-                                <th *ngIf="cuotasAdicValue > 0" class="center divider-left">Fecha Cuota</th>
-                                <th *ngIf="cuotasAdicValue > 0" class="center">Valor Cuota</th>
-                            </tr>
-                        </thead>
+                    <div class="table-wrap">
+                        <table class="plan-table">
+                            <thead>
+                                <tr>
+                                    <th class="center">No.</th>
+                                    <th class="center">Fecha Cuota</th>
+                                    <th class="center">Valor Cuota</th>
+                                </tr>
+                            </thead>
 
-                        <tbody formArrayName="plan">
-                            <tr *ngFor="let row of plan.controls; let i = index" [formGroupName]="i">
-                                <td class="center">{{ i + 1 }}</td>
-                                <td>
-                                    <input *ngIf="i < cantidadCuotasValue" class="cell" type="date"
-                                        formControlName="fechaApto" />
-                                    <span *ngIf="i >= cantidadCuotasValue"
-                                        class="placeholder center">-----------------------</span>
-                                </td>
-                                <td>
-                                    <input *ngIf="i < cantidadCuotasValue" class="cell" type="text" appCopCurrency
-                                        formControlName="valorApto" placeholder="$" />
-                                    <span *ngIf="i >= cantidadCuotasValue"
-                                        class="placeholder center">-----------------------</span>
-                                </td>
-                                <td *ngIf="cuotasAdicValue > 0">
-                                    <input *ngIf="i < cuotasAdicValue" class="cell" type="date"
-                                        formControlName="fechaAdic" />
-                                    <span *ngIf="i >= cuotasAdicValue"
-                                        class="placeholder center">-----------------------</span>
-                                </td>
-                                <td *ngIf="cuotasAdicValue > 0">
-                                    <input *ngIf="i < cuotasAdicValue" class="cell" type="text" appCopCurrency
-                                        formControlName="valorAdic" placeholder="$" />
-                                    <span *ngIf="i >= cuotasAdicValue"
-                                        class="placeholder center">-----------------------</span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                            <tbody formArrayName="plan">
+                                <tr *ngFor="let row of plan.controls; let i = index" [formGroupName]="i">
+                                    <td class="center">{{ i + 1 }}</td>
+                                    <td>
+                                        <input class="cell" type="date" formControlName="fechaApto" />
+                                    </td>
+                                    <td>
+                                        <input class="cell" type="text" appCopCurrency formControlName="valorApto"
+                                            placeholder="$" />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <div class="actions center">
-                <button type="button" class="btn primary" (click)="generarCotizacion()">Generar Cotización</button>
+            <!-- SECCIÓN 2: Plan de Pagos de Adicionales con Tabs -->
+            <div class="card table-card" *ngIf="getAdicionalesSeleccionados().length > 0">
+
+                <div class="section-title"></div>
+
+                <div class="fieldset">
+                    <div class="legend">PLAN DE PAGOS DE ADICIONALES</div>
+
+                    <!-- Navegación de Tabs -->
+                    <div class="tabs-nav">
+                        <button *ngFor="let config of getAdicionalesSeleccionados()" type="button" class="tab-btn"
+                            [class.active]="tabActivoAdicional === config.id" (click)="cambiarTabAdicional(config.id)">
+                            {{ config.displayName }}
+                        </button>
+                    </div>
+
+                    <!-- Contenido de cada Tab -->
+                    <div *ngFor="let config of getAdicionalesSeleccionados()" class="tab-content"
+                        [hidden]="tabActivoAdicional !== config.id">
+                        <div class="table-wrap">
+                            <table class="plan-table">
+                                <thead>
+                                    <tr>
+                                        <th class="center">No.</th>
+                                        <th class="center">Fecha Cuota</th>
+                                        <th class="center">Valor Cuota</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    <tr *ngFor="let item of planesAdicionales.get(config.id); let i = index">
+                                        <td class="center">{{ i + 1 }}</td>
+                                        <td>
+                                            <input class="cell" type="date" [value]="item.fecha" readonly />
+                                        </td>
+                                        <td>
+                                            <input class="cell" type="text"
+                                                [value]="item.valor | currency:'CAD':'symbol-narrow':'1.0-0'"
+                                                [disabled]="true" />
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <!-- Acciones al final de ambos planes -->
+        <div class="actions center" *ngIf="showPlan">
+            <button type="button" class="btn primary" (click)="generarCotizacion()">Generar Cotización</button>
         </div>
     </div>
 </div>

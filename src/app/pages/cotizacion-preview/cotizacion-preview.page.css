@@ -374,7 +374,6 @@
   object-position: center;
   vertical-align: top;
   border-top: 26px solid #f6f4ec;
-  ;
 }
 
 /* Separador tipo “franja” como el que ya usas */
@@ -432,7 +431,7 @@
   color: #777;
   font-size: 14px;
   font-weight: 600;
-  
+
 }
 
 .apto-title {

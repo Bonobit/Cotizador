@@ -22,6 +22,7 @@ import { CotizacionesService } from '@core/services/cotizaciones.service';
 import { CopCurrencyDirective } from '@shared/directives/cop-currency.directive';
 import { AdicionalesManagerService, ADICIONALES_CONFIG } from '@core/services/adicionales-manager.service';
 import { AdicionalConfig } from '@core/models/adicional-config.model';
+import { PlanPagosService, PlanPagosItem } from '@core/services/plan-pagos.service';
 
 @Component({
     selector: 'app-cotizacion-form-page',
@@ -52,6 +53,10 @@ export class CotizacionFormPage implements OnInit {
     // Adicionales config
     adicionalesConfig: AdicionalConfig[] = ADICIONALES_CONFIG;
 
+    // Sistema de tabs para adicionales
+    tabActivoAdicional: string | null = null;
+    planesAdicionales: Map<string, PlanPagosItem[]> = new Map();
+
     constructor(
         private fb: FormBuilder,
         private router: Router,
@@ -61,7 +66,8 @@ export class CotizacionFormPage implements OnInit {
         private cdr: ChangeDetectorRef,
         private cotizacionesService: CotizacionesService,
         private apartamentosService: ApartamentosService,
-        private adicionalesManager: AdicionalesManagerService
+        private adicionalesManager: AdicionalesManagerService,
+        private planPagosService: PlanPagosService
     ) {
         this.form = this.fb.group({
             tipoDocumento: ['', Validators.required],
@@ -155,12 +161,18 @@ export class CotizacionFormPage implements OnInit {
         // Restaurar estado si venimos del preview
         const savedForm = this.state.load<any>();
         if (savedForm) {
-            // valores simples
+            // 1. Aplicar valores iniciales (esto restaurará los checkboxes y campos habilitados)
             this.form.patchValue(savedForm, { emitEvent: false });
-            // Actualizar estado de adicionales
+
+            // 2. Actualizar estado de adicionales (esto habilitará campos si el checkbox está marcado)
             this.adicionalesConfig.forEach(config => {
                 this.adicionalesManager.updateAdicionalState(this.form, config);
             });
+
+            // 3. Volver a aplicar valores ahora que los campos están habilitados
+            // Esto es necesario porque patchValue ignora campos deshabilitados
+            this.form.patchValue(savedForm, { emitEvent: false });
+
             this.recalculateAll();
 
             if (savedForm.proyecto) {
@@ -180,18 +192,35 @@ export class CotizacionFormPage implements OnInit {
                             this.apartamentosFiltrados = this.allApartamentos.filter(
                                 a => a.torre === savedForm.torre
                             );
+
+                            // Re-aplicar valor de torre para asegurar que el dropdown lo muestre
+                            this.form.patchValue({ torre: savedForm.torre }, { emitEvent: false });
                         }
 
                         if (savedForm.apartamento) {
                             const apto = this.allApartamentos.find(a => a.id === savedForm.apartamento);
-                            if (apto) localStorage.setItem('apto_label', String(apto.numero_apto ?? ''));
+                            if (apto) {
+                                localStorage.setItem('apto_label', String(apto.numero_apto ?? ''));
+                                // Re-aplicar valor de apartamento
+                                this.form.patchValue({ apartamento: savedForm.apartamento }, { emitEvent: false });
+                            }
                         }
+
                         this.cargandoApartamentos = false;
                         this.cdr.markForCheck();
+
+                        // Regenerar planes de pago (esto llenará el Map de adicionales que no se guarda en el form)
+                        // setTimeout para asegurar que el ciclo de detección de cambios haya terminado
+                        setTimeout(() => {
+                            if (this.form.valid || (this.form.get('cantidadCuotas')?.value > 0)) {
+                                this.generarPlan();
+                            }
+                        }, 100);
                     },
                     error: (err) => {
                         console.error('Error loading apartments during restore:', err);
                         this.cargandoApartamentos = false;
+                        this.cdr.markForCheck();
                     }
                 });
             }
@@ -373,8 +402,20 @@ export class CotizacionFormPage implements OnInit {
         return this.form.get('cantidadCuotas')?.value || 0;
     }
 
-    get cuotasAdicValue(): number {
-        return this.form.get('cuotasFinanciacion')?.value || 0;
+    /**
+     * Obtiene los adicionales que están seleccionados (checkbox activo)
+     */
+    getAdicionalesSeleccionados(): AdicionalConfig[] {
+        return this.adicionalesConfig.filter(config =>
+            this.form.get(config.formControls.checkbox)?.value === true
+        );
+    }
+
+    /**
+     * Cambia el tab activo de adicionales
+     */
+    cambiarTabAdicional(adicionalId: string): void {
+        this.tabActivoAdicional = adicionalId;
     }
 
     private createPlanRow() {
@@ -393,69 +434,73 @@ export class CotizacionFormPage implements OnInit {
             return;
         }
 
+        // Limpiar datos anteriores
         this.plan.clear();
+        this.planesAdicionales.clear();
 
+        // 1. Generar plan del apartamento
         const cantidadCuotas = this.form.get('cantidadCuotas')?.value || 0;
         const fechaUltima = this.form.get('fechaUltimaCuota')?.value;
-        const cuotasAdic = this.form.get('cuotasFinanciacion')?.value || 0;
-        const fechaUltimaAdic = this.form.get('fechaUltimaCuotaAdic')?.value;
-
-        // Calcular fechas
-        const fechasApto = this.calcularFechas(cantidadCuotas, fechaUltima);
-        const fechasAdic = this.calcularFechas(cuotasAdic, fechaUltimaAdic);
-
-        // Calcular valores monetarios
         const valorEspecial = this.form.get('valorEspecialHoy')?.value || 0;
         const inicial = this.form.get('valorCuotaInicial')?.value || 0;
-        const valorMensualApto = cantidadCuotas > 0 ? Math.round((valorEspecial - inicial) / cantidadCuotas) : 0;
 
-        const totalAdic = this.form.get('valorTotalAdicionales')?.value || 0;
-        const valorMensualAdic = cuotasAdic > 0 ? Math.round(totalAdic / cuotasAdic) : 0;
+        const planApto = this.planPagosService.generarPlanPagos({
+            valorTotal: valorEspecial,
+            valorInicial: inicial,
+            cantidadCuotas: cantidadCuotas,
+            fechaUltimaCuota: fechaUltima
+        });
 
-        // Usamos el máximo número de filas para cubrir ambos casos
-        const totalRows = Math.max(cantidadCuotas, cuotasAdic);
-
-        for (let i = 0; i < totalRows; i++) {
-            const isAptoActive = i < cantidadCuotas;
-            const isAdicActive = i < cuotasAdic;
-
+        // Construir FormArray solo con datos del apartamento
+        planApto.forEach(item => {
             this.plan.push(this.fb.group({
-                fechaApto: [{ value: isAptoActive ? (fechasApto[i] || '') : '', disabled: true }],
-                valorApto: [{ value: isAptoActive ? valorMensualApto : '', disabled: true }],
-                fechaAdic: [{ value: isAdicActive ? (fechasAdic[i] || '') : '', disabled: true }],
-                valorAdic: [{ value: isAdicActive ? valorMensualAdic : '', disabled: true }],
+                fechaApto: [{ value: item.fecha, disabled: true }],
+                valorApto: [{ value: item.valor, disabled: true }]
             }));
+        });
+
+        // 2. Generar planes individuales por cada adicional seleccionado
+        const adicionalesSeleccionados = this.getAdicionalesSeleccionados();
+
+        // Helper para limpiar valores numéricos (quitando $, puntos, espacios)
+        const toNum = (v: any) => (v === null || v === undefined || v === '' ? 0 : Number(String(v).replace(/[^0-9.-]+/g, "")) || 0);
+
+        adicionalesSeleccionados.forEach(config => {
+            const cuotas = toNum(this.form.get(config.formControls.cuotasFinanciacion)?.value);
+            const fechaUltimaCuota = this.form.get(config.formControls.fechaUltimaCuota)?.value;
+            const beneficio = toNum(this.form.get(config.formControls.beneficio)?.value);
+            const valorTotal = toNum(this.form.get(config.formControls.valorTotal)?.value);
+
+            // Calcular el valor después del beneficio
+            const valorDespuesBeneficio = Math.max(valorTotal - beneficio, 0);
+
+            // Calcular valor cuota explícitamente para garantizar precisión y tipo numérico
+            let valorCuotaCalculada = 0;
+            if (cuotas > 0) {
+                valorCuotaCalculada = Math.round(valorDespuesBeneficio / cuotas);
+            }
+
+            const plan = this.planPagosService.generarPlanPagos({
+                valorTotal: valorDespuesBeneficio,
+                valorInicial: 0,
+                cantidadCuotas: cuotas,
+                fechaUltimaCuota: fechaUltimaCuota,
+                valorCuotaManual: valorCuotaCalculada
+            });
+
+            // Almacenar en el Map
+            this.planesAdicionales.set(config.id, plan);
+        });
+
+        // 3. Establecer el primer adicional como tab activo
+        if (adicionalesSeleccionados.length > 0) {
+            this.tabActivoAdicional = adicionalesSeleccionados[0].id;
         }
 
         this.showPlan = true;
     }
 
-    private calcularFechas(cantidad: number, fechaUltima: string): string[] {
-        if (!cantidad || !fechaUltima) return [];
 
-        const dates: string[] = [];
-        // Parsear fecha 'YYYY-MM-DD'
-        const parts = fechaUltima.split('-');
-        const year = parseInt(parts[0], 10);
-        const month = parseInt(parts[1], 10) - 1; // Mes 0-indexed
-        const day = parseInt(parts[2], 10);
-
-        for (let i = 0; i < cantidad; i++) {
-            const monthsToSubtract = cantidad - 1 - i;
-            const d = new Date(year, month - monthsToSubtract, 1);
-            const maxDays = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-            const finalDay = Math.min(day, maxDays);
-
-            d.setDate(finalDay);
-
-            const y = d.getFullYear();
-            const m = String(d.getMonth() + 1).padStart(2, '0');
-            const da = String(d.getDate()).padStart(2, '0');
-
-            dates.push(`${y}-${m}-${da}`);
-        }
-        return dates;
-    }
 
     generarCotizacion() {
         this.state.save(this.form.getRawValue());
@@ -515,6 +560,21 @@ export class CotizacionFormPage implements OnInit {
             if (fechaControl) {
                 fechaControl.valueChanges.subscribe(() => {
                     this.adicionalesManager.calculateCuotasFinanciacion(this.form, config);
+                });
+            }
+
+            // Suscribirse a cambios de valorTotal y beneficio para calcular valorCuota
+            const valorTotalControl = this.form.get(config.formControls.valorTotal);
+            if (valorTotalControl) {
+                valorTotalControl.valueChanges.subscribe(() => {
+                    this.adicionalesManager.calculateValorCuota(this.form, config);
+                });
+            }
+
+            const beneficioControl = this.form.get(config.formControls.beneficio);
+            if (beneficioControl) {
+                beneficioControl.valueChanges.subscribe(() => {
+                    this.adicionalesManager.calculateValorCuota(this.form, config);
                 });
             }
         });
