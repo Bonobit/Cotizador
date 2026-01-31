@@ -168,28 +168,28 @@
                 <tbody>
                   <tr class="total-row">
                     <td>VALOR DEL APARTAMENTO</td>
-                    <td>{{ (data.valorTotal || 350000000) | currency:'USD':'symbol':'1.0-0' }} COP</td>
+                    <td>{{ '$ ' + ((data.valorTotal || 350000000) | number:'1.0-0') }} COP</td>
                   </tr>
                   <tr>
                     <td>BENEFICIO DEL PROGRAMA</td>
-                    <td>{{ (data.beneficioValorizacion || 25000000) | currency:'USD':'symbol':'1.0-0' }} COP</td>
+                    <td>{{ '$ ' + ((data.beneficioValorizacion || 25000000) | number:'1.0-0') }} COP</td>
                   </tr>
                   <tr>
                     <td>SEPARACIÓN</td>
-                    <td>{{ (data.beneficioProntaSeparacion || 5000000) | currency:'USD':'symbol':'1.0-0' }} COP</td>
+                    <td>{{ '$ ' + ((data.beneficioProntaSeparacion || 5000000) | number:'1.0-0') }} COP</td>
                   </tr>
                   <tr>
                     <td>VALOR CUOTA INICIAL {{ data.porcentajeCuotaInicial || 30 }}%</td>
-                    <td>{{ (data.valorCuotaInicial || 105000000) | currency:'USD':'symbol':'1.0-0' }} COP</td>
+                    <td>{{ '$ ' + ((data.valorCuotaInicial || 105000000) | number:'1.0-0') }} COP</td>
                   </tr>
                   <tr>
                     <td>VALOR CUOTA DEL MES</td>
                     <!-- Si no existe campo específico, poner 0 o calcular -->
-                    <td>{{ (data.valorCuotaMensualReal || 2500000) | currency:'USD':'symbol':'1.0-0' }} COP</td>
+                    <td>{{ '$ ' + ((data.valorCuotaMensualReal || 2500000) | number:'1.0-0') }} COP</td>
                   </tr>
                   <tr>
                     <td>VALOR CUOTA CON LINEA DE PRODUCTO</td>
-                    <td>{{ (data.valorCuotaLineaProducto || 1500000) | currency:'USD':'symbol':'1.0-0' }} COP</td>
+                    <td>{{ '$ ' + ((data.valorCuotaLineaProducto || 1500000) | number:'1.0-0') }} COP</td>
                   </tr>
                 </tbody>
               </table>
@@ -213,23 +213,23 @@
               <div class="financing-body">
                 <div class="financing-row">
                   <span>VALOR DE LA INVERSIÓN</span>
-                  <span>{{ (data.valorInversionDolares || 85000) | currency:'USD':'symbol':'1.0-0' }}</span>
+                  <span>{{ '$ ' + ((data.valorInversionDolares || 85000) | number:'1.0-0') }}</span>
                 </div>
                 <div class="financing-row">
                   <span>CUOTA DE SEPARACIÓN</span>
-                  <span>{{ (data.cuotaSeparacionDolares || 1200) | currency:'USD':'symbol':'1.0-0' }}</span>
+                  <span>{{ '$ ' + ((data.cuotaSeparacionDolares || 1200) | number:'1.0-0') }}</span>
                 </div>
                 <div class="financing-row">
                   <span>VALOR CUOTA INICIAL</span>
-                  <span>{{ (data.valorCuotaInicialDolares || 25000) | currency:'USD':'symbol':'1.0-0' }}</span>
+                  <span>{{ '$ ' + ((data.valorCuotaInicialDolares || 25000) | number:'1.0-0') }}</span>
                 </div>
                 <div class="financing-row">
                   <span>VALOR FINAL</span>
-                  <span>{{ (data.valorFinalDolares || 58800) | currency:'USD':'symbol':'1.0-0' }}</span>
+                  <span>{{ '$ ' + ((data.valorFinalDolares || 58800) | number:'1.0-0') }}</span>
                 </div>
                 <div class="financing-row">
                   <span>VALOR CUOTA MENSUAL</span>
-                  <span>{{ (data.valorCuotaMensualDolares || 650) | currency:'USD':'symbol':'1.0-0' }}</span>
+                  <span>{{ '$ ' + ((data.valorCuotaMensualDolares || 650) | number:'1.0-0') }}</span>
                 </div>
               </div>
             </div>
@@ -239,7 +239,7 @@
             <div class="financing-body">
               <div class="financing-row highlight">
                 <span>VALOR</span>
-                <span class="val">{{ (data.valorFinanciacion || 245000000) | currency:'USD':'symbol':'1.0-0' }}
+                <span class="val">{{ '$ ' + ((data.valorFinanciacion || 245000000) | number:'1.0-0') }}
                   COP</span>
               </div>
               <div class="financing-row">
@@ -252,7 +252,7 @@
               </div>
               <div class="financing-row highlight">
                 <span>CUOTA BANCARIA ESTIMADA</span>
-                <span class="val">{{ (data.cuotaBancariaEstimada || 2800000) | currency:'USD':'symbol':'1.0-0' }}
+                <span class="val">{{ '$ ' + ((data.cuotaBancariaEstimada || 2800000) | number:'1.0-0') }}
                   COP</span>
               </div>
             </div>
@@ -262,11 +262,11 @@
             <div class="financing-body">
               <div class="financing-row">
                 <span>VALORIZACIÓN METRO CUADRADO</span>
-                <span class="val">{{ (data.valorizacionM2 || 8500000) | currency:'USD':'symbol':'1.0-0' }} COP</span>
+                <span class="val">{{ '$ ' + ((data.valorizacionM2 || 8500000) | number:'1.0-0') }} COP</span>
               </div>
               <div class="financing-row">
                 <span>VALORIZACIÓN A ENTREGA (14%)</span>
-                <span class="val">{{ (data.valorizacionEntrega || 42000000) | currency:'USD':'symbol':'1.0-0' }}
+                <span class="val">{{ '$ ' + ((data.valorizacionEntrega || 42000000) | number:'1.0-0') }}
                   COP</span>
               </div>
               <div class="financing-row">
@@ -279,7 +279,7 @@
               </div>
               <div class="financing-row highlight">
                 <span>RETORNO</span>
-                <span class="val">{{ (data.retorno || 156000000) | currency:'USD':'symbol':'1.0-0' }}</span>
+                <span class="val">{{ '$ ' + ((data.retorno || 156000000) | number:'1.0-0') }}</span>
               </div>
             </div>
 

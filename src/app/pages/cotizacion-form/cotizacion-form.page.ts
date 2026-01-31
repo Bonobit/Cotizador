@@ -36,6 +36,9 @@ export class CotizacionFormPage implements OnInit {
     cotizacionNoLabel$!: Observable<string>;
     showPlan = false;
 
+    // Fecha mínima para inputs de tipo date (hoy)
+    fechaMinima: string = new Date().toISOString().split('T')[0];
+
     form!: FormGroup;
     asesores: Asesor[] = [];
     cargandoAsesores = false;
@@ -55,7 +58,7 @@ export class CotizacionFormPage implements OnInit {
 
     // Sistema de tabs para adicionales
     tabActivoAdicional: string | null = null;
-    planesAdicionales: Map<string, PlanPagosItem[]> = new Map();
+    planesAdicionales: Map<string, FormArray> = new Map();
 
     constructor(
         private fb: FormBuilder,
@@ -159,7 +162,7 @@ export class CotizacionFormPage implements OnInit {
         this.setupDocTypeRule();
 
         // Restaurar estado si venimos del preview
-        const savedForm = this.state.load<any>();
+        const savedForm = this.state.load();
         if (savedForm) {
             // 1. Aplicar valores iniciales (esto restaurará los checkboxes y campos habilitados)
             this.form.patchValue(savedForm, { emitEvent: false });
@@ -201,8 +204,18 @@ export class CotizacionFormPage implements OnInit {
                             const apto = this.allApartamentos.find(a => a.id === savedForm.apartamento);
                             if (apto) {
                                 localStorage.setItem('apto_label', String(apto.numero_apto ?? ''));
+                                localStorage.setItem('apto_img', apto.apartamento_img ?? '');
+                                localStorage.setItem('apto_plano_img', apto.plano_img ?? '');
+                                localStorage.setItem('apto_area_total', String(apto.area_total ?? ''));
+
                                 // Re-aplicar valor de apartamento
                                 this.form.patchValue({ apartamento: savedForm.apartamento }, { emitEvent: false });
+
+                                // Forzar valor total y recalcular (porque patchValue ignora campos deshabilitados)
+                                if (apto.precio_lista) {
+                                    this.form.get('valorTotal')?.setValue(apto.precio_lista);
+                                    this.recalculateAll();
+                                }
                             }
                         }
 
@@ -251,12 +264,17 @@ export class CotizacionFormPage implements OnInit {
                 this.proyectos = data ?? [];
                 this.cargandoProyectos = false;
 
-                // Preseleccionar Nogales y bloquear
-                const nogales = this.proyectos.find(p => p.nombre?.toLowerCase().includes('nogales'));
-                if (nogales) {
-                    this.form.patchValue({ proyecto: nogales.id });
-                    this.form.get('proyecto')?.disable();
+                // Preseleccionar Nogales ssi no hay un proyecto ya seleccionado (por caché)
+                const currentVal = this.form.get('proyecto')?.value;
+                if (!currentVal) {
+                    const nogales = this.proyectos.find(p => p.nombre?.toLowerCase().includes('nogales'));
+                    if (nogales) {
+                        this.form.patchValue({ proyecto: nogales.id });
+                    }
                 }
+
+                // Siempre bloquear el campo
+                this.form.get('proyecto')?.disable();
 
                 this.cdr.markForCheck();
             },
@@ -420,8 +438,9 @@ export class CotizacionFormPage implements OnInit {
 
     private createPlanRow() {
         return this.fb.group({
-            fechaApto: new FormControl(''),
-            valorApto: new FormControl(''),
+            fechaApto: new FormControl({ value: '', disabled: true }), // Siempre bloqueada (calculada)
+            valorApto: new FormControl({ value: '', disabled: true }), // Disabled por defecto
+            editarValorApto: new FormControl(false), // Checkbox para habilitar edición
             fechaAdic: new FormControl(''),
             valorAdic: new FormControl(''),
         });
@@ -451,19 +470,32 @@ export class CotizacionFormPage implements OnInit {
             fechaUltimaCuota: fechaUltima
         });
 
-        // Construir FormArray solo con datos del apartamento
+        // Construir FormArray usando createPlanRow
         planApto.forEach(item => {
-            this.plan.push(this.fb.group({
-                fechaApto: [{ value: item.fecha, disabled: true }],
-                valorApto: [{ value: item.valor, disabled: true }]
-            }));
+            const row = this.createPlanRow();
+
+            // Establecer valores
+            row.get('fechaApto')?.setValue(item.fecha, { emitEvent: false });
+            row.get('valorApto')?.setValue(item.valor.toString(), { emitEvent: false });
+
+            // Listener para el checkbox editarValorApto
+            row.get('editarValorApto')?.valueChanges.subscribe(editar => {
+                const valorAptoControl = row.get('valorApto');
+                if (editar) {
+                    valorAptoControl?.enable({ emitEvent: false });
+                } else {
+                    valorAptoControl?.disable({ emitEvent: false });
+                }
+            });
+
+            this.plan.push(row);
         });
 
         // 2. Generar planes individuales por cada adicional seleccionado
         const adicionalesSeleccionados = this.getAdicionalesSeleccionados();
 
         // Helper para limpiar valores numéricos (quitando $, puntos, espacios)
-        const toNum = (v: any) => (v === null || v === undefined || v === '' ? 0 : Number(String(v).replace(/[^0-9.-]+/g, "")) || 0);
+        const toNum = (v: any) => (v === null || v === undefined || v === '' ? 0 : Number(String(v).replace(/[^0-9]/g, "")) || 0);
 
         adicionalesSeleccionados.forEach(config => {
             const cuotas = toNum(this.form.get(config.formControls.cuotasFinanciacion)?.value);
@@ -488,8 +520,31 @@ export class CotizacionFormPage implements OnInit {
                 valorCuotaManual: valorCuotaCalculada
             });
 
+            // Crear FormArray para este adicional (igual que el apartamento)
+            const formArrayAdicional = this.fb.array<FormGroup>([]);
+
+            plan.forEach(item => {
+                const row = this.createPlanRow();
+
+                // Establecer valores
+                row.get('fechaApto')?.setValue(item.fecha, { emitEvent: false });
+                row.get('valorApto')?.setValue(item.valor.toString(), { emitEvent: false });
+
+                // Listener para el checkbox editarValorApto
+                row.get('editarValorApto')?.valueChanges.subscribe(editar => {
+                    const valorAptoControl = row.get('valorApto');
+                    if (editar) {
+                        valorAptoControl?.enable({ emitEvent: false });
+                    } else {
+                        valorAptoControl?.disable({ emitEvent: false });
+                    }
+                });
+
+                formArrayAdicional.push(row);
+            });
+
             // Almacenar en el Map
-            this.planesAdicionales.set(config.id, plan);
+            this.planesAdicionales.set(config.id, formArrayAdicional);
         });
 
         // 3. Establecer el primer adicional como tab activo

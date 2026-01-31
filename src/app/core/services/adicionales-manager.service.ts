@@ -105,6 +105,8 @@ export class AdicionalesManagerService {
 
     /**
      * Actualiza el estado de los controles de un adicional basado en si está seleccionado
+     * Cuando se selecciona, habilita campos y añade validadores required
+     * Cuando se deselecciona, deshabilita campos y elimina validadores
      */
     updateAdicionalState(form: FormGroup, config: AdicionalConfig): void {
         const checkboxControl = form.get(config.formControls.checkbox);
@@ -120,36 +122,67 @@ export class AdicionalesManagerService {
         };
 
         if (isSelected) {
-            // Habilitar campos cuando el adicional está seleccionado
+            // Habilitar campos y añadir validadores when el adicional está seleccionado
             if (config.hasQuantity && controls.cantidad) {
                 controls.cantidad.enable({ emitEvent: false });
+                controls.cantidad.setValidators([Validators.required]);
+                controls.cantidad.updateValueAndValidity({ emitEvent: false });
+                // Marcar como pristine para evitar mostrar errores inmediatamente
+                controls.cantidad.markAsPristine();
+                controls.cantidad.markAsUntouched();
                 if (!controls.cantidad.value || controls.cantidad.value === '0') {
                     controls.cantidad.setValue('1', { emitEvent: false });
                 }
             }
 
+            // Valor total es obligatorio
             controls.valorTotal?.enable({ emitEvent: false });
+            controls.valorTotal?.setValidators([Validators.required, Validators.min(1)]);
+            controls.valorTotal?.updateValueAndValidity({ emitEvent: false });
+            controls.valorTotal?.markAsPristine();
+            controls.valorTotal?.markAsUntouched();
+
+            // Beneficio es obligatorio (puede ser 0)
             controls.beneficio?.enable({ emitEvent: false });
-            // controls.valorCuota?.enable({ emitEvent: false }); // Mantener deshabilitado
+            controls.beneficio?.setValidators([Validators.required]);
+            controls.beneficio?.updateValueAndValidity({ emitEvent: false });
+            controls.beneficio?.markAsPristine();
+            controls.beneficio?.markAsUntouched();
+
+            // Fecha última cuota es obligatoria
             controls.fechaUltimaCuota?.enable({ emitEvent: false });
-            // cuotasFinanciacion permanece disabled ya que es calculado
+            controls.fechaUltimaCuota?.setValidators([Validators.required]);
+            controls.fechaUltimaCuota?.updateValueAndValidity({ emitEvent: false });
+            controls.fechaUltimaCuota?.markAsPristine();
+            controls.fechaUltimaCuota?.markAsUntouched();
+
+            // valorCuota y cuotasFinanciacion son calculados, no requieren validación manual
+            // pero sí mantienen su estado disabled
         } else {
-            // Deshabilitar y limpiar campos cuando el adicional no está seleccionado
+            // Deshabilitar, limpiar campos y eliminar validadores cuando el adicional no está seleccionado
             if (config.hasQuantity && controls.cantidad) {
                 controls.cantidad.setValue('0', { emitEvent: false });
+                controls.cantidad.clearValidators();
+                controls.cantidad.updateValueAndValidity({ emitEvent: false });
                 controls.cantidad.disable({ emitEvent: false });
             }
 
             controls.valorTotal?.setValue(0, { emitEvent: false });
+            controls.valorTotal?.clearValidators();
+            controls.valorTotal?.updateValueAndValidity({ emitEvent: false });
             controls.valorTotal?.disable({ emitEvent: false });
 
             controls.beneficio?.setValue(0, { emitEvent: false });
+            controls.beneficio?.clearValidators();
+            controls.beneficio?.updateValueAndValidity({ emitEvent: false });
             controls.beneficio?.disable({ emitEvent: false });
 
             controls.valorCuota?.setValue(0, { emitEvent: false });
             controls.valorCuota?.disable({ emitEvent: false });
 
             controls.fechaUltimaCuota?.setValue('', { emitEvent: false });
+            controls.fechaUltimaCuota?.clearValidators();
+            controls.fechaUltimaCuota?.updateValueAndValidity({ emitEvent: false });
             controls.fechaUltimaCuota?.disable({ emitEvent: false });
 
             controls.cuotasFinanciacion?.setValue(0, { emitEvent: false });

@@ -75,9 +75,8 @@ export class CopCurrencyDirective implements ControlValueAccessor, OnInit {
         // Haremos un formateo manual simple con Intl si CurrencyPipe no da lo esperado por defecto.
 
         // Opción Manual Robusta:
-        const formatted = new Intl.NumberFormat('es-CO', {
-            style: 'currency',
-            currency: 'COP',
+        // Opción Manual Robusta:
+        const formatted = '$ ' + new Intl.NumberFormat('en-US', {
             minimumFractionDigits: 0,
             maximumFractionDigits: 0
         }).format(Number(clean));

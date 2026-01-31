@@ -541,15 +541,12 @@ input:disabled::placeholder {
 
 .tab-btn.active {
   color: #f6b800;
-  font-weight: 800;
+  /* font-weight: 800;  <-- Causaba el salto de tamaño */
+  text-shadow: 0 0 .65px #f6b800, 0 0 .65px #f6b800;
+  /* Simula negrita sin cambiar ancho */
   border-bottom-color: #f6b800;
   background: rgba(246, 184, 0, 0.05);
   border-radius: 8px 8px 0 0;
-}
-
-/* Contenido del tab con animación de entrada */
-.tab-content {
-  animation: fadeIn 0.3s ease;
 }
 
 @keyframes fadeIn {
@@ -574,4 +571,62 @@ input:disabled::placeholder {
     padding: 0.6rem 1rem;
     font-size: 12px;
   }
+}
+
+/* ============================================
+   ESTILOS PARA INPUT CON ICONO DE EDICIÓN
+   ============================================ */
+
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-icon input.cell {
+  padding-right: 36px;
+  /* Espacio para el icono */
+}
+
+.edit-icon-label {
+  position: absolute;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.edit-icon-label:hover {
+  background: rgba(246, 184, 0, 0.15);
+}
+
+.edit-icon-label svg {
+  color: rgba(0, 0, 0, 0.4);
+  transition: color 0.2s ease;
+}
+
+.edit-icon-label:hover svg {
+  color: rgba(246, 184, 0, 0.9);
+}
+
+/* Cuando el checkbox está marcado (activo) */
+.edit-icon-label.active {
+  background: rgba(246, 184, 0, 0.15);
+}
+
+.edit-icon-label.active svg {
+  color: #f6b800;
+}
+
+/* Ocultar el checkbox real */
+.edit-checkbox {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
 }

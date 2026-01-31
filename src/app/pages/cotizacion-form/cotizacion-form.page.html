@@ -203,7 +203,7 @@
 
                     <div class="field">
                         <label>Fecha de la última cuota</label>
-                        <input type="date" formControlName="fechaUltimaCuota" />
+                        <input type="date" formControlName="fechaUltimaCuota" [min]="fechaMinima" />
                         <small class="error" *ngIf="isInvalid('fechaUltimaCuota')">{{
                             getErrorMessage('fechaUltimaCuota') }}</small>
                     </div>
@@ -275,17 +275,9 @@
                         </div>
 
                         <div class="field">
-                            <label>Valor cuota {{ config.displayName.toLowerCase() }}</label>
-                            <input type="text" class="no-spinners" appCopCurrency
-                                [formControlName]="config.formControls.valorCuota" placeholder="$" />
-                            <small class="error" *ngIf="isInvalid(config.formControls.valorCuota)">
-                                {{ getErrorMessage(config.formControls.valorCuota) }}
-                            </small>
-                        </div>
-
-                        <div class="field">
                             <label>Fecha última cuota</label>
-                            <input type="date" [formControlName]="config.formControls.fechaUltimaCuota" />
+                            <input type="date" [formControlName]="config.formControls.fechaUltimaCuota"
+                                [min]="fechaMinima" />
                             <small class="error" *ngIf="isInvalid(config.formControls.fechaUltimaCuota)">
                                 {{ getErrorMessage(config.formControls.fechaUltimaCuota) }}
                             </small>
@@ -297,6 +289,15 @@
                                 [formControlName]="config.formControls.cuotasFinanciacion" />
                             <small class="error" *ngIf="isInvalid(config.formControls.cuotasFinanciacion)">
                                 {{ getErrorMessage(config.formControls.cuotasFinanciacion) }}
+                            </small>
+                        </div>
+
+                        <div class="field">
+                            <label>Valor cuota {{ config.displayName.toLowerCase() }}</label>
+                            <input type="text" class="no-spinners" appCopCurrency
+                                [formControlName]="config.formControls.valorCuota" placeholder="$" />
+                            <small class="error" *ngIf="isInvalid(config.formControls.valorCuota)">
+                                {{ getErrorMessage(config.formControls.valorCuota) }}
                             </small>
                         </div>
                     </div>
@@ -356,7 +357,7 @@
 
                         <div class="field">
                             <label>Cotización válida hasta</label>
-                            <input type="date" formControlName="cotizacionValidaHasta" />
+                            <input type="date" formControlName="cotizacionValidaHasta" [min]="fechaMinima" />
                             <small class="error" *ngIf="isInvalid('cotizacionValidaHasta')"> {{
                                 getErrorMessage('cotizacionValidaHasta') }}</small>
                         </div>
@@ -422,8 +423,24 @@
                                         <input class="cell" type="date" formControlName="fechaApto" />
                                     </td>
                                     <td>
-                                        <input class="cell" type="text" appCopCurrency formControlName="valorApto"
-                                            placeholder="$" />
+                                        <div class="input-with-icon">
+                                            <input class="cell" type="text" appCopCurrency formControlName="valorApto"
+                                                placeholder="$" />
+                                            <label class="edit-icon-label"
+                                                [class.active]="row.get('editarValorApto')?.value">
+                                                <input type="checkbox" formControlName="editarValorApto"
+                                                    class="edit-checkbox" />
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path
+                                                        d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7">
+                                                    </path>
+                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z">
+                                                    </path>
+                                                </svg>
+                                            </label>
+                                        </div>
                                     </td>
                                 </tr>
                             </tbody>
@@ -461,18 +478,37 @@
                                     </tr>
                                 </thead>
 
-                                <tbody>
-                                    <tr *ngFor="let item of planesAdicionales.get(config.id); let i = index">
-                                        <td class="center">{{ i + 1 }}</td>
-                                        <td>
-                                            <input class="cell" type="date" [value]="item.fecha" [disabled]="true" />
-                                        </td>
-                                        <td>
-                                            <input class="cell" type="text"
-                                                [value]="item.valor | currency:'CAD':'symbol-narrow':'1.0-0'"
-                                                [disabled]="true" />
-                                        </td>
-                                    </tr>
+                                <tbody *ngIf="planesAdicionales.get(config.id) as formArray">
+                                    <ng-container *ngFor="let row of formArray.controls; let i = index">
+                                        <tr [formGroup]="$any(row)">
+                                            <td class="center">{{ i + 1 }}</td>
+                                            <td>
+                                                <input class="cell" type="date" formControlName="fechaApto" />
+                                            </td>
+                                            <td>
+                                                <div class="input-with-icon">
+                                                    <input class="cell" type="text" appCopCurrency
+                                                        formControlName="valorApto" placeholder="$" />
+                                                    <label class="edit-icon-label"
+                                                        [class.active]="row.get('editarValorApto')?.value">
+                                                        <input type="checkbox" formControlName="editarValorApto"
+                                                            class="edit-checkbox" />
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                            stroke-width="2" stroke-linecap="round"
+                                                            stroke-linejoin="round">
+                                                            <path
+                                                                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7">
+                                                            </path>
+                                                            <path
+                                                                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z">
+                                                            </path>
+                                                        </svg>
+                                                    </label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </ng-container>
                                 </tbody>
                             </table>
                         </div>

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
@@ -7,10 +7,13 @@ import jsPDF from 'jspdf';
 import { ClientesService } from '@core/services/clientes.service';
 import { CotizacionStateService } from '@core/services/cotizacion-state.service';
 import { CotizacionesService } from '@core/services/cotizaciones.service';
+import { LoggerService } from '@core/services/logger.service';
 import { SectionBannerComponent } from '../../shared/components/section/section-actividades.components';
 import { FooterAprobacionComponent } from '@shared/components/footer-aprobacion/footer-aprobacion.components';
+import { CotizacionFormState } from '@core/models/form-state.model';
 
 import { switchMap, of } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-cotizacion-preview-page',
@@ -44,17 +47,21 @@ export class CotizacionPreviewPage {
   areaTotal: number | null = null;
   showCotizacionDolares = false;
 
-  data: any = {};
+  // Partial permite que data tenga solo algunos campos de CotizacionFormState
+  // Esto evita errores de "possibly null" en el template
+  data: Partial<CotizacionFormState> = {};
   currDate = new Date();
 
   private clientesService = inject(ClientesService);
   private cotizacionesService = inject(CotizacionesService);
   private state = inject(CotizacionStateService);
+  private logger = inject(LoggerService);
+  private destroyRef = inject(DestroyRef);
 
   constructor(private router: Router) { }
 
   ngOnInit() {
-    const data = this.state.load<any>();
+    const data = this.state.load();
     this.data = data || {};
 
     // Extraer valor cuota mensual del plan
@@ -103,14 +110,14 @@ export class CotizacionPreviewPage {
     }
 
 
-    const form = this.state.load<any>();
+    const form = this.state.load();
 
     if (form) {
       this.show360 = !!form.link360;
       this.recorridoImg = localStorage.getItem('proyecto_recorrido') ?? '';
     }
 
-    console.log('Preview loaded:', {
+    this.logger.log('Preview loaded:', {
       torreNombre: this.torreNombre,
       aptoLabel: this.aptoLabel,
       asesorNombre: this.asesorNombre,
@@ -124,9 +131,9 @@ export class CotizacionPreviewPage {
   }
 
   async generarPDF() {
-    const data = this.state.load<any>();
+    const data = this.state.load();
     if (!data) {
-      console.error('No hay datos para generar cotización');
+      this.logger.error('No hay datos para generar cotización');
       this._generatePDF(); // Fallback
       return;
     }
@@ -152,7 +159,7 @@ export class CotizacionPreviewPage {
       switchMap((clientes: any) => {
         const clienteId = clientes?.[0]?.id;
         if (!clienteId) {
-          console.error('No se pudo obtener el ID del cliente');
+          this.logger.error('No se pudo obtener el ID del cliente');
           alert('Error: No se pudo registrar el cliente. Verifique la consola.');
           return of(null);
         }
@@ -211,16 +218,19 @@ export class CotizacionPreviewPage {
         };
 
         return this.cotizacionesService.crearCotizacion(cotizacionPayload);
-      })
+      }),
+      // takeUntilDestroyed automáticamente cancela la suscripción cuando el componente se destruye
+      // Esto previene memory leaks
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (res) => {
         if (res) {
-          console.log('Cotización guardada exitosamente', res);
+          this.logger.log('Cotización guardada exitosamente', res);
           this._generatePDF();
         }
       },
       error: (err) => {
-        console.error('Error en el proceso de guardado', err);
+        this.logger.error('Error en el proceso de guardado', err);
         alert('Ocurrió un error al guardar la cotización. Revise la consola para más detalles.');
         this._generatePDF();
       }
