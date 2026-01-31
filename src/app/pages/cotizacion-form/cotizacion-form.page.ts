@@ -251,10 +251,13 @@ export class CotizacionFormPage implements OnInit {
                 this.proyectos = data ?? [];
                 this.cargandoProyectos = false;
 
-                // Preseleccionar Nogales y bloquear
+                // Preseleccionar Nogales y bloquear (solo si no hay un proyecto ya seleccionado)
+                const currentProyecto = this.form.get('proyecto')?.value;
                 const nogales = this.proyectos.find(p => p.nombre?.toLowerCase().includes('nogales'));
-                if (nogales) {
-                    this.form.patchValue({ proyecto: nogales.id });
+                if (nogales && !currentProyecto) {
+                    this.form.patchValue({ proyecto: nogales.id }, { emitEvent: true });
+                    this.form.get('proyecto')?.disable();
+                } else if (nogales && currentProyecto === nogales.id) {
                     this.form.get('proyecto')?.disable();
                 }
 
@@ -278,10 +281,15 @@ export class CotizacionFormPage implements OnInit {
     }
 
     private listenProyectosChanges() {
-        this.form.get('proyecto')!.valueChanges.subscribe((id: number | null) => {
-            // Limpiar dependientes
-            this.form.patchValue({
+        let previousId = this.form.get('proyecto')?.value;
 
+        this.form.get('proyecto')!.valueChanges.subscribe((id: any) => {
+            const currentId = id ? Number(id) : null;
+            if (currentId === (previousId ? Number(previousId) : null)) return;
+            previousId = currentId;
+
+            // Limpiar dependientes solo si el proyecto cambió de verdad
+            this.form.patchValue({
                 torre: '',
                 apartamento: '',
                 valorTotal: null,
@@ -324,7 +332,12 @@ export class CotizacionFormPage implements OnInit {
     }
 
     private listenTorreChanges() {
+        let previousTorre = this.form.get('torre')?.value;
+
         this.form.get('torre')!.valueChanges.subscribe((torre: string) => {
+            if (torre === previousTorre) return;
+            previousTorre = torre;
+
             this.form.patchValue({ apartamento: '', valorTotal: null }, { emitEvent: false });
 
             localStorage.setItem('torre_nombre', torre ?? '');

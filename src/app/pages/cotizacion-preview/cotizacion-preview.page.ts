@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
@@ -46,7 +46,11 @@ export class CotizacionPreviewPage {
 
   data: any = {};
   currDate = new Date();
+  isLoading = true;
+  private imagesToLoad = 0;
+  private imagesLoaded = 0;
 
+  private cdr = inject(ChangeDetectorRef);
   private clientesService = inject(ClientesService);
   private cotizacionesService = inject(CotizacionesService);
   private state = inject(CotizacionStateService);
@@ -116,6 +120,66 @@ export class CotizacionPreviewPage {
       asesorNombre: this.asesorNombre,
       data: data
     });
+
+    // 1. Calcular inmediatamente cuántas imágenes esperamos
+    this.countImagesToLoad();
+
+    // 2. Timeout de seguridad: si después de 3 segundos no ha cargado, forzar mostrar contenido
+    setTimeout(() => {
+      if (this.isLoading) {
+        console.warn('Timeout alcanzado - forzando fin de carga');
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    }, 3000);
+  }
+
+  private countImagesToLoad() {
+    this.imagesLoaded = 0; // Reset por seguridad
+    // Contamos las imágenes que existen en el DOM/Template
+    let count = 0;
+    if (this.portadaUrl) count++;
+    if (this.asesorImg) count++;
+    if (this.ubicacionImg) count++;
+    if (this.ciudadVivaImg) count++;
+    if (this.apartamentoImg) count++;
+    if (this.planoImg) count++;
+
+    this.imagesToLoad = count;
+    console.log(`Total de imágenes a cargar: ${this.imagesToLoad}`);
+
+    // Si no hay imágenes, quitar loading inmediatamente
+    if (this.imagesToLoad === 0) {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  onImageLoad() {
+    this.imagesLoaded++;
+    console.log(`✓ Imagen cargada: ${this.imagesLoaded}/${this.imagesToLoad}`);
+
+    if (this.imagesLoaded >= this.imagesToLoad) {
+      this.finishLoading();
+    }
+  }
+
+  onImageError(imageName: string = 'desconocida') {
+    this.imagesLoaded++;
+    console.warn(`✗ Error cargando imagen ${imageName}: ${this.imagesLoaded}/${this.imagesToLoad}`);
+
+    if (this.imagesLoaded >= this.imagesToLoad) {
+      this.finishLoading();
+    }
+  }
+
+  private finishLoading() {
+    // Pequeño delay para suavizar la transición, pero forzando detección
+    setTimeout(() => {
+      console.log('Ocultando skeleton y refrescando vista');
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    }, 100);
   }
 
 
@@ -267,8 +331,6 @@ export class CotizacionPreviewPage {
     }
     pdf.save('cotizacion.pdf');
 
-    localStorage.clear();
-    sessionStorage.clear();
     this.router.navigate(['/cotizacion-form']);
   }
 }

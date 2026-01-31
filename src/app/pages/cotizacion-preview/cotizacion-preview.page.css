@@ -1131,3 +1131,140 @@ tr:nth-child(even) {
   color: rgba(0, 0, 0, .55);
   margin-top: 6px;
 }
+/* ========================================
+   SKELETON LOADER STYLES
+   ======================================== */
+
+.skeleton-wrapper {
+  width: 100%;
+  padding: 20px;
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.skeleton-header {
+  width: 100%;
+  height: 60px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-image {
+  width: 100%;
+  height: 400px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.skeleton-content {
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeleton-line {
+  height: 20px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+  width: 100%;
+}
+
+.skeleton-line.short {
+  width: 60%;
+}
+
+.skeleton-table {
+  width: 100%;
+  height: 200px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.skeleton-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* Shimmer Animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-shimmer {
+  animation: shimmer 1.5s infinite;
+}
+
+/* Hide content while loading */
+.content-loading {
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  visibility: hidden;
+}
+
+/* Fade in animation when loaded */
+.sheet:not(.content-loading) {
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Additional skeleton variations for better UX */
+.skeleton-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  background: transparent;
+  border: 3px solid #f0f0f0;
+  border-top-color: #8f2133;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 100;
+}
+
+@keyframes spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* Responsive skeleton */
+@media (max-width: 768px) {
+  .skeleton-image {
+    height: 250px;
+  }
+  
+  .skeleton-table {
+    height: 150px;
+  }
+}
