@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AdicionalConfig } from '@core/models/adicional-config.model';
 
@@ -61,12 +62,17 @@ export const ADICIONALES_CONFIG: AdicionalConfig[] = [
     }
 ];
 
+import { DateUtilsService } from '@core/services/date-utils.service';
+
 @Injectable({
     providedIn: 'root'
 })
 export class AdicionalesManagerService {
 
-    constructor(private fb: FormBuilder) { }
+    constructor(
+        private fb: FormBuilder,
+        private dateUtils: DateUtilsService
+    ) { }
 
     /**
      * Obtiene todas las configuraciones de adicionales
@@ -225,28 +231,75 @@ export class AdicionalesManagerService {
         if (!fechaControl || !cuotasControl) return;
 
         const fechaStr = fechaControl.value;
-        const months = this.calcMonths(fechaStr);
+        // Usar el servicio de utilidad
+        const months = this.dateUtils.calcMonths(fechaStr);
 
         cuotasControl.setValue(months, { emitEvent: false });
 
         // Recalcular valor cuota ya que cambiaron las cuotas
         this.calculateValorCuota(form, config);
     }
+    /**
+     * Genera los controles para TODOS los adicionales configurados
+     */
+    createAllControls(): { [key: string]: any } {
+        let controls: { [key: string]: any } = {};
+        this.getAdicionalesConfig().forEach(config => {
+            const adicControls = this.createFormControls(config);
+            controls = { ...controls, ...adicControls };
+        });
+        return controls;
+    }
 
     /**
-     * Calcula el número de meses desde el próximo mes hasta la fecha dada
+     * Configura las suscripciones para validar y calcular automáticamente
+     * @param form El formulario principal
+     * @param destroyRef Referencia para destruir suscripciones automáticamente
      */
-    private calcMonths(dateStr: string): number | null {
-        const f = dateStr ? new Date(dateStr) : null;
-        if (!f || isNaN(f.getTime())) return null;
+    setupSubscriptions(form: FormGroup, destroyRef: DestroyRef) {
+        this.getAdicionalesConfig().forEach(config => {
+            // Checkbox changes
+            const checkboxControl = form.get(config.formControls.checkbox);
+            if (checkboxControl) {
+                checkboxControl.valueChanges
+                    .pipe(takeUntilDestroyed(destroyRef))
+                    .subscribe(() => {
+                        this.updateAdicionalState(form, config);
+                    });
+            }
 
-        const start = new Date();
-        start.setMonth(start.getMonth() + 1);
-        start.setDate(1);
+            // Fecha changes -> Cuotas calculation
+            const fechaControl = form.get(config.formControls.fechaUltimaCuota);
+            if (fechaControl) {
+                fechaControl.valueChanges
+                    .pipe(takeUntilDestroyed(destroyRef))
+                    .subscribe(() => {
+                        this.calculateCuotasFinanciacion(form, config);
+                    });
+            }
 
-        const months = (f.getFullYear() - start.getFullYear()) * 12 +
-            (f.getMonth() - start.getMonth()) + 1;
+            // Recalculate Valor Cuota on total/beneficio/cuotas changes
+            const triggerControls = [
+                config.formControls.valorTotal,
+                config.formControls.beneficio,
+                config.formControls.cuotasFinanciacion
+            ];
 
-        return Math.max(months, 0);
+            triggerControls.forEach(controlName => {
+                const ctrl = form.get(controlName);
+                if (ctrl) {
+                    ctrl.valueChanges
+                        .pipe(takeUntilDestroyed(destroyRef))
+                        .subscribe(() => {
+                            this.calculateValorCuota(form, config);
+                        });
+                }
+            });
+        });
+
+        // Aplicar estado inicial
+        this.getAdicionalesConfig().forEach(config => {
+            this.updateAdicionalState(form, config);
+        });
     }
 }
