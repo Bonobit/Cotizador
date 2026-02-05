@@ -152,6 +152,9 @@ export class CotizacionPreviewPage {
     if (this.apartamentoImg) count++;
     if (this.planoImg) count++;
 
+    // El footer siempre tiene una imagen de fondo
+    count++;
+
     this.imagesToLoad = count;
     console.log(`Total de imágenes a cargar: ${this.imagesToLoad}`);
 
@@ -160,6 +163,10 @@ export class CotizacionPreviewPage {
       this.isLoading = false;
       this.cdr.detectChanges();
     }
+  }
+
+  onFooterLoad() {
+    this.onImageLoad();
   }
 
   onImageLoad() {
@@ -290,7 +297,10 @@ export class CotizacionPreviewPage {
       next: (res) => {
         if (res) {
           this.logger.log('Cotización guardada exitosamente', res);
-          this._generatePDF();
+          // Pequeño delay de seguridad para asegurar que cualquier cambio de estado se refleje en el DOM
+          setTimeout(() => {
+            this._generatePDF();
+          }, 200);
         }
       },
       error: (err) => {
@@ -305,42 +315,69 @@ export class CotizacionPreviewPage {
     const el = document.getElementById('pdf-content');
     if (!el) return;
 
-    const scale = 2;
+    // --- ESTRATEGIA ROBUSTA: CLONAR NODO PARA EVITAR CORTES ---
+    // 1. Clonar el elemento
+    const clone = el.cloneNode(true) as HTMLElement;
 
-    const canvas = await html2canvas(el, {
-      scale,
-      useCORS: true,
-      backgroundColor: null,
-      windowWidth: el.scrollWidth,
-      windowHeight: el.scrollHeight,
+    // 2. Estilos para garantizar renderizado completo (fuera del viewport visible)
+    // Usamos una posición fija pero fuera de pantalla, con ancho fijo y alto automático
+    Object.assign(clone.style, {
+      position: 'absolute',
+      top: '-9999px',
+      left: '0',
+      width: '100%', // O un ancho fijo en px si prefieres (ej: 800px)
+      height: 'auto',
+      overflow: 'visible',
+      zIndex: '-1',
     });
 
-    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+    // 3. Insertar al body
+    document.body.appendChild(clone);
 
-    const pdf = new jsPDF('p', 'mm', 'a4');
+    // 4. Esperar un tick para que se rendericen imágenes (si ya estaban cacheadas) o estilos
+    await new Promise(resolve => setTimeout(resolve, 300));
 
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
+    try {
+      const scale = 2;
+      const canvas = await html2canvas(clone, {
+        scale,
+        useCORS: true,
+        backgroundColor: '#ffffff', // Forzar fondo blanco
+        scrollY: 0,
+        windowHeight: clone.scrollHeight + 100, // Altura total + margen
+      });
 
-    const imgWidth = pageWidth;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const imgData = canvas.toDataURL('image/jpeg', 1.0);
+      const pdf = new jsPDF('p', 'mm', 'a4');
 
-    if (imgHeight <= pageHeight) {
-      pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
-    } else {
-      let y = 0;
-      let heightLeft = imgHeight;
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
 
-      while (heightLeft > 0) {
-        pdf.addImage(imgData, 'JPEG', 0, y, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-        y -= pageHeight;
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-        if (heightLeft > 0) pdf.addPage();
+      if (imgHeight <= pageHeight) {
+        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+      } else {
+        let y = 0;
+        let heightLeft = imgHeight;
+
+        while (heightLeft > 0) {
+          pdf.addImage(imgData, 'JPEG', 0, y, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+          y -= pageHeight;
+
+          if (heightLeft > 0) pdf.addPage();
+        }
       }
-    }
-    pdf.save('cotizacion.pdf');
+      pdf.save('cotizacion.pdf');
 
-    this.router.navigate(['/cotizacion-form']);
+    } catch (error) {
+      console.error("Error generando PDF:", error);
+    } finally {
+      // 5. LIMPIEZA: Remover el clon
+      document.body.removeChild(clone);
+      this.router.navigate(['/cotizacion-form']);
+    }
   }
 }

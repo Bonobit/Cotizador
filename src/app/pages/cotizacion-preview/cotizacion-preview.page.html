@@ -28,6 +28,7 @@
         <div class="skeleton-footer">
           <div class="skeleton-line skeleton-shimmer short"></div>
           <div class="skeleton-line skeleton-shimmer"></div>
+          <div class="skeleton-footer-img skeleton-shimmer"></div>
         </div>
       </div>
 
@@ -220,11 +221,124 @@
             </div>
 
             <!-- VIGENCIA -->
+
+
+            <!-- ADICIONALES DINÁMICOS -->
+            <ng-container *ngIf="data.parqueadero">
+              <div class="section-title" style="margin-top: 40px;">Inversión Parqueadero</div>
+              <div class="table-wrapper">
+                <table class="costo-table">
+                  <thead>
+                    <tr>
+                      <th>CONCEPTO</th>
+                      <th>VALOR</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="total-row">
+                      <td>VALOR TOTAL ({{ data.cantidadParqueaderos || 1 }})</td>
+                      <td>{{ '$ ' + ((data.valorTotalParqueaderos || 0) | number:'1.0-0') }} COP</td>
+                    </tr>
+                    <tr>
+                      <td>BENEFICIO</td>
+                      <td>{{ '$ ' + ((data.beneficioParqueadero || 0) | number:'1.0-0') }} COP</td>
+                    </tr>
+                    <tr>
+                      <td>CUOTA MENSUAL ({{ data.cuotasFinanciacionParqueadero || 0 }} meses)</td>
+                      <td>{{ '$ ' + ((data.valorCuotaParqueadero || 0) | number:'1.0-0') }} COP</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="data.kitAcabados">
+              <div class="section-title" style="margin-top: 40px;">Inversión Kit de Acabados</div>
+              <div class="table-wrapper">
+                <table class="costo-table">
+                  <thead>
+                    <tr>
+                      <th>CONCEPTO</th>
+                      <th>VALOR</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="total-row">
+                      <td>VALOR TOTAL</td>
+                      <td>{{ '$ ' + ((data.valorTotalKitAcabados || 0) | number:'1.0-0') }} COP</td>
+                    </tr>
+                    <tr>
+                      <td>BENEFICIO</td>
+                      <td>{{ '$ ' + ((data.beneficioKitAcabados || 0) | number:'1.0-0') }} COP</td>
+                    </tr>
+                    <tr>
+                      <td>CUOTA MENSUAL ({{ data.cuotasFinanciacionKitAcabados || 0 }} meses)</td>
+                      <td>{{ '$ ' + ((data.valorCuotaKitAcabados || 0) | number:'1.0-0') }} COP</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="data.kitDomotica">
+              <div class="section-title" style="margin-top: 40px;">Inversión Kit de Domótica</div>
+              <div class="table-wrapper">
+                <table class="costo-table">
+                  <thead>
+                    <tr>
+                      <th>CONCEPTO</th>
+                      <th>VALOR</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="total-row">
+                      <td>VALOR TOTAL</td>
+                      <td>{{ '$ ' + ((data.valorTotalKitDomotica || 0) | number:'1.0-0') }} COP</td>
+                    </tr>
+                    <tr>
+                      <td>BENEFICIO</td>
+                      <td>{{ '$ ' + ((data.beneficioKitDomotica || 0) | number:'1.0-0') }} COP</td>
+                    </tr>
+                    <tr>
+                      <td>CUOTA MENSUAL ({{ data.cuotasFinanciacionKitDomotica || 0 }} meses)</td>
+                      <td>{{ '$ ' + ((data.valorCuotaKitDomotica || 0) | number:'1.0-0') }} COP</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="data.deposito">
+              <div class="section-title" style="margin-top: 40px;">Inversión Depósito</div>
+              <div class="table-wrapper">
+                <table class="costo-table">
+                  <thead>
+                    <tr>
+                      <th>CONCEPTO</th>
+                      <th>VALOR</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="total-row">
+                      <td>VALOR TOTAL</td>
+                      <td>{{ '$ ' + ((data.valorTotalDeposito || 0) | number:'1.0-0') }} COP</td>
+                    </tr>
+                    <tr>
+                      <td>BENEFICIO</td>
+                      <td>{{ '$ ' + ((data.beneficioDeposito || 0) | number:'1.0-0') }} COP</td>
+                    </tr>
+                    <tr>
+                      <td>CUOTA MENSUAL ({{ data.cuotasFinanciacionDeposito || 0 }} meses)</td>
+                      <td>{{ '$ ' + ((data.valorCuotaDeposito || 0) | number:'1.0-0') }} COP</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </ng-container>
             <!-- VIGENCIA -->
             <div class="vigencia-badge">
               Esta cotización tiene vigencia {{ (data.cotizacionValidaHasta || currDate) | date:'dd / MM / yy' }}
             </div>
-
             <!-- MONEDA EXTRANJERA (Solo si aplica) -->
             <div *ngIf="showCotizacionDolares">
               <div class="section-title">Cotización Moneda extranjera</div>
@@ -307,17 +421,18 @@
               </div>
             </div>
 
-            <!-- APROBACION -->
-
-
-
           </div>
+
+          <!-- APROBACION -->
+          <app-footer-aprobacion [nombre]="(data.nombres || '') + ' ' + (data.apellidos || '')"
+            (imageLoaded)="onFooterLoad()"></app-footer-aprobacion>
+
+
         </div>
-
-
-
-        <app-footer-aprobacion [nombre]="(data.nombres || '') + ' ' + (data.apellidos || '')"></app-footer-aprobacion>
-
       </div>
 
+
+
     </div>
+
+  </div>

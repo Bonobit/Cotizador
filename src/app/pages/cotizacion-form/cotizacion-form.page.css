@@ -274,6 +274,21 @@
   color: #b42318;
 }
 
+.cell.error {
+  border-color: #b42318 !important;
+  background-color: #fffbfa !important;
+  box-shadow: 0 0 0 1px #b42318;
+}
+
+.error-msg {
+  color: #b42318;
+  font-size: 10px;
+  display: block;
+  margin-top: 4px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
 .actions {
   display: flex;
   justify-content: center;

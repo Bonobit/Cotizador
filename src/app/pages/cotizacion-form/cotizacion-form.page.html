@@ -425,8 +425,16 @@
                                     <td>
                                         <div class="input-with-icon">
                                             <input class="cell" type="text" appCopCurrency formControlName="valorApto"
+                                                [class.error]="row.get('valorApto')?.invalid && row.get('valorApto')?.touched"
+                                                (blur)="onCuotaBlur($event, i, plan, totalFinanciarApto, 1000000)"
                                                 placeholder="$" />
-                                            <label class="edit-icon-label"
+                                            <small class="error-msg" *ngIf="row.get('valorApto')?.hasError('belowMinimum')">
+                                                
+                                            </small>
+                                            <small class="error-msg" *ngIf="row.get('valorApto')?.hasError('invalidDistribution')">
+                                            
+                                            </small>
+                                            <label class="edit-icon-label" (mousedown)="ignorarNextBlur = true"
                                                 [class.active]="row.get('editarValorApto')?.value">
                                                 <input type="checkbox" formControlName="editarValorApto"
                                                     class="edit-checkbox" />
@@ -488,8 +496,16 @@
                                             <td>
                                                 <div class="input-with-icon">
                                                     <input class="cell" type="text" appCopCurrency
-                                                        formControlName="valorApto" placeholder="$" />
-                                                    <label class="edit-icon-label"
+                                                        formControlName="valorApto" placeholder="$"
+                                                        [class.error]="row.get('valorApto')?.invalid && row.get('valorApto')?.touched"
+                                                        (blur)="onCuotaBlur($event, i, formArray, totalesAdicionales.get(config.id)!, 500000)" />
+                                                    <small class="error-msg" *ngIf="row.get('valorApto')?.hasError('belowMinimum')">
+                                                      
+                                                    </small>
+                                                    <small class="error-msg" *ngIf="row.get('valorApto')?.hasError('invalidDistribution')">
+                                                     
+                                                    </small>
+                                                    <label class="edit-icon-label" (mousedown)="ignorarNextBlur = true"
                                                         [class.active]="row.get('editarValorApto')?.value">
                                                         <input type="checkbox" formControlName="editarValorApto"
                                                             class="edit-checkbox" />
@@ -519,7 +535,8 @@
 
         <!-- Acciones al final de ambos planes -->
         <div class="actions center" *ngIf="showPlan">
-            <button type="button" class="btn primary" (click)="generarCotizacion()">Generar Cotización</button>
+            <button type="button" class="btn primary" [disabled]="form.invalid || isAnyPlanInvalid()"
+                (click)="generarCotizacion()">Generar Cotización</button>
         </div>
     </div>
 </div>
