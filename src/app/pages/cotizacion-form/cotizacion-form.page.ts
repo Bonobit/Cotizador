@@ -24,6 +24,12 @@ import { AdicionalesManagerService, ADICIONALES_CONFIG } from '@core/services/ad
 import { AdicionalConfig } from '@core/models/adicional-config.model';
 import { PlanPagosService, PlanPagosItem } from '@core/services/plan-pagos.service';
 
+// Refactoring helpers
+import { FinancialCalculator } from './utils/financial-calculator';
+import { getCotizacionErrorMessage } from './utils/form-validators';
+import { PlanPagosFormManager } from './utils/plan-pagos-form-manager';
+
+
 @Component({
     selector: 'app-cotizacion-form-page',
     standalone: true,
@@ -65,9 +71,12 @@ export class CotizacionFormPage implements OnInit {
     totalesAdicionales: Map<string, number> = new Map();
 
     // Flag para permitir click en el checkbox sin validar blur
-    ignorarNextBlur = false;
-    private lastAlertByControl = new WeakMap<FormControl, string>();
-    private suppressNextAlertByControl = new WeakMap<FormControl, boolean>();
+    get ignorarNextBlur() { return this.planManager.ignorarNextBlur; }
+    set ignorarNextBlur(v: boolean) { this.planManager.ignorarNextBlur = v; }
+
+    private planManager: PlanPagosFormManager;
+
+
 
 
 
@@ -82,9 +91,10 @@ export class CotizacionFormPage implements OnInit {
         private apartamentosService: ApartamentosService,
         private adicionalesManager: AdicionalesManagerService,
         private planPagosService: PlanPagosService,
-
     ) {
+        this.planManager = new PlanPagosFormManager(this.fb, this.planPagosService, this.cdr);
         this.form = this.fb.group({
+
             tipoDocumento: ['', Validators.required],
             noDocumento: ['', [
                 Validators.maxLength(10),
@@ -128,32 +138,26 @@ export class CotizacionFormPage implements OnInit {
             cantidadCuotas: [{ value: 0, disabled: true }],
 
 
-            // Adicionales - se generan dinámicamente desde el servicio
             ...this.generateAdicionalesControls(),
-
             aprobador: [{ value: '0', disabled: true }],
-
             nombreEjecutivo: [null, [Validators.required]],
             telefonoEjecutivo: [{ value: '', disabled: true }, [
                 Validators.required,
                 Validators.maxLength(10),
                 Validators.pattern(/^[0-9]{1,10}$/)
             ]],
-
             correoEjecutivo: [{ value: '', disabled: true }, [Validators.required, Validators.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/)]],
-
             conceptoCiudadViva: [false],
             actividadesProyecto: [false],
             link360: [{ value: false, disabled: true }],
             cotizacionDolares: [false],
             cotizacionValidaHasta: ['', Validators.required],
-
             plan: this.fb.array([]),
         });
-
         this.setupAdicionalesRule();
         this.setupCalculos();
     }
+
 
     ngOnInit() {
         this.cotizacionNoLabel$ = this.cotizacionesService.getUltimaCotizacion().pipe(
@@ -232,6 +236,13 @@ export class CotizacionFormPage implements OnInit {
                         }
 
                         this.cargandoApartamentos = false;
+
+                        // Asegurar restauración de fecha de última cuota después de cargar apartamentos
+                        if (savedForm.fechaUltimaCuota) {
+                            this.form.patchValue({ fechaUltimaCuota: savedForm.fechaUltimaCuota }, { emitEvent: false });
+                            this.recalculateAll();
+                        }
+
                         this.cdr.markForCheck();
 
                         // Regenerar planes de pago (esto llenará el Map de adicionales que no se guarda en el form)
@@ -261,11 +272,7 @@ export class CotizacionFormPage implements OnInit {
                     }));
                 }
             }
-
-
         }
-
-
     }
     private cargarProyectos() {
         this.cargandoProyectos = true;
@@ -281,9 +288,9 @@ export class CotizacionFormPage implements OnInit {
                 const nogales = this.proyectos.find(p => p.nombre?.toLowerCase().includes('nogales'));
                 if (nogales && !currentProyecto) {
                     this.form.patchValue({ proyecto: nogales.id }, { emitEvent: true });
-                    this.form.get('proyecto')?.disable();
+                    this.form.get('proyecto')?.disable({ emitEvent: false });
                 } else if (nogales && currentProyecto === nogales.id) {
-                    this.form.get('proyecto')?.disable();
+                    this.form.get('proyecto')?.disable({ emitEvent: false });
                 }
 
                 this.cdr.markForCheck();
@@ -303,7 +310,9 @@ export class CotizacionFormPage implements OnInit {
         sessionStorage.clear();
         this.form.reset();
         this.plan.clear();
+        this.planesAdicionales.clear();
     }
+
 
     private listenProyectosChanges() {
         let previousId = this.form.get('proyecto')?.value;
@@ -311,6 +320,13 @@ export class CotizacionFormPage implements OnInit {
         this.form.get('proyecto')!.valueChanges.subscribe((id: any) => {
             const currentId = id ? Number(id) : null;
             if (currentId === (previousId ? Number(previousId) : null)) return;
+
+            // Si el ID previo era null, es la primera ejecución (o restauración) y no queremos limpiar
+            if (previousId === undefined || previousId === null) {
+                previousId = currentId;
+                return;
+            }
+
             previousId = currentId;
 
             // Limpiar dependientes solo si el proyecto cambió de verdad
@@ -457,14 +473,9 @@ export class CotizacionFormPage implements OnInit {
     }
 
     private createPlanRow() {
-        return this.fb.group({
-            fechaApto: new FormControl({ value: '', disabled: true }), // Siempre bloqueada (calculada)
-            valorApto: new FormControl({ value: '', disabled: true }), // Disabled por defecto
-            editarValorApto: new FormControl(false), // Checkbox para habilitar edición
-            fechaAdic: new FormControl(''),
-            valorAdic: new FormControl(''),
-        });
+        return this.planManager.createPlanRow();
     }
+
 
     generarPlan() {
         if (this.form.invalid) {
@@ -473,11 +484,9 @@ export class CotizacionFormPage implements OnInit {
             return;
         }
 
-        // Limpiar datos anteriores
         this.plan.clear();
         this.planesAdicionales.clear();
 
-        // 1. Validar y Generar plan del apartamento
         const cantidadCuotas = this.form.get('cantidadCuotas')?.value || 0;
         const fechaUltima = this.form.get('fechaUltimaCuota')?.value;
         const valorEspecial = this.form.get('valorEspecialHoy')?.value || 0;
@@ -485,22 +494,20 @@ export class CotizacionFormPage implements OnInit {
 
         this.totalFinanciarApto = Math.max(valorEspecial - inicial, 0);
 
-        // Validación de mínimo 1M para apartamento
         if (cantidadCuotas > 0) {
             const cuotaPromedio = this.totalFinanciarApto / cantidadCuotas;
             if (cuotaPromedio < 1000000) {
-                alert(`La cuota promedio del apartamento ($${Math.round(cuotaPromedio).toLocaleString()}) es inferior al mínimo permitido de $1.000.000. Por favor reduzca el número de cuotas o los beneficios.`);
+                alert(`La cuota promedio del apartamento ($${Math.round(cuotaPromedio).toLocaleString()}) es inferior al mínimo permitido de $1.000.000.`);
                 this.showPlan = false;
                 return;
             }
         }
 
-        // 2. Validar adicionales antes de generar nada
         const adicionalesSeleccionados = this.getAdicionalesSeleccionados();
         for (const config of adicionalesSeleccionados) {
-            const cuotas = this.toNum(this.form.get(config.formControls.cuotasFinanciacion)?.value);
-            const valorTotal = this.toNum(this.form.get(config.formControls.valorTotal)?.value);
-            const beneficio = this.toNum(this.form.get(config.formControls.beneficio)?.value);
+            const cuotas = FinancialCalculator.toNum(this.form.get(config.formControls.cuotasFinanciacion)?.value);
+            const valorTotal = FinancialCalculator.toNum(this.form.get(config.formControls.valorTotal)?.value);
+            const beneficio = FinancialCalculator.toNum(this.form.get(config.formControls.beneficio)?.value);
             const valorDespuesBeneficio = Math.max(valorTotal - beneficio, 0);
 
             if (cuotas > 0) {
@@ -513,7 +520,6 @@ export class CotizacionFormPage implements OnInit {
             }
         }
 
-        // Si todas las validaciones pasan, procedemos a generar
         const planApto = this.planPagosService.generarPlanPagos({
             valorTotal: valorEspecial,
             valorInicial: inicial,
@@ -528,24 +534,20 @@ export class CotizacionFormPage implements OnInit {
 
             row.get('editarValorApto')?.valueChanges.subscribe(editar => {
                 const valorAptoControl = row.get('valorApto');
-                if (editar) {
-                    valorAptoControl?.enable({ emitEvent: false });
-                } else {
-                    valorAptoControl?.disable({ emitEvent: false });
-                }
+                if (editar) valorAptoControl?.enable({ emitEvent: false });
+                else valorAptoControl?.disable({ emitEvent: false });
             });
 
             this.plan.push(row);
         });
 
-        this.setupEditToggle(this.plan, this.totalFinanciarApto, 1000000);
+        this.planManager.setupEditToggle(this.plan, this.totalFinanciarApto, 1000000);
 
-        // Generar planes de adicionales
         adicionalesSeleccionados.forEach(config => {
-            const cuotas = this.toNum(this.form.get(config.formControls.cuotasFinanciacion)?.value);
+            const cuotas = FinancialCalculator.toNum(this.form.get(config.formControls.cuotasFinanciacion)?.value);
             const fechaUltimaCuota = this.form.get(config.formControls.fechaUltimaCuota)?.value;
-            const beneficio = this.toNum(this.form.get(config.formControls.beneficio)?.value);
-            const valorTotal = this.toNum(this.form.get(config.formControls.valorTotal)?.value);
+            const beneficio = FinancialCalculator.toNum(this.form.get(config.formControls.beneficio)?.value);
+            const valorTotal = FinancialCalculator.toNum(this.form.get(config.formControls.valorTotal)?.value);
             const valorDespuesBeneficio = Math.max(valorTotal - beneficio, 0);
 
             this.totalesAdicionales.set(config.id, valorDespuesBeneficio);
@@ -568,20 +570,16 @@ export class CotizacionFormPage implements OnInit {
 
                 row.get('editarValorApto')?.valueChanges.subscribe(editar => {
                     const valorAptoControl = row.get('valorApto');
-                    if (editar) {
-                        valorAptoControl?.enable({ emitEvent: false });
-                    } else {
-                        valorAptoControl?.disable({ emitEvent: false });
-                    }
+                    if (editar) valorAptoControl?.enable({ emitEvent: false });
+                    else valorAptoControl?.disable({ emitEvent: false });
                 });
                 formArrayAdicional.push(row);
             });
 
-            this.setupEditToggle(formArrayAdicional, valorDespuesBeneficio, 500000);
+            this.planManager.setupEditToggle(formArrayAdicional, valorDespuesBeneficio, 500000);
             this.planesAdicionales.set(config.id, formArrayAdicional);
         });
 
-        // 3. Establecer el primer adicional como tab activo
         if (adicionalesSeleccionados.length > 0) {
             this.tabActivoAdicional = adicionalesSeleccionados[0].id;
         }
@@ -589,188 +587,19 @@ export class CotizacionFormPage implements OnInit {
         this.showPlan = true;
     }
 
-    /**
-     * Configura el recálculo dinámico para un FormArray de cuotas
-     */
-    /**
-     * Configura solo el toggle del checkbox para recalcular al activar/desactivar
-     */
-    private setupEditToggle(
-        formArray: FormArray,
-        totalFinanciar: number,
-        valorMinimo: number
-    ) {
-        formArray.controls.forEach(control => {
-            const group = control as FormGroup;
-            const editarControl = group.get('editarValorApto');
 
-            // Solo nos importa si cambia el checkbox, la edición de valor se maneja en (blur)
-            editarControl?.valueChanges.subscribe(() => {
-                setTimeout(() => {
-                    this.ejecutarRecalculo(formArray, totalFinanciar, valorMinimo);
-                }, 0);
-            });
-        });
-    }
-
-    /**
-     * Manejador del evento blur para las cuotas
-     */
     onCuotaBlur(event: any, index: number, formArray: FormArray | undefined | null, totalFinanciar: number | undefined, valorMinimo: number) {
-        if (!formArray || totalFinanciar === undefined) return;
-
-        if (this.ignorarNextBlur) {
-            this.ignorarNextBlur = false;
-            return;
-        }
-
-        const relatedTarget = event.relatedTarget as HTMLElement;
-        if (relatedTarget && (relatedTarget.classList.contains('edit-checkbox') || relatedTarget.classList.contains('edit-icon-label'))) {
-            return;
-        }
-
-        const inputElement = event.target as HTMLInputElement;
-        const group = formArray.at(index) as FormGroup;
-        const editarControl = group.get('editarValorApto');
-        const ctrl = group.get('valorApto') as FormControl;
-
-        // Breve delay para asegurar que Angular y la directiva terminen de procesar
-        setTimeout(() => {
-            // Sincronización forzada: Leer del DOM si el control está en modo edición
-            if (editarControl?.value) {
-                const rawValue = inputElement.value;
-                const numericValue = this.toNum(rawValue);
-
-                // Actualizamos el control con el valor REAL del DOM antes de recalcular
-                ctrl.setValue(numericValue.toString(), { emitEvent: false });
-                ctrl.markAsTouched();
-
-                const result = this.ejecutarRecalculo(formArray, totalFinanciar, valorMinimo, ctrl);
-
-                if (result && !result.success) {
-                    // Focus trap con requestAnimationFrame para máxima compatibilidad
-                    requestAnimationFrame(() => {
-                        inputElement.focus();
-                        this.cdr.detectChanges();
-                    });
-                }
-                this.cdr.detectChanges();
-            }
-        }, 50);
+        this.planManager.onCuotaBlur(event, index, formArray, totalFinanciar, valorMinimo);
     }
 
-    private ejecutarRecalculo(
-        formArray: FormArray,
-        totalFinanciar: number,
-        valorMinimo: number,
-        triggeringControl?: FormControl
-    ) {
-        const cuotas = formArray.controls.map(control => {
-            const group = control as FormGroup;
-            const val = this.toNum(group.get('valorApto')?.value);
-            const manual = !!group.get('editarValorApto')?.value;
-            return { valor: val, manual };
-        });
-
-        const result = this.planPagosService.recalcularCuotas(totalFinanciar, cuotas, valorMinimo);
-
-        // helper: quitar SOLO invalidDistribution sin romper otros errores
-        const removeInvalidDistribution = (c: FormControl | null) => {
-            if (!c) return;
-            const errs = c.errors;
-            if (!errs || !errs['invalidDistribution']) return;
-
-            delete errs['invalidDistribution'];
-            c.setErrors(Object.keys(errs).length ? errs : null, { emitEvent: false });
-        };
-
-        if (result.success && result.nuevosValores) {
-            // ✅ limpiar error en TODOS al tener éxito
-            formArray.controls.forEach(ctrl => {
-                const g = ctrl as FormGroup;
-                const rowCtrl = g.get('valorApto') as FormControl;
-                removeInvalidDistribution(rowCtrl);
-                // También limpiar error de mínimo si ya está por encima
-                if (rowCtrl.errors?.['belowMinimum'] && this.toNum(rowCtrl.value) >= valorMinimo) {
-                    const errs = { ...rowCtrl.errors };
-                    delete errs['belowMinimum'];
-                    rowCtrl.setErrors(Object.keys(errs).length ? errs : null);
-                }
-                rowCtrl.updateValueAndValidity({ onlySelf: true, emitEvent: false });
-            });
-
-            // ✅ actualiza cuotas automáticas y fuerza refresh
-            result.nuevosValores.forEach((nuevoValor, index) => {
-                const group = formArray.at(index) as FormGroup;
-                const isManual = cuotas[index].manual;
-
-                if (!isManual) {
-                    const c = group.get('valorApto') as FormControl;
-                    c.setValue(Math.round(nuevoValor), { emitEvent: true });
-                    c.updateValueAndValidity({ onlySelf: true, emitEvent: false });
-                }
-            });
-        } else {
-            // Error handling quirúrgico:
-            // 1. Marcar CUALQUIER fila que esté por debajo del mínimo (sea manual o auto)
-            formArray.controls.forEach(ctrl => {
-                const g = ctrl as FormGroup;
-                const cValue = this.toNum(g.get('valorApto')?.value);
-                const rowCtrl = g.get('valorApto') as FormControl;
-
-                if (cValue < valorMinimo && cValue !== 0) { // Validamos contra el mínimo
-                    rowCtrl.setErrors({ ...rowCtrl.errors, belowMinimum: true });
-                    rowCtrl.markAsTouched();
-                } else {
-                    // Limpiar solo belowMinimum si ya se corrigió
-                    if (rowCtrl.errors?.['belowMinimum']) {
-                        const errs = { ...rowCtrl.errors };
-                        delete errs['belowMinimum'];
-                        rowCtrl.setErrors(Object.keys(errs).length ? errs : null);
-                    }
-                }
-            });
-
-            // 2. Marcar el control que disparó el error si la distribución es inválida
-            if (triggeringControl) {
-                triggeringControl.setErrors({
-                    ...(triggeringControl.errors || {}),
-                    invalidDistribution: true
-                });
-                triggeringControl.markAsTouched();
-
-                // ✅ alert SOLO una vez por mismo error
-                const msg = result.error || 'La distribución no es válida o alguna cuota quedó por debajo del mínimo.';
-                const lastMsg = this.lastAlertByControl.get(triggeringControl);
-
-                if (lastMsg !== msg) {
-                    this.lastAlertByControl.set(triggeringControl, msg);
-                    alert(msg);
-                }
-            }
-        }
-
-        this.cdr.detectChanges();
-        return result;
+    private ejecutarRecalculo(formArray: FormArray, total: number, min: number, trigger?: FormControl) {
+        return this.planManager.ejecutarRecalculo(formArray, total, min, trigger);
     }
 
     private toNum(v: any): number {
-        if (v === null || v === undefined || v === '') return 0;
-        if (typeof v === 'number') return v;
-
-        // Limpieza robusta: Quita todo excepto números y puntos/comas
-        // Luego maneja el formato decimal (en Colombia suele ser punto para miles, pero la directiva usa comas para visual)
-        let s = String(v).replace(/[^0-9,.-]+/g, "");
-
-        // Si hay una coma al final (como en "1.000,"), la quitamos
-        if (s.endsWith(',')) s = s.slice(0, -1);
-
-        // Reemplazamos comas por nada (asumiendo que son separadores de miles o decimales incompletos)
-        // en este sistema trabajamos con enteros para pesos colombianos mayormente
-        s = s.replace(/,/g, "");
-
-        return Number(s) || 0;
+        return FinancialCalculator.toNum(v);
     }
+
 
     generarCotizacion() {
         // 0. Forzar re-calculo sincrónico de todos los planes para asegurar que no hay cambios pendientes
@@ -794,17 +623,13 @@ export class CotizacionFormPage implements OnInit {
     }
 
     private revalidateAllPlans() {
-        // Sincronizar Apartment plan
-        this.ejecutarRecalculo(this.plan, this.totalFinanciarApto, 1000000);
-
-        // Sincronizar Additional plans
+        this.planManager.ejecutarRecalculo(this.plan, this.totalFinanciarApto, 1000000);
         this.planesAdicionales.forEach((fa, id) => {
             const total = this.totalesAdicionales.get(id);
-            if (total !== undefined) {
-                this.ejecutarRecalculo(fa, total, 500000);
-            }
+            if (total !== undefined) this.planManager.ejecutarRecalculo(fa, total, 500000);
         });
     }
+
 
     isAnyPlanInvalid(): boolean {
         // 1. Validar plan de apartamento
@@ -827,17 +652,8 @@ export class CotizacionFormPage implements OnInit {
     }
 
     shouldBlockEdit(row: any): boolean {
-        // Usa AbstractControl o any para evitar problemas de tipos en la plantilla
-        const ctrl = row as FormGroup;
-        const isEditing = ctrl.get('editarValorApto')?.value;
-        const isInvalid = this.isAnyPlanInvalid();
-
-        // Si ya está editando, permitimos (para que pueda desmarcar si quiere cancelar)
-        // Si NO está editando, bloqueamos si hay cualquier error en el plan
-        if (isEditing) {
-            return false;
-        }
-        return isInvalid;
+        const isEditing = (row as FormGroup).get('editarValorApto')?.value;
+        return !isEditing && this.isAnyPlanInvalid();
     }
 
 
@@ -936,124 +752,32 @@ export class CotizacionFormPage implements OnInit {
         this.recalculateAll();
     }
 
-    private recalculateAll() {
-        const valorTotal = this.form.get('valorTotal')!;
-        const benefVal = this.form.get('beneficioValorizacion')!;
-        const benefPronta = this.form.get('beneficioProntaSeparacion')!;
-        const valorEspecial = this.form.get('valorEspecialHoy')!;
-        const porcentaje = this.form.get('porcentajeCuotaInicial')!;
-        const valorCuotaInicial = this.form.get('valorCuotaInicial')!;
-        const fechaUlt = this.form.get('fechaUltimaCuota')!;
-        const cantCuotas = this.form.get('cantidadCuotas')!;
+    recalculateAll() {
+        const vt = FinancialCalculator.toNum(this.form.get('valorTotal')?.value);
+        const bv = FinancialCalculator.toNum(this.form.get('beneficioValorizacion')?.value);
+        const bp = FinancialCalculator.toNum(this.form.get('beneficioProntaSeparacion')?.value);
+        const p = FinancialCalculator.toNum(this.form.get('porcentajeCuotaInicial')?.value);
+        const fechaUlt = this.form.get('fechaUltimaCuota')?.value;
+
+        const exceeded = FinancialCalculator.checkBeneficioExceeded(vt, bv, bp);
         const aprobador = this.form.get('aprobador')!;
-
-
-        const vt = this.toNum(valorTotal.value);
-        const bv = this.toNum(benefVal.value);
-        const bp = this.toNum(benefPronta.value);
-        const porcentajeBeneficio = 0.15;
-        const maxBeneficio = vt * porcentajeBeneficio;
-        const totalBeneficios = bv + bp;
-
-        if (totalBeneficios > maxBeneficio) {
-            aprobador.enable({ emitEvent: false });
-        }
+        if (exceeded) aprobador.enable({ emitEvent: false });
         else {
             aprobador.setValue(false, { emitEvent: false });
             aprobador.disable({ emitEvent: false });
         }
-        const especial = Math.max(vt - bv - bp, 0);
-        valorEspecial.setValue(especial, { emitEvent: false });
-        const p = this.toNum(porcentaje.value);
-        const cuotaIni = Math.round(especial * (p / 100));
-        valorCuotaInicial.setValue(cuotaIni, { emitEvent: false });
 
-        // Helper para calcular meses
-        const calcMonths = (dateStr: string) => {
-            const f = dateStr ? new Date(dateStr) : null;
-            if (!f || isNaN(f.getTime())) return null;
-
-            const start = new Date();
-            start.setMonth(start.getMonth() + 1);
-            start.setDate(1);
-
-            const months = (f.getFullYear() - start.getFullYear()) * 12 +
-                (f.getMonth() - start.getMonth()) + 1;
-
-            return Math.max(months, 0);
-        };
-
-        // Cantidad de cuotas para el apartamento
-        const m = calcMonths(fechaUlt.value);
-        cantCuotas.setValue(m, { emitEvent: false });
-
-        // Las cuotas de adicionales ahora se calculan individualmente en el servicio
+        const especial = FinancialCalculator.calculateValorEspecial(vt, [bv, bp]);
+        this.form.get('valorEspecialHoy')?.setValue(especial, { emitEvent: false });
+        this.form.get('valorCuotaInicial')?.setValue(FinancialCalculator.calculateCuotaInicial(especial, p), { emitEvent: false });
+        this.form.get('cantidadCuotas')?.setValue(FinancialCalculator.calcMonths(fechaUlt), { emitEvent: false });
     }
-
-    fieldLabels: Record<string, string> = {
-        tipoDocumento: 'Tipo documento',
-        noDocumento: 'Número de documento',
-        nombres: 'Nombres',
-        apellidos: 'Apellidos',
-        direccion: 'Dirección',
-        telefono: 'Teléfono',
-        correo: 'Correo',
-        canal: 'Canal',
-        proyecto: 'Proyecto',
-        torre: 'Torre',
-        apartamento: 'Apartamento',
-        valorTotal: 'Valor total',
-        fechaUltimaCuota: 'Fecha última cuota',
-        cotizacionValidaHasta: 'Cotización válida hasta',
-        nombreEjecutivo: 'Nombre del ejecutivo',
-        telefonoEjecutivo: 'Teléfono del ejecutivo',
-        correoEjecutivo: 'Correo del ejecutivo',
-    };
 
     get porcentajesCuotaInicial() {
         return Array.from({ length: 17 }, (_, i) => 20 + i * 5);
     }
 
     getErrorMessage(controlName: string): string {
-        const c = this.form.get(controlName);
-        if (!c) return '';
-
-        const label = (this.fieldLabels[controlName] ?? controlName).toLowerCase();
-
-        if (c.hasError('required')) {
-            return `El campo "${label}" es requerido.`;
-        }
-
-        if (c.hasError('email')) {
-            return `El campo "${label}" debe ser un correo válido.`;
-        }
-        if (c.hasError('maxlength')) {
-            const req = c.getError('maxlength')?.requiredLength;
-            return `El campo "${label}" debe tener máximo ${req} caracteres.`;
-        }
-
-        if (c.hasError('minlength')) {
-            const req = c.getError('minlength')?.requiredLength;
-            return `El campo "${label}" debe tener mínimo ${req} caracteres.`;
-        }
-        if (c.hasError('pattern')) {
-            return `El campo "${label}" tiene un formato inválido.`;
-        }
-
-        if (c.hasError('min')) {
-            const min = c.getError('min')?.min;
-            return `El campo "${label}" debe ser mayor o igual a ${min}.`;
-        }
-
-        if (c.hasError('max')) {
-            const max = c.getError('max')?.max;
-            return `El campo "${label}" debe ser menor o igual a ${max}.`;
-        }
-
-        if (c.hasError('benefitsExceeded')) {
-            return `La suma de beneficios excede el 50% del valor total.`;
-        }
-
-        return `El campo "${label}" es inválido.`;
+        return getCotizacionErrorMessage(this.form, controlName);
     }
 }

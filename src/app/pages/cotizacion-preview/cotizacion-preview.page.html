@@ -33,12 +33,14 @@
       </div>
 
       <div id="pdf-content" class="sheet" [class.content-loading]="isLoading">
-        <div class="portada-wrap">
+        <div class="portada-section">
           <img class="pdf-img" [src]="portadaUrl" alt="portada" (load)="onImageLoad()"
             (error)="onImageError('portada')" />
           <img class="portada-logo" src="assets/logos/logo.png" alt="Celeus Group" />
+        </div>
 
-          <div class="asesor-layer" *ngIf="asesorImg">
+        <div class="asesor-section" *ngIf="asesorImg">
+          <div class="asesor-layer">
             <img class="asesor-img" [src]="asesorImg" alt="Asesor" (load)="onImageLoad()"
               (error)="onImageError('asesor')" />
 
@@ -165,7 +167,8 @@
           </div>
         </div>
 
-        <div class="section-block">
+
+        <div class="section-block costos-section-capture">
           <app-section-banner title="Costo de tu inversión" variant="vino"></app-section-banner>
 
           <div class="content-pad">
@@ -244,7 +247,7 @@
                       <td>{{ '$ ' + ((data.beneficioParqueadero || 0) | number:'1.0-0') }} COP</td>
                     </tr>
                     <tr>
-                      <td>CUOTA MENSUAL ({{ data.cuotasFinanciacionParqueadero || 0 }} meses)</td>
+                      <td>CANTIDAD DE CUOTAS ({{ data.cuotasFinanciacionParqueadero || 0 }} meses)</td>
                       <td>{{ '$ ' + ((data.valorCuotaParqueadero || 0) | number:'1.0-0') }} COP</td>
                     </tr>
                   </tbody>
@@ -272,7 +275,7 @@
                       <td>{{ '$ ' + ((data.beneficioKitAcabados || 0) | number:'1.0-0') }} COP</td>
                     </tr>
                     <tr>
-                      <td>CUOTA MENSUAL ({{ data.cuotasFinanciacionKitAcabados || 0 }} meses)</td>
+                      <td>CANTIDAD DE CUOTAS ({{ data.cuotasFinanciacionKitAcabados || 0 }} meses)</td>
                       <td>{{ '$ ' + ((data.valorCuotaKitAcabados || 0) | number:'1.0-0') }} COP</td>
                     </tr>
                   </tbody>
@@ -300,7 +303,7 @@
                       <td>{{ '$ ' + ((data.beneficioKitDomotica || 0) | number:'1.0-0') }} COP</td>
                     </tr>
                     <tr>
-                      <td>CUOTA MENSUAL ({{ data.cuotasFinanciacionKitDomotica || 0 }} meses)</td>
+                      <td>CANTIDAD DE CUOTAS ({{ data.cuotasFinanciacionKitDomotica || 0 }} meses)</td>
                       <td>{{ '$ ' + ((data.valorCuotaKitDomotica || 0) | number:'1.0-0') }} COP</td>
                     </tr>
                   </tbody>
@@ -328,7 +331,7 @@
                       <td>{{ '$ ' + ((data.beneficioDeposito || 0) | number:'1.0-0') }} COP</td>
                     </tr>
                     <tr>
-                      <td>CUOTA MENSUAL ({{ data.cuotasFinanciacionDeposito || 0 }} meses)</td>
+                      <td>CANTIDAD DE CUOTAS ({{ data.cuotasFinanciacionDeposito || 0 }} meses)</td>
                       <td>{{ '$ ' + ((data.valorCuotaDeposito || 0) | number:'1.0-0') }} COP</td>
                     </tr>
                   </tbody>
@@ -423,12 +426,12 @@
 
           </div>
 
-          <!-- APROBACION -->
-          <app-footer-aprobacion [nombre]="(data.nombres || '') + ' ' + (data.apellidos || '')"
-            (imageLoaded)="onFooterLoad()"></app-footer-aprobacion>
+          
 
 
         </div>
+        <app-footer-aprobacion id="cotizacion-footer" [nombre]="(data.nombres || '') + ' ' + (data.apellidos || '')"
+            (imageLoaded)="onFooterLoad()"></app-footer-aprobacion>
       </div>
 
 

@@ -52,7 +52,6 @@
   padding: 18px;
 }
 
-/* Grid para mostrar planes lado a lado */
 .plans-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -60,23 +59,21 @@
   margin-top: 18px;
 }
 
-/* Si hay una sola columna (no adicionales), ocupar todo el ancho */
 .plans-grid.single-column {
   grid-template-columns: 1fr;
 }
 
-/* Asegurar que las cards dentro del grid tengan el mismo ancho */
 .plans-grid>.card {
   min-width: 0;
   width: 100%;
 }
 
-/* En pantallas pequeñas, apilar verticalmente */
 @media (max-width: 1024px) {
   .plans-grid {
     grid-template-columns: 1fr;
   }
 }
+
 
 .card-header h2 {
   margin: 0;
@@ -652,3 +649,4 @@ input:disabled::placeholder {
   pointer-events: none;
   background: rgba(0, 0, 0, 0.02);
 }
+

@@ -155,7 +155,7 @@ export class PlanPagosService {
         if (nuevosValores.some(v => v < valorMinimo)) {
             return {
                 success: false,
-                error: `Una cuota automática quedó por debajo del mínimo permitido.`
+                error: `Una cuota quedó por debajo del mínimo permitido.`
             };
         }
 
