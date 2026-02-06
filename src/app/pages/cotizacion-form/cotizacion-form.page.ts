@@ -826,6 +826,21 @@ export class CotizacionFormPage implements OnInit {
         return hasAdicErrors;
     }
 
+    shouldBlockEdit(row: any): boolean {
+        // Usa AbstractControl o any para evitar problemas de tipos en la plantilla
+        const ctrl = row as FormGroup;
+        const isEditing = ctrl.get('editarValorApto')?.value;
+        const isInvalid = this.isAnyPlanInvalid();
+
+        // Si ya está editando, permitimos (para que pueda desmarcar si quiere cancelar)
+        // Si NO está editando, bloqueamos si hay cualquier error en el plan
+        if (isEditing) {
+            return false;
+        }
+        return isInvalid;
+    }
+
+
     isInvalid(name: string): boolean {
         const c = this.form.get(name);
         return !!c && !c.disabled && c.invalid && (c.touched || c.dirty);

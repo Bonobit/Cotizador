@@ -645,3 +645,10 @@ input:disabled::placeholder {
   opacity: 0;
   pointer-events: none;
 }
+
+.edit-icon-label.disabled-label {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.02);
+}

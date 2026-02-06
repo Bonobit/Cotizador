@@ -426,18 +426,23 @@
                                         <div class="input-with-icon">
                                             <input class="cell" type="text" appCopCurrency formControlName="valorApto"
                                                 [class.error]="row.get('valorApto')?.invalid && row.get('valorApto')?.touched"
+                                                (focus)="ignorarNextBlur = false"
                                                 (blur)="onCuotaBlur($event, i, plan, totalFinanciarApto, 1000000)"
                                                 placeholder="$" />
-                                            <small class="error-msg" *ngIf="row.get('valorApto')?.hasError('belowMinimum')">
-                                                
+                                            <small class="error-msg"
+                                                *ngIf="row.get('valorApto')?.hasError('belowMinimum')">
+
                                             </small>
-                                            <small class="error-msg" *ngIf="row.get('valorApto')?.hasError('invalidDistribution')">
-                                            
+                                            <small class="error-msg"
+                                                *ngIf="row.get('valorApto')?.hasError('invalidDistribution')">
+
                                             </small>
                                             <label class="edit-icon-label" (mousedown)="ignorarNextBlur = true"
-                                                [class.active]="row.get('editarValorApto')?.value">
+                                                [class.active]="row.get('editarValorApto')?.value"
+                                                [class.disabled-label]="shouldBlockEdit(row)">
                                                 <input type="checkbox" formControlName="editarValorApto"
-                                                    class="edit-checkbox" />
+                                                    class="edit-checkbox"
+                                                    [attr.disabled]="shouldBlockEdit(row) ? true : null" />
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -498,17 +503,22 @@
                                                     <input class="cell" type="text" appCopCurrency
                                                         formControlName="valorApto" placeholder="$"
                                                         [class.error]="row.get('valorApto')?.invalid && row.get('valorApto')?.touched"
+                                                        (focus)="ignorarNextBlur = false"
                                                         (blur)="onCuotaBlur($event, i, formArray, totalesAdicionales.get(config.id)!, 500000)" />
-                                                    <small class="error-msg" *ngIf="row.get('valorApto')?.hasError('belowMinimum')">
-                                                      
+                                                    <small class="error-msg"
+                                                        *ngIf="row.get('valorApto')?.hasError('belowMinimum')">
+
                                                     </small>
-                                                    <small class="error-msg" *ngIf="row.get('valorApto')?.hasError('invalidDistribution')">
-                                                     
+                                                    <small class="error-msg"
+                                                        *ngIf="row.get('valorApto')?.hasError('invalidDistribution')">
+
                                                     </small>
                                                     <label class="edit-icon-label" (mousedown)="ignorarNextBlur = true"
-                                                        [class.active]="row.get('editarValorApto')?.value">
+                                                        [class.active]="row.get('editarValorApto')?.value"
+                                                        [class.disabled-label]="shouldBlockEdit(row)">
                                                         <input type="checkbox" formControlName="editarValorApto"
-                                                            class="edit-checkbox" />
+                                                            class="edit-checkbox"
+                                                            [attr.disabled]="shouldBlockEdit(row) ? true : null" />
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                                             viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                             stroke-width="2" stroke-linecap="round"
