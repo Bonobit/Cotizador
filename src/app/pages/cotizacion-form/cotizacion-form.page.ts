@@ -450,10 +450,103 @@ export class CotizacionFormPage implements OnInit {
     }
 
     /**
+     * Retorna los adicionales seleccionados ordenados por cantidad de cuotas (menor a mayor).
+     * Útil para que en la tabla aparezcan primero los planes más cortos.
+     */
+    getAdicionalesSeleccionadosOrdenados(): AdicionalConfig[] {
+        const seleccionados = this.getAdicionalesSeleccionados();
+        return seleccionados.sort((a, b) => {
+            const lengthA = this.planesAdicionales.get(a.id)?.length || 0;
+            const lengthB = this.planesAdicionales.get(b.id)?.length || 0;
+            return lengthA - lengthB;
+        });
+    }
+
+    /**
      * Cambia el tab activo de adicionales
      */
     cambiarTabAdicional(adicionalId: string): void {
         this.tabActivoAdicional = adicionalId;
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                        MÉTODOS PARA TABLA UNIFICADA                        */
+    /* -------------------------------------------------------------------------- */
+
+    /**
+     * Retorna el número máximo de cuotas entre el plan del apartamento y los adicionales
+     */
+    get maxPlanRows(): number[] {
+        let max = this.plan.length;
+        this.planesAdicionales.forEach(p => {
+            if (p.length > max) max = p.length;
+        });
+        return Array.from({ length: max }, (_, i) => i);
+    }
+
+    /**
+     * Obtiene la fecha de la cuota en la posición index.
+     * Prioriza la fecha del apartamento, si no existe, busca en adicionales.
+     */
+    getPlanRowFecha(index: number): string {
+        // 1. Intentar fecha del apartamento
+        if (index < this.plan.length) {
+            return this.plan.at(index).get('fechaApto')?.value;
+        }
+
+        // 2. Buscar en adicionales
+        for (const [key, formArray] of this.planesAdicionales.entries()) {
+            if (index < formArray.length) {
+                return formArray.at(index).get('fechaApto')?.value;
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * Calcula la suma de las cuotas de TODOS los adicionales seleccionados para la fila index.
+     * @deprecated Se usa ahora columnas individuales
+     */
+    getValorAdicionalesAt(index: number): number {
+        let total = 0;
+        const seleccionados = this.getAdicionalesSeleccionados();
+        seleccionados.forEach(config => {
+            total += this.getValorAdicionalAt(config.id, index);
+        });
+        return total;
+    }
+
+    /**
+     * Obtiene el valor de la cuota para un adicional específico en la fila index
+     */
+    getValorAdicionalAt(configId: string, index: number): number {
+        const formArray = this.planesAdicionales.get(configId);
+        if (formArray && index < formArray.length) {
+            return this.toNum(formArray.at(index).get('valorApto')?.value);
+        }
+        return 0;
+    }
+
+    /**
+     * Helper para obtener el control del plan de apartamento de forma segura desde el template
+     */
+    getAptoControl(index: number): FormGroup | null {
+        if (index < this.plan.length) {
+            return this.plan.at(index) as FormGroup;
+        }
+        return null;
+    }
+
+    /**
+     * Helper para obtener el control de un plan adicional específico
+     */
+    getAdicionalControl(configId: string, index: number): FormGroup | null {
+        const formArray = this.planesAdicionales.get(configId);
+        if (formArray && index < formArray.length) {
+            return formArray.at(index) as FormGroup;
+        }
+        return null;
     }
 
     private createPlanRow() {
@@ -465,6 +558,62 @@ export class CotizacionFormPage implements OnInit {
             valorAdic: new FormControl(''),
         });
     }
+
+    /**
+     * Calcula el total de una fila específica (Apartamento + Adicionales)
+     */
+    getRowTotal(index: number): number {
+        let total = 0;
+
+        // Sumar apartamento
+        if (index < this.plan.length) {
+            total += this.toNum(this.plan.at(index).get('valorApto')?.value);
+        }
+
+        // Sumar adicionales seleccionados
+        const seleccionados = this.getAdicionalesSeleccionados();
+        seleccionados.forEach(config => {
+            const formArray = this.planesAdicionales.get(config.id);
+            if (formArray && index < formArray.length) {
+                total += this.toNum(formArray.at(index).get('valorApto')?.value);
+            }
+        });
+
+        return total;
+    }
+
+    /**
+     * Total de la columna Apartamento
+     */
+    getAptoColumnTotal(): number {
+        return this.plan.controls.reduce((acc, curr) => {
+            return acc + this.toNum(curr.get('valorApto')?.value);
+        }, 0);
+    }
+
+    /**
+     * Total de la columna de un Adicional específico
+     */
+    getAdicionalColumnTotal(configId: string): number {
+        const formArray = this.planesAdicionales.get(configId);
+        if (!formArray) return 0;
+        return formArray.controls.reduce((acc, curr) => {
+            return acc + this.toNum(curr.get('valorApto')?.value);
+        }, 0);
+    }
+
+    /**
+     * Gran total de toda la tabla (suma de todos los pagos)
+     */
+    getGrandPlanTotal(): number {
+        let total = this.getAptoColumnTotal();
+        const seleccionados = this.getAdicionalesSeleccionados();
+        seleccionados.forEach(config => {
+            total += this.getAdicionalColumnTotal(config.id);
+        });
+        return total;
+    }
+
 
     generarPlan() {
         if (this.form.invalid) {
