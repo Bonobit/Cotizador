@@ -328,7 +328,6 @@ export class CotizacionPreviewPage {
       width: '100%', // O un ancho fijo en px si prefieres (ej: 800px)
       height: 'auto',
       overflow: 'visible',
-      zIndex: '-1',
     });
 
     // 3. Insertar al body
@@ -342,7 +341,7 @@ export class CotizacionPreviewPage {
       const canvas = await html2canvas(clone, {
         scale,
         useCORS: true,
-        backgroundColor: '#ffffff', // Forzar fondo blanco
+        //backgroundColor: '#ffffff', // Forzar fondo blanco
         scrollY: 0,
         windowHeight: clone.scrollHeight + 100, // Altura total + margen
       });
