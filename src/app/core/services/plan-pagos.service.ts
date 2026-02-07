@@ -89,4 +89,76 @@ export class PlanPagosService {
 
         return plan;
     }
+
+    /**
+     * Recalcula las cuotas distribuyendo el saldo restante entre las cuotas no manuales.
+     * @param totalFinanciar Valor total que deben sumar todas las cuotas
+     * @param cuotas Estado actual de las cuotas (valor actual y si fue editada manualmente)
+     * @param valorMinimo Valor mínimo permitido para cualquier cuota
+     */
+    recalcularCuotas(
+        totalFinanciar: number,
+        cuotas: { valor: number; manual: boolean }[],
+        valorMinimo: number
+    ): { success: boolean; nuevosValores?: number[]; error?: string } {
+        // 1. Sumar valores de cuotas manuales
+        const totalManual = cuotas
+            .filter(c => c.manual)
+            .reduce((sum, c) => sum + c.valor, 0);
+
+        // 2. Calcular saldo restante para cuotas automáticas
+        const saldoRestante = totalFinanciar - totalManual;
+        const countAutomaticas = cuotas.filter(c => !c.manual).length;
+
+        // Caso borde: Si no hay automáticas (todas manuales)
+        if (countAutomaticas === 0) {
+            if (saldoRestante !== 0) {
+                return { success: false, error: 'La suma de las cuotas manuales no coincide con el total.' };
+            }
+            return { success: true, nuevosValores: cuotas.map(c => c.valor) };
+        }
+
+        // 3. Calcular nuevo valor para automáticas
+        // Usamos Math.floor para evitar decimales y sumamos el residuo a la última automática
+        let valorAutomatico = Math.floor(saldoRestante / countAutomaticas);
+
+        // 4. Validar mínimo
+        if (valorAutomatico < valorMinimo) {
+            return {
+                success: false,
+                error: `El recálculo genera cuotas automáticas de $${valorAutomatico.toLocaleString()}, que es menor al mínimo permitido de $${valorMinimo.toLocaleString()}.`
+            };
+        }
+
+        // 5. Generar array con nuevos valores
+        const nuevosValores: number[] = [];
+        let acumuladoAutomaticas = 0;
+        let automáticasProcesadas = 0;
+
+        for (let i = 0; i < cuotas.length; i++) {
+            if (cuotas[i].manual) {
+                nuevosValores.push(cuotas[i].valor);
+            } else {
+                automáticasProcesadas++;
+                // Si es la última automática, le sumamos cualquier residuo por redondeo
+                if (automáticasProcesadas === countAutomaticas) {
+                    const residuo = saldoRestante - acumuladoAutomaticas;
+                    nuevosValores.push(residuo); // El residuo debería ser aprox igual a valorAutomatico
+                } else {
+                    nuevosValores.push(valorAutomatico);
+                    acumuladoAutomaticas += valorAutomatico;
+                }
+            }
+        }
+
+        // Validación final de mínimos para el residuo (por si acaso el residuo quedó muy bajo, aunque matemático deberia ser mayor o igual)
+        if (nuevosValores.some(v => v < valorMinimo)) {
+            return {
+                success: false,
+                error: `Una cuota automática quedó por debajo del mínimo permitido.`
+            };
+        }
+
+        return { success: true, nuevosValores };
+    }
 }

@@ -11,7 +11,6 @@ import { LoggerService } from '@core/services/logger.service';
 import { SectionBannerComponent } from '../../shared/components/section/section-actividades.components';
 import { FooterAprobacionComponent } from '@shared/components/footer-aprobacion/footer-aprobacion.components';
 import { CotizacionFormState } from '@core/models/form-state.model';
-
 import { switchMap, of } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -47,8 +46,6 @@ export class CotizacionPreviewPage {
   areaTotal: number | null = null;
   showCotizacionDolares = false;
 
-  // Partial permite que data tenga solo algunos campos de CotizacionFormState
-  // Esto evita errores de "possibly null" en el template
   data: Partial<CotizacionFormState> = {};
   currDate = new Date();
   isLoading = true;
@@ -68,17 +65,13 @@ export class CotizacionPreviewPage {
     const data = this.state.load();
     this.data = data || {};
 
-    // Extraer valor cuota mensual del plan
     if (this.data.plan && Array.isArray(this.data.plan) && this.data.plan.length > 0) {
-      // Tomamos el primer valor de cuota de apartamento que encuentre
       const firstRow = this.data.plan[0];
       this.data.valorCuotaMensualReal = firstRow.valorApto || 0;
     }
 
-
     this.asesorNombre = localStorage.getItem('asesor_nombre') ?? '';
     this.asesorImg = localStorage.getItem('asesor_img') ?? '';
-
 
     this.torreNombre = localStorage.getItem('torre_nombre') ?? '';
     this.aptoLabel = localStorage.getItem('apto_label') ?? '';
@@ -87,18 +80,17 @@ export class CotizacionPreviewPage {
 
     const a = localStorage.getItem('apto_area_total');
     this.areaTotal = a ? Number(a) : null;
+
     if (data) {
       this.asesorTelefono = data.telefonoEjecutivo ?? '';
       this.asesorEmail = data.correoEjecutivo ?? '';
       this.showActividades = !!data.actividadesProyecto;
       this.showCotizacionDolares = !!data.cotizacionDolares;
 
-
       if (!this.torreNombre && data.torre) {
         this.torreNombre = data.torre;
         localStorage.setItem('torre_nombre', data.torre);
       }
-
 
       if (!this.aptoLabel) {
         this.aptoLabel = localStorage.getItem('apto_label') ?? '';
@@ -109,13 +101,9 @@ export class CotizacionPreviewPage {
         this.ubicacionImg = localStorage.getItem('proyecto_ubicacion_img') ?? '';
         this.ciudadVivaImg = localStorage.getItem('proyecto_ciudadviva_img') ?? '';
       }
-
-
     }
 
-
     const form = this.state.load();
-
     if (form) {
       this.show360 = !!form.link360;
       this.recorridoImg = localStorage.getItem('proyecto_recorrido') ?? '';
@@ -128,10 +116,8 @@ export class CotizacionPreviewPage {
       data: data
     });
 
-    // 1. Calcular inmediatamente cuántas imágenes esperamos
     this.countImagesToLoad();
 
-    // 2. Timeout de seguridad: si después de 3 segundos no ha cargado, forzar mostrar contenido
     setTimeout(() => {
       if (this.isLoading) {
         console.warn('Timeout alcanzado - forzando fin de carga');
@@ -142,24 +128,28 @@ export class CotizacionPreviewPage {
   }
 
   private countImagesToLoad() {
-    this.imagesLoaded = 0; // Reset por seguridad
-    // Contamos las imágenes que existen en el DOM/Template
+    this.imagesLoaded = 0;
     let count = 0;
+
     if (this.portadaUrl) count++;
     if (this.asesorImg) count++;
     if (this.ubicacionImg) count++;
     if (this.ciudadVivaImg) count++;
     if (this.apartamentoImg) count++;
     if (this.planoImg) count++;
+    count++; // Footer background
 
     this.imagesToLoad = count;
     console.log(`Total de imágenes a cargar: ${this.imagesToLoad}`);
 
-    // Si no hay imágenes, quitar loading inmediatamente
     if (this.imagesToLoad === 0) {
       this.isLoading = false;
       this.cdr.detectChanges();
     }
+  }
+
+  onFooterLoad() {
+    this.onImageLoad();
   }
 
   onImageLoad() {
@@ -181,14 +171,12 @@ export class CotizacionPreviewPage {
   }
 
   private finishLoading() {
-    // Pequeño delay para suavizar la transición, pero forzando detección
     setTimeout(() => {
       console.log('Ocultando skeleton y refrescando vista');
       this.isLoading = false;
       this.cdr.detectChanges();
     }, 100);
   }
-
 
   volver() {
     this.router.navigate(['/cotizacion-form']);
@@ -198,7 +186,7 @@ export class CotizacionPreviewPage {
     const data = this.state.load();
     if (!data) {
       this.logger.error('No hay datos para generar cotización');
-      this._generatePDF(); // Fallback
+      this._generatePDF();
       return;
     }
 
@@ -283,14 +271,14 @@ export class CotizacionPreviewPage {
 
         return this.cotizacionesService.crearCotizacion(cotizacionPayload);
       }),
-      // takeUntilDestroyed automáticamente cancela la suscripción cuando el componente se destruye
-      // Esto previene memory leaks
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (res) => {
         if (res) {
           this.logger.log('Cotización guardada exitosamente', res);
-          this._generatePDF();
+          setTimeout(() => {
+            this._generatePDF();
+          }, 200);
         }
       },
       error: (err) => {
@@ -301,46 +289,163 @@ export class CotizacionPreviewPage {
     });
   }
 
+  /**
+   * NUEVA ESTRATEGIA DE GENERACIÓN DE PDF OPTIMIZADA
+   * - Divide el contenido en secciones lógicas
+   * - Captura cada sección por separado
+   * - Ensambla todo en un PDF multipágina sin cortes
+   */
   private async _generatePDF() {
-    const el = document.getElementById('pdf-content');
-    if (!el) return;
-
-    const scale = 2;
-
-    const canvas = await html2canvas(el, {
-      scale,
-      useCORS: true,
-      backgroundColor: null,
-      windowWidth: el.scrollWidth,
-      windowHeight: el.scrollHeight,
-    });
-
-    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+    console.log('🚀 Iniciando generación de PDF optimizada...');
 
     const pdf = new jsPDF('p', 'mm', 'a4');
-
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
+
+    // Configuración para html2canvas
+    const canvasOptions = {
+      scale: 2, // Alta calidad
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      allowTaint: true,
+      removeContainer: true,
+    };
+
+    let isFirstPage = true;
+
+    try {
+      // ===============================================
+      // SECCIÓN 1: PORTADA
+      // ===============================================
+      const portadaSection = document.querySelector('.portada-section');
+      if (portadaSection) {
+        console.log('📄 Capturando portada...');
+        await this.addSectionToPDF(pdf, portadaSection as HTMLElement, canvasOptions, pageWidth, pageHeight, isFirstPage);
+        isFirstPage = false;
+      }
+
+      // ===============================================
+      // SECCIÓN: ASESOR
+      // ===============================================
+      const asesorSection = document.querySelector('.asesor-section');
+      if (asesorSection) {
+        console.log('👤 Capturando asesor...');
+        await this.addSectionToPDF(pdf, asesorSection as HTMLElement, canvasOptions, pageWidth, pageHeight, isFirstPage);
+        isFirstPage = false;
+      }
+
+      // ===============================================
+      // SECCIÓN 2: CIUDAD VIVA
+      // ===============================================
+      if (this.showConceptoCiudadViva) {
+        const ciudadVivaSection = document.querySelector('.ciudad-viva-section');
+        if (ciudadVivaSection) {
+          console.log('🏙️ Capturando Ciudad Viva...');
+          await this.addSectionToPDF(pdf, ciudadVivaSection as HTMLElement, canvasOptions, pageWidth, pageHeight, isFirstPage);
+          isFirstPage = false;
+        }
+      }
+
+      // ===============================================
+      // SECCIÓN 3: ACTIVIDADES (si está habilitado)
+      // ===============================================
+      if (this.showActividades) {
+        const actividadesSection = document.querySelector('.section-block');
+        if (actividadesSection) {
+          console.log('🎯 Capturando Actividades...');
+          await this.addSectionToPDF(pdf, actividadesSection as HTMLElement, canvasOptions, pageWidth, pageHeight, isFirstPage);
+          isFirstPage = false;
+        }
+      }
+
+      // ===============================================
+      // SECCIÓN 4: APARTAMENTO
+      // ===============================================
+      const aptoSections = document.querySelectorAll('.apto-section');
+      for (let i = 0; i < aptoSections.length; i++) {
+        console.log(`🏢 Capturando Apartamento ${i + 1}...`);
+        await this.addSectionToPDF(pdf, aptoSections[i] as HTMLElement, canvasOptions, pageWidth, pageHeight, isFirstPage);
+        isFirstPage = false;
+      }
+
+      // ===============================================
+      // SECCIÓN 5: COSTOS Y FINANCIACIÓN
+      // ===============================================
+      const costosSection = document.querySelector('.costos-section-capture');
+      if (costosSection) {
+        console.log('💰 Capturando Costos...');
+        await this.addSectionToPDF(pdf, costosSection as HTMLElement, canvasOptions, pageWidth, pageHeight, isFirstPage);
+        isFirstPage = false;
+      }
+
+      // ===============================================
+      // SECCIÓN 6: FOOTER
+      // ===============================================
+      const footerSection = document.querySelector('#cotizacion-footer');
+      if (footerSection) {
+        console.log('📝 Capturando Footer...');
+        await this.addSectionToPDF(pdf, footerSection as HTMLElement, canvasOptions, pageWidth, pageHeight, isFirstPage);
+      }
+
+      // ===============================================
+      // GUARDAR PDF
+      // ===============================================
+      const fileName = `Cotizacion_${this.aptoLabel || 'Apto'}_${this.torreNombre || 'Torre'}.pdf`;
+      pdf.save(fileName);
+      console.log('✅ PDF generado exitosamente:', fileName);
+
+    } catch (error) {
+      console.error('❌ Error generando PDF:', error);
+      alert('Ocurrió un error al generar el PDF. Por favor, intente nuevamente.');
+    } finally {
+      // Redirigir al formulario después de la generación
+      setTimeout(() => {
+        this.router.navigate(['/cotizacion-form']);
+      }, 500);
+    }
+  }
+
+  /**
+   * Función auxiliar para agregar una sección al PDF
+   */
+  private async addSectionToPDF(
+    pdf: jsPDF,
+    element: HTMLElement,
+    canvasOptions: any,
+    pageWidth: number,
+    pageHeight: number,
+    isFirstPage: boolean
+  ): Promise<void> {
+    const canvas = await html2canvas(element, canvasOptions);
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
 
     const imgWidth = pageWidth;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
+    if (!isFirstPage) {
+      pdf.addPage();
+    }
+
+    // Si la sección cabe en una página
     if (imgHeight <= pageHeight) {
       pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
     } else {
-      let y = 0;
-      let heightLeft = imgHeight;
+      // Si es más grande, la dividimos en múltiples páginas
+      let position = 0;
+      let remainingHeight = imgHeight;
+      let currentPage = 0;
 
-      while (heightLeft > 0) {
-        pdf.addImage(imgData, 'JPEG', 0, y, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-        y -= pageHeight;
+      while (remainingHeight > 0) {
+        if (currentPage > 0) {
+          pdf.addPage();
+        }
 
-        if (heightLeft > 0) pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+        position -= pageHeight;
+        remainingHeight -= pageHeight;
+        currentPage++;
       }
     }
-    pdf.save('cotizacion.pdf');
-
-    this.router.navigate(['/cotizacion-form']);
   }
 }

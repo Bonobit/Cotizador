@@ -396,122 +396,145 @@
             </div>
         </form>
 
-        <!-- Contenedor Grid para ambos planes lado a lado -->
-        <div class="plans-grid" *ngIf="showPlan" [class.single-column]="getAdicionalesSeleccionados().length === 0">
-            <!-- SECCIÓN 1: Plan de Pagos del Apartamento -->
+        <!-- Contenedor Tabla Unificada -->
+        <div class="plans-grid single-column" *ngIf="showPlan">
             <div class="card table-card" [formGroup]="form">
 
-                <div class="section-title"></div>
-
                 <div class="fieldset">
-                    <div class="legend">PLAN DE PAGOS DEL APARTAMENTO</div>
-
+                    <div class="legend">PLAN DE PAGOS UNIFICADO</div>
                     <div class="table-wrap">
                         <table class="plan-table">
                             <thead>
                                 <tr>
                                     <th class="center">No.</th>
                                     <th class="center">Fecha Cuota</th>
-                                    <th class="center">Valor Cuota</th>
+                                    <th class="center">Cuota Apartamento</th>
+
+                                    <!-- Columnas dinámicas para cada adicional seleccionado -->
+                                    <th class="center" *ngFor="let config of getAdicionalesSeleccionadosOrdenados()">
+                                        Cuota {{ config.displayName }}
+                                    </th>
+
+                                    <!-- Columna Total Fila -->
+                                    <th class="center">Total Mes</th>
                                 </tr>
                             </thead>
 
-                            <tbody formArrayName="plan">
-                                <tr *ngFor="let row of plan.controls; let i = index" [formGroupName]="i">
+                            <tbody>
+                                <tr *ngFor="let i of maxPlanRows">
                                     <td class="center">{{ i + 1 }}</td>
                                     <td>
-                                        <input class="cell" type="date" formControlName="fechaApto" />
+                                        <input class="cell" type="date" [value]="getPlanRowFecha(i)" disabled />
                                     </td>
+
+                                    <!-- Columna Apartamento -->
                                     <td>
-                                        <div class="input-with-icon">
-                                            <input class="cell" type="text" appCopCurrency formControlName="valorApto"
-                                                placeholder="$" />
-                                            <label class="edit-icon-label"
-                                                [class.active]="row.get('editarValorApto')?.value">
-                                                <input type="checkbox" formControlName="editarValorApto"
-                                                    class="edit-checkbox" />
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path
-                                                        d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7">
-                                                    </path>
-                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z">
-                                                    </path>
-                                                </svg>
-                                            </label>
+                                        <ng-container *ngIf="getAptoControl(i) as group">
+                                            <div class="input-with-icon" [formGroup]="group">
+                                                <input class="cell" type="text" appCopCurrency
+                                                    formControlName="valorApto"
+                                                    [class.error]="group.get('valorApto')?.invalid && group.get('valorApto')?.touched"
+                                                    (focus)="ignorarNextBlur = false"
+                                                    (blur)="onCuotaBlur($event, i, plan, totalFinanciarApto, 1000000)"
+                                                    placeholder="$" />
+
+                                                <label class="edit-icon-label" (mousedown)="ignorarNextBlur = true"
+                                                    [class.active]="group.get('editarValorApto')?.value"
+                                                    [class.disabled-label]="shouldBlockEdit(group)">
+                                                    <input type="checkbox" formControlName="editarValorApto"
+                                                        class="edit-checkbox"
+                                                        [attr.disabled]="shouldBlockEdit(group) ? true : null" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path
+                                                            d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7">
+                                                        </path>
+                                                        <path
+                                                            d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z">
+                                                        </path>
+                                                    </svg>
+                                                </label>
+                                            </div>
+                                            <!-- Errores -->
+                                            <small class="error-msg"
+                                                *ngIf="group.get('valorApto')?.hasError('belowMinimum')"
+                                                style="display:block; color:var(--error);">
+                                                Mínimo no cumplido
+                                            </small>
+                                        </ng-container>
+                                        <div *ngIf="!getAptoControl(i)" class="center-text"> - </div>
+                                    </td>
+
+                                    <!-- Celdas dinámicas para cada adicional -->
+                                    <td *ngFor="let config of getAdicionalesSeleccionadosOrdenados()">
+                                        <ng-container *ngIf="getAdicionalControl(config.id, i) as group">
+                                            <div class="input-with-icon" [formGroup]="group">
+                                                <input class="cell" type="text" appCopCurrency
+                                                    formControlName="valorApto"
+                                                    [class.error]="group.get('valorApto')?.invalid && group.get('valorApto')?.touched"
+                                                    (focus)="ignorarNextBlur = false"
+                                                    (blur)="onCuotaBlur($event, i, planesAdicionales.get(config.id), totalesAdicionales.get(config.id)!, 500000)"
+                                                    placeholder="$" />
+
+                                                <label class="edit-icon-label" (mousedown)="ignorarNextBlur = true"
+                                                    [class.active]="group.get('editarValorApto')?.value"
+                                                    [class.disabled-label]="shouldBlockEdit(group)">
+                                                    <input type="checkbox" formControlName="editarValorApto"
+                                                        class="edit-checkbox"
+                                                        [attr.disabled]="shouldBlockEdit(group) ? true : null" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path
+                                                            d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7">
+                                                        </path>
+                                                        <path
+                                                            d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z">
+                                                        </path>
+                                                    </svg>
+                                                </label>
+                                            </div>
+                                            <!-- Errores -->
+                                            <small class="error-msg"
+                                                *ngIf="group.get('valorApto')?.hasError('belowMinimum')"
+                                                style="display:block; color:var(--error);">
+                                                Mínimo no cumplido
+                                            </small>
+                                        </ng-container>
+                                        <div *ngIf="!getAdicionalControl(config.id, i)" class="center-text"> - </div>
+                                    </td>
+
+                                    <!-- Celda Total Fila -->
+                                    <td>
+                                        <div class="cell-read-only bold">
+                                            {{ getRowTotal(i) | currency:'$ ':'symbol':'1.0-0' }}
                                         </div>
                                     </td>
                                 </tr>
                             </tbody>
+
+                            <tfoot>
+                                <tr class="footer-row">
+                                    <td colspan="2" class="right-align bold">TOTALES</td>
+
+                                    <!-- Total Apartamento -->
+                                    <td class="bold">
+                                        {{ getAptoColumnTotal() | currency:'$ ':'symbol':'1.0-0' }}
+                                    </td>
+
+                                    <!-- Totales Adicionales -->
+                                    <td *ngFor="let config of getAdicionalesSeleccionadosOrdenados()" class="bold">
+                                        {{ getAdicionalColumnTotal(config.id) | currency:'$ ':'symbol':'1.0-0' }}
+                                    </td>
+
+                                    <!-- Gran Total -->
+                                    <td class="bold grand-total">
+                                        {{ getGrandPlanTotal() | currency:'$ ':'symbol':'1.0-0' }}
+                                    </td>
+                                </tr>
+                            </tfoot>
                         </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SECCIÓN 2: Plan de Pagos de Adicionales con Tabs -->
-            <div class="card table-card" *ngIf="getAdicionalesSeleccionados().length > 0">
-
-                <div class="section-title"></div>
-
-                <div class="fieldset">
-                    <div class="legend">PLAN DE PAGOS DE ADICIONALES</div>
-
-                    <!-- Navegación de Tabs -->
-                    <div class="tabs-nav">
-                        <button *ngFor="let config of getAdicionalesSeleccionados()" type="button" class="tab-btn"
-                            [class.active]="tabActivoAdicional === config.id" (click)="cambiarTabAdicional(config.id)">
-                            {{ config.displayName }}
-                        </button>
-                    </div>
-
-                    <!-- Contenido de cada Tab -->
-                    <div *ngFor="let config of getAdicionalesSeleccionados()" class="tab-content"
-                        [hidden]="tabActivoAdicional !== config.id">
-                        <div class="table-wrap">
-                            <table class="plan-table">
-                                <thead>
-                                    <tr>
-                                        <th class="center">No.</th>
-                                        <th class="center">Fecha Cuota</th>
-                                        <th class="center">Valor Cuota</th>
-                                    </tr>
-                                </thead>
-
-                                <tbody *ngIf="planesAdicionales.get(config.id) as formArray">
-                                    <ng-container *ngFor="let row of formArray.controls; let i = index">
-                                        <tr [formGroup]="$any(row)">
-                                            <td class="center">{{ i + 1 }}</td>
-                                            <td>
-                                                <input class="cell" type="date" formControlName="fechaApto" />
-                                            </td>
-                                            <td>
-                                                <div class="input-with-icon">
-                                                    <input class="cell" type="text" appCopCurrency
-                                                        formControlName="valorApto" placeholder="$" />
-                                                    <label class="edit-icon-label"
-                                                        [class.active]="row.get('editarValorApto')?.value">
-                                                        <input type="checkbox" formControlName="editarValorApto"
-                                                            class="edit-checkbox" />
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                            stroke-width="2" stroke-linecap="round"
-                                                            stroke-linejoin="round">
-                                                            <path
-                                                                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7">
-                                                            </path>
-                                                            <path
-                                                                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z">
-                                                            </path>
-                                                        </svg>
-                                                    </label>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </ng-container>
-                                </tbody>
-                            </table>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -519,7 +542,8 @@
 
         <!-- Acciones al final de ambos planes -->
         <div class="actions center" *ngIf="showPlan">
-            <button type="button" class="btn primary" (click)="generarCotizacion()">Generar Cotización</button>
+            <button type="button" class="btn primary" [disabled]="form.invalid || isAnyPlanInvalid()"
+                (click)="generarCotizacion()">Generar Cotización</button>
         </div>
     </div>
 </div>

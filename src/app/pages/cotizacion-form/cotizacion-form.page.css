@@ -274,6 +274,21 @@
   color: #b42318;
 }
 
+.cell.error {
+  border-color: #b42318 !important;
+  background-color: #fffbfa !important;
+  box-shadow: 0 0 0 1px #b42318;
+}
+
+.error-msg {
+  color: #b42318;
+  font-size: 10px;
+  display: block;
+  margin-top: 4px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
 .actions {
   display: flex;
   justify-content: center;
@@ -336,9 +351,32 @@
 .plan-table th,
 .plan-table td {
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  padding: 10px;
-  text-align: left;
+  padding: 6px 4px;
+  text-align: center;
+  /* Horizontally center */
+  vertical-align: middle;
+  /* Vertically center */
   font-size: 13px;
+  white-space: nowrap;
+}
+
+/* Allow headers to wrap and still center */
+.plan-table th {
+  white-space: normal;
+}
+
+/* Specific width for data columns - Reduced to fit */
+.plan-table th:not(:first-child),
+.plan-table td:not(:first-child) {
+  min-width: 90px;
+  /* Reduced from 140px */
+}
+
+/* "No." column can be smaller */
+.plan-table th:first-child,
+.plan-table td:first-child {
+  width: 30px;
+  min-width: 30px;
 }
 
 .plan-table thead th {
@@ -353,6 +391,26 @@
   border: 1px solid rgba(0, 0, 0, 0.12);
   padding: 0 10px;
   background: rgba(255, 255, 255, 0.9);
+  text-align: center !important;
+  /* Force center */
+}
+
+/* Specific fix for date inputs */
+input[type="date"].cell {
+  text-align: center;
+  -webkit-appearance: none;
+  appearance: none;
+  padding: 0;
+  /* Remove padding that might shift text */
+  display: inline-flex;
+  /* Use flex to align content if browser supports it on input */
+  justify-content: center;
+  align-items: center;
+}
+
+input[type="date"]::-webkit-date-and-time-value {
+  text-align: center;
+  display: inline-block;
 }
 
 /* Caja tipo "formulario" (similar al look del PDF viejo, pero moderno) */
@@ -458,14 +516,15 @@ input:disabled::placeholder {
 }
 
 /* Línea vertical que divide las 2 secciones (en headers) */
-.plan-table thead .divider-left {
-  border-left: 2px solid rgba(0, 0, 0, 0.18) !important;
-}
+/* REMOVED as requested */
 
 /* Línea vertical que divide las 2 secciones (en body) */
-/* Línea vertical que divide las 2 secciones (en body) - Antes era 3, ahora 4 por la nueva col 'No.' */
-.plan-table tbody td:nth-child(4) {
-  border-left: 2px solid rgba(0, 0, 0, 0.18);
+/* REMOVED as requested */
+
+/* Separador para columna "No." */
+.plan-table thead tr:first-child th:first-child,
+.plan-table tbody td:first-child {
+  border-right: 2px solid rgba(0, 0, 0, 0.18);
 }
 
 /* Separador para columna "No." */
@@ -584,8 +643,11 @@ input:disabled::placeholder {
 }
 
 .input-with-icon input.cell {
-  padding-right: 36px;
-  /* Espacio para el icono */
+  padding-right: 24px;
+  font-size: 13px;
+  padding-left: 6px;
+  text-align: center;
+  /* Center input text */
 }
 
 .edit-icon-label {
@@ -629,4 +691,53 @@ input:disabled::placeholder {
   position: absolute;
   opacity: 0;
   pointer-events: none;
+}
+
+.edit-icon-label.disabled-label {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+/* Footer Totales */
+.footer-row td,
+.plan-table tbody td:last-child {
+  /* Apply same style to Total Mes column */
+  background-color: rgba(246, 184, 0, 0.1);
+  /* Light yellow tint */
+  border-top: 2px solid rgba(0, 0, 0, 0.1);
+  /* Keep border for footer, maybe redundant for body but harmless or removed via specific override if needed */
+  font-size: 14px;
+  font-weight: 800;
+  /* Match .bold class effectively since totals are bold */
+}
+
+/* Specific fix: Remove top border for body cells if unwanted, or keep for consistency.
+   User asked for "same format", footer has top border.
+   Let's keep it but maybe it looks weird on every row.
+   Actually, let's target just the background and font for the body column.
+*/
+.plan-table tbody td:last-child {
+  border-top: none;
+  /* Reset border from footer rule if applied */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  /* Keep standard bottom border */
+}
+
+.footer-row .grand-total {
+  background-color: rgba(246, 184, 0, 0.25);
+  /* Darker emphasis */
+  font-size: 15px;
+  color: #000;
+}
+
+.right-align {
+  text-align: center !important;
+  /* User requested everything centered vertically and horizontally */
+  padding-right: 16px;
+}
+
+.bold {
+  font-weight: 800;
 }

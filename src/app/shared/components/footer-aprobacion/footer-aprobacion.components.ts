@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -10,4 +10,9 @@ import { CommonModule } from '@angular/common';
 })
 export class FooterAprobacionComponent {
   @Input() nombre: string = '';
+  @Output() imageLoaded = new EventEmitter<void>();
+
+  onImgLoad() {
+    this.imageLoaded.emit();
+  }
 }
