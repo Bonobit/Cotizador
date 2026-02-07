@@ -33,7 +33,7 @@
       </div>
 
       <div id="pdf-content" class="sheet" [class.content-loading]="isLoading">
-        <div class="portada-wrap portada-section">
+        <div class="portada-section">
           <img class="pdf-img" [src]="portadaUrl" alt="portada" (load)="onImageLoad()"
             (error)="onImageError('portada')" />
           <img class="portada-logo" src="assets/logos/logo.png" alt="Celeus Group" />
@@ -85,6 +85,7 @@
         <div class="section-block"><app-section-banner *ngIf="showActividades" title="Actividades del proyecto"
             subtitle="+20 Actividades para disfrutar" variant="vino"
             imageUrl="assets/actividades/actividades.png"></app-section-banner></div>
+
 
         <div class="apto-section" *ngIf="apartamentoImg">
           <app-section-banner [title]="'Tu apartamento ' + (aptoLabel || '')"

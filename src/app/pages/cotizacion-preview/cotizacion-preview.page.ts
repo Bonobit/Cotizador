@@ -306,13 +306,13 @@ export class CotizacionPreviewPage {
     const canvasOptions = {
       scale: 2, // Alta calidad
       useCORS: true,
-      backgroundColor: '#f9f9f1',
+      backgroundColor: '#ffffff',
       logging: false,
       allowTaint: true,
       removeContainer: true,
     };
 
-    let currentY = 0; // Posición vertical actual en la página
+    let isFirstPage = true;
 
     try {
       // ===============================================
@@ -321,7 +321,8 @@ export class CotizacionPreviewPage {
       const portadaSection = document.querySelector('.portada-section');
       if (portadaSection) {
         console.log('📄 Capturando portada...');
-        currentY = await this.addSectionToPDF(pdf, portadaSection as HTMLElement, canvasOptions, pageWidth, pageHeight, currentY);
+        await this.addSectionToPDF(pdf, portadaSection as HTMLElement, canvasOptions, pageWidth, pageHeight, isFirstPage);
+        isFirstPage = false;
       }
 
       // ===============================================
@@ -330,7 +331,8 @@ export class CotizacionPreviewPage {
       const asesorSection = document.querySelector('.asesor-section');
       if (asesorSection) {
         console.log('👤 Capturando asesor...');
-        currentY = await this.addSectionToPDF(pdf, asesorSection as HTMLElement, canvasOptions, pageWidth, pageHeight, currentY);
+        await this.addSectionToPDF(pdf, asesorSection as HTMLElement, canvasOptions, pageWidth, pageHeight, isFirstPage);
+        isFirstPage = false;
       }
 
       // ===============================================
@@ -340,7 +342,8 @@ export class CotizacionPreviewPage {
         const ciudadVivaSection = document.querySelector('.ciudad-viva-section');
         if (ciudadVivaSection) {
           console.log('🏙️ Capturando Ciudad Viva...');
-          currentY = await this.addSectionToPDF(pdf, ciudadVivaSection as HTMLElement, canvasOptions, pageWidth, pageHeight, currentY);
+          await this.addSectionToPDF(pdf, ciudadVivaSection as HTMLElement, canvasOptions, pageWidth, pageHeight, isFirstPage);
+          isFirstPage = false;
         }
       }
 
@@ -351,7 +354,8 @@ export class CotizacionPreviewPage {
         const actividadesSection = document.querySelector('.section-block');
         if (actividadesSection) {
           console.log('🎯 Capturando Actividades...');
-          currentY = await this.addSectionToPDF(pdf, actividadesSection as HTMLElement, canvasOptions, pageWidth, pageHeight, currentY);
+          await this.addSectionToPDF(pdf, actividadesSection as HTMLElement, canvasOptions, pageWidth, pageHeight, isFirstPage);
+          isFirstPage = false;
         }
       }
 
@@ -361,7 +365,8 @@ export class CotizacionPreviewPage {
       const aptoSections = document.querySelectorAll('.apto-section');
       for (let i = 0; i < aptoSections.length; i++) {
         console.log(`🏢 Capturando Apartamento ${i + 1}...`);
-        currentY = await this.addSectionToPDF(pdf, aptoSections[i] as HTMLElement, canvasOptions, pageWidth, pageHeight, currentY);
+        await this.addSectionToPDF(pdf, aptoSections[i] as HTMLElement, canvasOptions, pageWidth, pageHeight, isFirstPage);
+        isFirstPage = false;
       }
 
       // ===============================================
@@ -370,7 +375,8 @@ export class CotizacionPreviewPage {
       const costosSection = document.querySelector('.costos-section-capture');
       if (costosSection) {
         console.log('💰 Capturando Costos...');
-        currentY = await this.addSectionToPDF(pdf, costosSection as HTMLElement, canvasOptions, pageWidth, pageHeight, currentY);
+        await this.addSectionToPDF(pdf, costosSection as HTMLElement, canvasOptions, pageWidth, pageHeight, isFirstPage);
+        isFirstPage = false;
       }
 
       // ===============================================
@@ -379,7 +385,7 @@ export class CotizacionPreviewPage {
       const footerSection = document.querySelector('#cotizacion-footer');
       if (footerSection) {
         console.log('📝 Capturando Footer...');
-        currentY = await this.addSectionToPDF(pdf, footerSection as HTMLElement, canvasOptions, pageWidth, pageHeight, currentY);
+        await this.addSectionToPDF(pdf, footerSection as HTMLElement, canvasOptions, pageWidth, pageHeight, isFirstPage);
       }
 
       // ===============================================
@@ -401,7 +407,7 @@ export class CotizacionPreviewPage {
   }
 
   /**
-   * Función auxiliar para agregar una sección al PDF con flujo continuo
+   * Función auxiliar para agregar una sección al PDF
    */
   private async addSectionToPDF(
     pdf: jsPDF,
@@ -409,60 +415,37 @@ export class CotizacionPreviewPage {
     canvasOptions: any,
     pageWidth: number,
     pageHeight: number,
-    currentY: number
-  ): Promise<number> {
+    isFirstPage: boolean
+  ): Promise<void> {
     const canvas = await html2canvas(element, canvasOptions);
     const imgData = canvas.toDataURL('image/jpeg', 0.95);
 
     const imgWidth = pageWidth;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-    // Caso 1: La imagen cabe en el espacio restante de la página actual
-    if (currentY + imgHeight <= pageHeight) {
-      pdf.addImage(imgData, 'JPEG', 0, currentY, imgWidth, imgHeight);
-      return currentY + imgHeight;
-    }
-
-    // Caso 2: La imagen es más grande que el espacio restante.
-    // ESTRATEGIA: Si no cabe en el espacio restante, forzamos página nueva (si no estamos ya en una).
-
-    if (currentY > 0) {
+    if (!isFirstPage) {
       pdf.addPage();
-      currentY = 0;
     }
 
-    // VOLVEMOS A LA ESTRATEGIA DE "NUEVA PAGINA SI NO CABE" PERO OPTIMIZADA
-    if (currentY > 0) {
-      pdf.addPage();
-      currentY = 0;
-    }
-
-    // Ahora estamos al principio de una página (currentY = 0)
-    // Si la imagen cabe entera en una página limpia
+    // Si la sección cabe en una página
     if (imgHeight <= pageHeight) {
       pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
-      return imgHeight;
-    }
+    } else {
+      // Si es más grande, la dividimos en múltiples páginas
+      let position = 0;
+      let remainingHeight = imgHeight;
+      let currentPage = 0;
 
-    // Si NO cabe en una página entera (es muy larga), la troceamos
-    let position = 0;
-    let heightLeft = imgHeight;
+      while (remainingHeight > 0) {
+        if (currentPage > 0) {
+          pdf.addPage();
+        }
 
-    while (heightLeft > 0) {
-      // Dibujar imagen desplazada hacia arriba para mostrar solo la parte que toca
-      pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-      position -= pageHeight; // Desplazar hacia arriba para la siguiente página
-
-      if (heightLeft > 0) {
-        pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+        position -= pageHeight;
+        remainingHeight -= pageHeight;
+        currentPage++;
       }
     }
-
-    // Retornamos la posición Y final en la última página
-    // Esto es un poco truculento porque position es negativo.
-    // Calculamos el sobrante real:
-    const finalY = imgHeight % pageHeight;
-    return finalY === 0 ? pageHeight : finalY; // Si es exacto, lleno la pagina (o 0 en nueva). Retornemos finalY.
   }
 }
