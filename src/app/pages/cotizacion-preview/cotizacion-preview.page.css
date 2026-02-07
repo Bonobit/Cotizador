@@ -1,3 +1,7 @@
+/* ===================================
+   ESTILOS BASE DE LA APLICACIÓN
+   =================================== */
+
 .app-shell {
   min-height: 100vh;
   position: relative;
@@ -8,10 +12,7 @@
 .glass-bg {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(900px 500px at 20% 10%, rgba(255, 196, 0, 0.25), transparent 60%),
-    radial-gradient(800px 600px at 80% 20%, rgba(0, 140, 255, 0.18), transparent 60%),
-    linear-gradient(135deg, #f6f6f6, #ededed);
+  background: linear-gradient(135deg, #f6f6f6, #ededed);
 }
 
 .page {
@@ -72,69 +73,51 @@
   padding: 18px;
 }
 
-.preview-inner {
-  height: 70vh;
-  min-height: 460px;
-  border-radius: 14px;
-  background: rgba(0, 0, 0, 0.08);
-  display: grid;
-  place-items: center;
-}
-
-.big {
-  font-size: 34px;
-  font-weight: 900;
-  letter-spacing: 1px;
-  text-align: center;
-  color: rgba(0, 0, 0, 0.6);
-}
-
+/* ===================================
+   CONTENEDOR DEL PDF - OPTIMIZADO PARA A4
+   =================================== */
 
 .sheet {
   width: 100%;
   max-width: 100%;
   margin: 0;
-  background: #fff;
+
   border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, .10);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.10);
+}
+
+.pdf-mode .sheet {
+  border-radius: 0;
+  box-shadow: none;
   overflow: visible;
-  /* <-- importante */
 }
 
+/* ===================================
+   SECCIÓN: PORTADA
+   =================================== */
 
-.portada {
-  display: block;
+.cover-group {
+  position: relative;
   width: 100%;
-  height: auto;
-  max-height: 70vh;
-  object-fit: cover;
-  object-position: center;
+  background-color: #FAF9F6;
+  /* Creamy white */
 }
 
-.portada-logo {
-  position: absolute;
-  left: 0;
-  /* 👈 mueve izq/der */
-  top: 1060px;
-  /* 👈 mueve arriba/abajo */
-  width: 420px;
-  /* 👈 tamaño */
-  height: auto;
-  z-index: 5;
-  /* por encima de la imagen */
-  opacity: .9;
-}
-
-.asesor-bar {
+.portada-section {
+  position: relative;
+  width: 100%;
+  page-break-after: always;
+  min-height: 100vh;
   display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px 20px;
-  background: #fff;
-  border-top: 1px solid rgba(0, 0, 0, .06);
+  flex-direction: column;
 }
 
+.asesor-section {
+  position: relative;
+  width: 100%;
+  page-break-after: always;
+}
 
 .pdf-img {
   display: block;
@@ -142,7 +125,25 @@
   height: auto;
 }
 
-.asesor-banner {
+/* Logo Celeus - POSICIÓN CORREGIDA PARA QUE APAREZCA */
+.portada-logo {
+  position: absolute;
+  left: 3%;
+  top: 80%;
+  width: 50%;
+  max-width: 360px;
+  height: auto;
+  z-index: 5;
+  opacity: 1;
+  object-fit: contain;
+
+}
+
+/* ===================================
+   SECCIÓN: ASESOR (OVERLAY EN PORTADA)
+   =================================== */
+
+.asesor-layer {
   position: relative;
   width: 100%;
 }
@@ -151,62 +152,12 @@
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: inherit;
+  object-fit: cover;
   object-position: center;
   border-top: 100px solid #faf8f0f6;
 }
 
-
-.asesor-overlay {
-  position: absolute;
-  left: 16px;
-  bottom: 14px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: rgba(0, 0, 0, .45);
-  color: #fff;
-  backdrop-filter: blur(4px);
-}
-
-.asesor-label {
-  font-size: 12px;
-  opacity: .85;
-}
-
-.asesor-nombre {
-  font-size: 18px;
-  font-weight: 800;
-}
-
-
-
-.portada-wrap {
-
-  position: relative;
-  width: 100%;
-}
-
-.pdf-img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.pdf-block {
-  width: 100%;
-}
-
-.portada-wrap {
-  position: relative;
-  width: 100%;
-}
-
-.pdf-img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
+/* Overlay elements - POSICIONES CORREGIDAS */
 .ov {
   position: absolute;
   z-index: 30;
@@ -214,111 +165,109 @@
   font-family: Arial, sans-serif;
 }
 
+/* Footer con información del asesor - CORREGIDO */
 .ov-footer {
   position: absolute;
   left: 0;
+  bottom: 8%;
   width: 100%;
-
-
-  top: 90.5%;
-  height: 9.5%;
-
   z-index: 10;
   pointer-events: none;
-
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 7%;
+  justify-content: flex-start;
   color: #fff;
+  gap: 200px;
+  flex-wrap: nowrap;
+  padding: 0 5% 0 7%;
+
 }
 
 .ov-footer__name {
+
   font-weight: 800;
-  font-size: 20px;
+  font-size: clamp(16px, 1.8vw, 22px);
   white-space: nowrap;
+
 }
 
 .ov-footer__phone {
   font-weight: 600;
-  font-size: 16px;
+  font-size: clamp(14px, 1.4vw, 18px);
   white-space: nowrap;
 }
 
 .ov-footer__email {
   font-weight: 700;
-  font-size: 16px;
+  font-size: clamp(14px, 1.4vw, 18px);
   white-space: nowrap;
 }
 
-
+/* APARTAMENTO - NÚMERO GRANDE "202" - CORREGIDO */
 .ov-apto {
   position: absolute;
   z-index: 30;
   pointer-events: none;
-
-
-
-  left: 51.4%;
-  top: 63.9%;
+  left: 51%;
+  /* Ajustado para centrarlo en el espacio blanco */
+  top: 17%;
+  /* Ajustado verticalmente */
   width: auto;
-  height: 6%;
-
-
+  height: auto;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-
-  font-size: clamp(40px, 3.2vw, 52px);
-  font-weight: 900;
+  justify-content: center;
+  font-size: clamp(45px, 4vw, 56px);
+  /* Más grande */
+  font-weight: 800;
   color: #8C1D2D;
   white-space: nowrap;
   line-height: 1;
-
 }
 
-
+/* TORRE - BOTÓN ROJO "TORRE A" - CORREGIDO */
 .ov-torre {
   position: absolute;
   z-index: 30;
   pointer-events: none;
-
-
-  left: 10.2%;
-  top: 69.1%;
+  left: 10%;
+  /* Ajustado para que aparezca en el espacio del botón */
+  top: 25%;
+  /* Ajustado verticalmente */
   width: auto;
-  min-width: 17%;
+  min-width: 18%;
   height: auto;
-  padding: 0.6% 1.8%;
-
-
+  padding: 0.7% 2%;
   display: flex;
   align-items: center;
   justify-content: center;
-
   background: #8C1D2D;
   color: #fff;
   border-radius: 999px;
-  font-size: clamp(12px, 1.4vw, 18px);
+  font-size: clamp(13px, 1.5vw, 19px);
   font-weight: 800;
   text-transform: uppercase;
   white-space: nowrap;
   line-height: 1.2;
-
 }
+
+/* ===================================
+   SECCIÓN: CIUDAD VIVA
+   =================================== */
 
 .ciudad-viva-section {
   width: 100%;
-  background: #fff;
 
+  page-break-inside: avoid;
 }
 
 .cv-img-block {
   width: 100%;
   margin: 0;
   padding: 0;
-  background: #fff;
 
+  position: relative;
+  page-break-inside: avoid;
 }
 
 .cv-img {
@@ -327,43 +276,95 @@
   height: auto;
   object-fit: cover;
   object-position: center;
-
+  vertical-align: top;
 }
-
 
 .cv-img-block+.cv-img-block {
   border-top: 26px solid rgba(107, 102, 102, 0.05);
   background-color: #faf8f0f6;
+}
 
+/* Contenedor relativo para overlays */
+.relative-container {
+  position: relative;
+}
+
+.overlay {
+  position: absolute;
+  z-index: 10;
+}
+
+/* TEXTO DE CIUDAD VIVA - SIN CUADRO BLANCO - CORREGIDO */
+.cv-description-card {
+  position: absolute;
+  top: 8%;
+  left: 5%;
+  right: 5%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  text-align: left;
+  pointer-events: none;
+  /* Let clicks pass through if needed, though mostly visual */
+}
+
+.cv-text {
+  flex: 1;
+  max-width: 70%;
+  font-size: clamp(14px, 1.4vw, 17px);
+  line-height: 1.7;
+  color: #333;
+  margin-bottom: 15px;
+  font-weight: 400;
+  background: transparent;
+  padding: 0;
+}
+
+.cv-logo-placeholder {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -50px;
+  margin-right: -100px;
+  /* Slight adjustment to align with text top if needed */
+}
+
+.cv-logo-placeholder img {
+  max-width: 380px;
+  height: 100%;
+}
+
+/* ===================================
+   SECCIÓN: ACTIVIDADES
+   =================================== */
+
+.section-block {
+  width: 100%;
+  page-break-inside: avoid;
 
 }
 
+/* ===================================
+   SECCIÓN: APARTAMENTO
+   =================================== */
 
-.cv-img-block {
-  line-height: 0;
-  font-size: 0;
-
-}
-
-.cv-img {
-
-  vertical-align: top;
-
-
-
-}
-
-/* ✅ Secciones del apartamento (siempre visibles) */
 .apto-section {
   width: 100%;
-  background: #fff;
+
+  page-break-before: always;
+  page-break-inside: avoid;
 }
 
 .apto-img-block {
   width: 100%;
   margin: 0;
   padding: 0;
-  background: #fff;
+
+  position: relative;
 }
 
 .apto-img {
@@ -375,20 +376,79 @@
   border-top: 26px solid #f6f4ec;
 }
 
-/* Separador tipo “franja” como el que ya usas */
-
 .apto-section+.apto-section {
   border-top: 8px solid rgba(107, 102, 102, 0.05);
   background-color: #faf8f0f6;
-
 }
 
-/* Meta del plano (Área Construida) */
+/* PANEL DE TORRES - MÁS CENTRADO - CORREGIDO */
+.tower-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(35%, -46.4%);
+  /* CENTRADO PERFECTO */
+  background: rgba(255, 255, 255, 0.97);
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 350px;
+  width: 90%;
+  z-index: 20;
+}
+
+.tower-block {
+  text-align: center;
+}
+
+.tower-header {
+  background: #4a4a4a;
+  color: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: clamp(12px, 1.3vw, 16px);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.tower-header.red {
+  background: #8C1D2D;
+}
+
+.tower-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  font-size: clamp(11px, 1.1vw, 14px);
+  font-weight: 600;
+}
+
+.tower-list span {
+  padding: 4px 4px;
+  background: #f0f0f0;
+  border-radius: 6px;
+  color: #333;
+}
+
+.tower-list span.active {
+  background: #8C1D2D;
+  color: #fff;
+  font-weight: 800;
+}
+
+/* ===================================
+   SECCIÓN: PLANO ARQUITECTÓNICO
+   =================================== */
+
 .plano-meta {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
-  padding: 1px 16px 0;
+  padding: 10px 16px 0;
   font-size: 20px;
   color: rgba(0, 0, 0, 0.65);
 }
@@ -397,416 +457,12 @@
   color: rgba(0, 0, 0, 0.85);
 }
 
-.section-banner.no-fade::after {
-  display: none;
-}
-
-/* --- NEW TEMPLATE STYLES --- */
-
-/* HEADER ROJO */
-.main-header {
-  background-color: var(--color-primary);
-  color: #fff;
-  padding: 15px 30px;
-  font-size: 28px;
-  font-weight: 800;
-  text-transform: capitalize;
-  border-radius: 12px 12px 0 0;
-}
-
-.content-pad {
-  padding: 30px;
-  border-radius: 0 0 12px 12px;
-  background: #faf8f0f6;
-}
-
-/* INFO FACTURA */
-.invoice-info {
-  display: flex;
-  justify-content: space-between;
-  border-bottom: 2px solid #ddd;
-  padding-bottom: 8px;
-  margin-bottom: 20px;
-  color: #777;
-  font-size: 14px;
-  font-weight: 600;
-
-}
-
-.apto-title {
-  font-size: 18px;
-  font-weight: 800;
-  color: #444;
-  margin-bottom: 20px;
-}
-
-/* TABLAS ESTILO */
-.table-wrapper {
-  width: 100%;
-  margin-bottom: 20px;
-
-}
-
-.costo-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 15px;
-
-
-}
-
-.costo-table th {
-  text-align: left;
-  font-weight: 800;
-  color: #444;
-  padding: 8px 10px;
-  text-transform: uppercase;
-  font-size: 14px;
-
-
-}
-
-.costo-table th:last-child {
-  text-align: right;
-
-}
-
-.costo-table td {
-  padding: 8px 10px;
-  border-bottom: 1px solid #7a6060;
-  color: #555;
-  font-weight: 600;
-  background-color: #faf8f0f6;
-}
-
-.costo-table td:last-child {
-  text-align: right;
-  font-weight: 700;
-  color: #333;
-
-}
-
-.costo-table tr:nth-child(even) {
-  background-color: #fcfcfc;
-
-}
-
-.total-row td {
-  font-weight: 900;
-  font-size: 16px;
-  color: #000;
-  border-top: 2px solid;
-
-}
-
-/* VIGENCIA */
-.vigencia-badge {
-  display: inline-block;
-  background-color: #ffc400 !important;
-  color: #000 !important;
-  font-weight: 700;
-  padding: 6px 16px;
-  border-radius: 20px;
-  font-size: 14px;
-  margin-bottom: 30px;
-}
-
-/* SECCION MONEDA EXTRANJERA */
-.section-title {
-  font-size: 22px;
-  font-weight: 800;
-  color: #333;
-  margin-bottom: 2px;
-  padding-left: 15px;
-  border-left: 6px solid var(--color-primary);
-  line-height: 1;
-}
-
-.section-subtitle {
-  font-size: 16px;
-  color: #777;
-  margin-left: 21px;
-  margin-bottom: 15px;
-  font-style: italic;
-}
-
-
-.financing-header {
-  background-color: #8f2133 !important;
-  color: #fff !important;
-  padding: 8px 15px;
-  border-radius: 8px 8px 0 0;
-  font-weight: 800;
-  text-transform: uppercase;
-  font-size: 14px;
-  margin-top: 10px;
-}
-
-.financing-body {
-  border: 1px solid #ddd;
-  border-top: none;
-  border-radius: 0 0 8px 8px;
-  margin-bottom: 25px;
-  background: #fff;
-  overflow: hidden;
-}
-
-.financing-row {
-  display: flex;
-
-  justify-content: space-between;
-  padding: 8px 15px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #180404;
-  background: #ffffff;
-  align-items: center;
-  min-height: 34px;
-  box-shadow: inset 0 1.7px 0 rgba(0, 0, 0, .28);
-  border-bottom: none;
-}
-
-.financing-row:last-child {
-  border-bottom: none;
-}
-
-.financing-row .val {
-  color: #333;
-  font-weight: 700;
-}
-
-.financing-row.highlight .val {
-  color: var(--color-primary);
-}
-
-/* APROBACION */
-.approval-section {
-  margin-top: 40px;
-  position: relative;
-}
-
-.approval-title {
-  font-size: 32px;
-  font-weight: 800;
-  color: #444;
-  margin-bottom: 12px;
-}
-
-.approval-text {
-  font-size: 15px;
-  color: #666;
-  line-height: 1.5;
-  margin-bottom: 20px;
-}
-
-.steps-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 30px 20px;
-  font-weight: 700;
-  color: #333;
-  font-size: 15px;
-}
-
-.steps-list li {
-  margin-bottom: 4px;
-}
-
-.cta-btn {
-  background-color: var(--color-primary);
-  color: #fff;
-  border: none;
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: 700;
-  border-radius: 30px;
-  cursor: pointer;
-  font-style: italic;
-  text-decoration: none;
-  display: inline-block;
-  box-shadow: 0 4px 10px rgba(143, 33, 51, 0.3);
-}
-
-.cta-btn:hover {
-  background-color: #7a1c2b;
-}
-
-.decoration-img {
-  position: absolute;
-  bottom: -30px;
-  right: -30px;
-  width: 150px;
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-/* Highlight last rows in red and bold */
-.costo-table tbody tr:last-child td,
-.red-table-row:last-child span,
-.financing-body .financing-row:last-child span,
-.financing-body .financing-row:last-child .val {
-  color: #8f2133 !important;
-  font-weight: 900 !important;
-}
-
-/* Tower Selection Panel Styles - Overlay */
-.relative-container {
-  position: relative;
-  width: 100%;
-}
-
-.apto-img-wrapper {
-  width: 100%;
-}
-
-.apto-img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.tower-panel.overlay {
-  position: absolute;
-  top: 50%;
-  right: 5%;
-  transform: translateY(-50%);
-  width: 280px;
-  background: #f6f4ec;
-  backdrop-filter: blur(5px);
-  border-radius: 20px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  z-index: 10;
-}
-
-.tower-block {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.tower-header {
-  background: #666;
-  color: #fff;
-  padding: 6px 20px;
-  border-radius: 20px;
-  font-weight: 800;
-  text-transform: uppercase;
-  font-size: 14px;
-  width: 100%;
-  text-align: center;
-}
-
-.tower-header.red {
-  background: #8f2133;
-}
-
-.tower-list {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  width: 100%;
-  gap: 4px 10px;
-}
-
-.tower-list span {
-  font-size: 13px;
-  color: #555;
-  font-weight: 600;
-  white-space: nowrap;
-  text-align: center;
-  display: block;
-}
-
-.tower-list span.active {
-  background: #8f2133;
-  color: #fff;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-weight: 700;
-}
-
-/* Ciudad Viva Description Card */
-.cv-description-card {
-  background: #fff;
-  padding: 30px 40px;
-  display: flex;
-  align-items: center;
-  gap: 40px;
-  justify-content: space-between;
-}
-
-.cv-text {
-  flex: 1;
-  font-size: 16px;
-  color: #000000;
-  line-height: 1.5;
-}
-
-.cv-text strong {
-  color: #333;
-  font-weight: 800;
-  font-style: italic;
-}
-
-.cv-logo-placeholder {
-  width: 300px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.cv-logo-placeholder img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.cv-logo-placeholder span {
-  font-weight: 900;
-  font-size: 24px;
-  color: #EBA900;
-  /* Goldish tone from image */
-  text-transform: uppercase;
-  margin-top: 5px;
-  text-align: center;
-  line-height: 1;
-}
-
-/* Ciudad Viva Description Card - Overlay */
-.cv-description-card.overlay {
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 100%;
-  background: transparent;
-  box-shadow: none;
-  border-radius: 12px;
-  z-index: 10;
-}
-
-/* Apply translucent background only to the text block inside overlay */
-/* Apply translucent background only to the text block inside overlay */
-.cv-description-card.overlay .cv-text {
-  background: transparent;
-  padding: 0;
-  border-radius: 0;
-  box-shadow: none;
-  backdrop-filter: none;
-}
-
-/* Plano Description Styles */
 .plano-description {
   background: #ffffff;
   padding: 30px 40px;
   text-align: center;
   border-top: 1px solid rgba(0, 0, 0, 0.05);
+  page-break-inside: avoid;
 }
 
 .plano-description p {
@@ -824,43 +480,16 @@
   text-transform: uppercase;
 }
 
+/* ===================================
+   SECCIÓN: COSTOS DE INVERSIÓN
+   =================================== */
 
-:root {
-  --paper: rgba(255, 255, 255, .92);
-  /* blanco tipo tarjeta */
-  --card-border: rgba(0, 0, 0, .12);
-  --row-line: rgba(0, 0, 0, .16);
-  --card-shadow: 0 10px 18px rgba(0, 0, 0, .10);
-}
-
-body {
-  background: var(--bg);
-}
-
-.container {
-  background: transparent;
-  box-shadow: none;
-}
-
-
-.container {
-  width: 100%;
-  max-width: 800px;
+.content-pad {
+  padding: 30px;
+  border-radius: 0 0 12px 12px;
   background: #faf8f0f6;
-  padding: 0;
-  border-radius: var(--border-radius);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
-
-/* HEADER ROJO */
-.main-header {
-  background-color: var(--color-primary);
-  color: #faf8f0f6;
-  padding: 15px 30px;
-  font-size: 28px;
-  font-weight: 800;
-  text-transform: capitalize;
+  position: relative;
+  page-break-before: always;
 }
 
 .content-pad::before {
@@ -868,69 +497,105 @@ body {
   position: absolute;
   inset: 40px 30px auto 30px;
   height: 420px;
-  opacity: .10;
+  opacity: 0.10;
   pointer-events: none;
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
-  filter: blur(.2px);
+  filter: blur(0.2px);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='700' viewBox='0 0 1200 700'%3E%3Cg fill='none' stroke='%238f2133' stroke-width='10' opacity='0.35'%3E%3Cpath d='M-50 220 C 220 120, 360 360, 650 240 S 1100 150, 1250 260'/%3E%3Cpath d='M-80 310 C 180 210, 360 450, 690 330 S 1120 250, 1280 360'/%3E%3Cpath d='M-120 410 C 160 310, 360 560, 720 430 S 1120 380, 1320 490'/%3E%3C/g%3E%3C/svg%3E");
-
 }
 
 .content-pad>* {
   position: relative;
   z-index: 1;
-
 }
 
 .invoice-info {
-  border-bottom: 1px solid var(--line);
-  padding-bottom: 10px;
-  margin-bottom: 14px;
-  color: rgba(0, 0, 0, .55);
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 8px;
+  margin-bottom: 20px;
+  color: #777;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .apto-title {
-  margin-top: 6px;
-  margin-bottom: 14px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #444;
+  margin-bottom: 20px;
 }
+
+/* ===================================
+   TABLAS DE COSTOS
+   =================================== */
 
 .table-wrapper {
-  background: var(--card);
+  width: 100%;
+  margin-bottom: 20px;
+  background: var(--card, rgba(255, 255, 255, 0.9));
   border-radius: 14px;
-  box-shadow: var(--shadow);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   padding: 10px 12px;
+  page-break-inside: avoid;
 }
 
-table {
+.costo-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.costo-table th {
+  text-align: left;
+  font-weight: 800;
+  color: #444;
+  padding: 8px 10px;
+  text-transform: uppercase;
   font-size: 14px;
-
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 }
 
-th {
-  color: #3b3b3b;
-  letter-spacing: .04em;
-  border-bottom: 1px solid var(--line);
-  padding: 10px 12px;
+.costo-table th:last-child {
+  text-align: right;
 }
 
-td {
-  border-bottom: 1px solid var(--line-soft);
-  padding: 10px 12px;
+.costo-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(122, 96, 96, 0.3);
+  color: #555;
+  font-weight: 600;
+  background-color: transparent;
 }
 
-tr:nth-child(even) {
-  background: transparent;
+.costo-table td:last-child {
+  text-align: right;
+  font-weight: 700;
+  color: #333;
 }
 
+.costo-table tr:nth-child(even) {
+  background-color: rgba(252, 252, 252, 0.5);
+}
 
+.total-row td {
+  font-weight: 900;
+  font-size: 16px;
+  color: #000;
+  border-top: 2px solid #8C1D2D;
+}
 
-/* VIGENCIA */
+/* ===================================
+   SECCIONES DE FINANCIACIÓN
+   =================================== */
+
 .vigencia-badge {
   display: inline-block;
-  background-color: var(--color-gold);
-  color: #000;
+  background-color: #ffc400 !important;
+  color: #000 !important;
   font-weight: 700;
   padding: 6px 16px;
   border-radius: 20px;
@@ -938,199 +603,73 @@ tr:nth-child(even) {
   margin-bottom: 30px;
 }
 
-/* SECCION MONEDA EXTRANJERA */
 .section-title {
   font-size: 22px;
   font-weight: 800;
   color: #333;
-  margin-bottom: 2px;
+  margin-bottom: 8px;
+  margin-top: 30px;
   padding-left: 15px;
-  border-left: 6px solid var(--color-primary);
+  border-left: 6px solid var(--color-primary, #8C1D2D);
   line-height: 1;
-
 }
 
 .section-subtitle {
   font-size: 16px;
   color: #777;
   margin-left: 21px;
-  /* align with text */
   margin-bottom: 15px;
   font-style: italic;
 }
 
-.red-table-container {
-  border-radius: 14px;
-  overflow: hidden;
-  background: rgba(233, 226, 226, 0.7);
-  border: 1px solid rgba(37, 2, 2, 0.12);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, .10);
-  margin: 10px 0 22px;
-
-}
-
-/* header vino de la card */
-.red-table-header {
-  background: var(--color-primary);
-  color: rgba(255, 255, 255, .96);
+.financing-header {
+  background: var(--color-primary, #8C1D2D);
+  color: rgba(255, 255, 255, 0.96);
   padding: 10px 14px;
   font-weight: 800;
   font-size: 14px;
   text-transform: uppercase;
-
-}
-
-/* filas con separadores grises */
-.red-table-row {
-  padding: 8px 14px;
-  border-bottom: 1px solid rgba(0, 0, 0, .16);
-  font-size: 14px;
-  font-weight: 700;
-  color: rgba(0, 0, 0, .70);
-  background: rgba(253, 248, 248, 0.7);
-  ;
-
-}
-
-.red-table-row:last-child {
-  border-bottom: none;
-}
-
-/* valores a la derecha en vino */
-.red-table-row span:last-child {
-  color: var(--color-primary);
-  font-weight: 800;
-
-}
-
-/* FINANCIACION */
-.financing-header {
   border-radius: 14px 14px 0 0;
-  padding: 10px 14px;
+  margin-top: 20px;
 }
 
 .financing-body {
-  background: var(--card);
-  border: 1px solid var(--line-soft);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-top: none;
   border-radius: 0 0 14px 14px;
-  box-shadow: var(--shadow);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  page-break-inside: avoid;
 }
 
 .financing-row {
+  display: flex;
+  justify-content: space-between;
   padding: 9px 14px;
-  border-bottom: 1px solid var(--line-soft);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  font-weight: 600;
+  font-size: 14px;
+  color: #555;
 }
 
 .financing-row:last-child {
   border-bottom: none;
 }
 
-/* APROBACION */
-.approval-section {
-  margin-top: 40px;
-  position: relative;
-}
-
-.approval-title {
-  font-size: 32px;
-  font-weight: 800;
-  color: #444;
-  margin-bottom: 12px;
-}
-
-.approval-text {
-  font-size: 15px;
-  color: #666;
-  line-height: 1.5;
-  margin-bottom: 20px;
-}
-
-.steps-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 30px 20px;
+.financing-row.highlight {
+  background: rgba(140, 29, 45, 0.08);
   font-weight: 700;
   color: #333;
-  font-size: 15px;
 }
 
-.steps-list li {
-  margin-bottom: 4px;
-}
-
-.cta-btn {
-  background-color: var(--color-primary);
-  color: #faf8f0f6;
-  border: none;
-  padding: 12px 24px;
-  font-size: 16px;
+.financing-row .val {
   font-weight: 700;
-  border-radius: 30px;
-  cursor: pointer;
-  font-style: italic;
-  text-decoration: none;
-  display: inline-block;
-  box-shadow: 0 4px 10px rgba(143, 33, 51, 0.3);
+  color: #333;
 }
 
-.cta-btn:hover {
-  background-color: #7a1c2b;
-}
-
-/* DECORATION (Placeholder for right bottom image) */
-.decoration-img {
-  position: absolute;
-  bottom: -30px;
-  right: -30px;
-  width: 150px;
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-.section-head {
-  display: flex;
-  gap: 14px;
-  align-items: flex-start;
-  margin: 18px 0 10px;
-}
-
-.section-head .bar {
-  width: 14px;
-  height: 48px;
-  background: var(--color-primary);
-  border-radius: 3px;
-  margin-top: 2px;
-}
-
-.section-title2 {
-  font-size: 28px;
-  font-weight: 800;
-  color: #2f2f2f;
-  line-height: 1.05;
-  margin: 0;
-  position: relative;
-  padding-bottom: 6px;
-}
-
-/* línea horizontal como en la derecha */
-.section-title2::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: -40px;
-  bottom: 0;
-  height: 2px;
-  background: rgba(0, 0, 0, .25);
-}
-
-.section-subtitle2 {
-  font-size: 18px;
-  font-style: italic;
-  color: rgba(0, 0, 0, .55);
-  margin-top: 6px;
-}
-
+/* ===================================
+   SKELETON LOADER
+   =================================== */
 
 .skeleton-wrapper {
   width: 100%;
@@ -1138,6 +677,7 @@ tr:nth-child(even) {
   background: #fff;
   border-radius: 18px;
   overflow: hidden;
+  position: relative;
 }
 
 .skeleton-header {
@@ -1203,7 +743,6 @@ tr:nth-child(even) {
   animation: shimmer 1.5s infinite;
 }
 
-/* Shimmer Animation */
 @keyframes shimmer {
   0% {
     background-position: -200% 0;
@@ -1218,7 +757,6 @@ tr:nth-child(even) {
   animation: shimmer 1.5s infinite;
 }
 
-/* Hide content while loading */
 .content-loading {
   opacity: 0;
   pointer-events: none;
@@ -1226,7 +764,6 @@ tr:nth-child(even) {
   visibility: hidden;
 }
 
-/* Fade in animation when loaded */
 .sheet:not(.content-loading) {
   animation: fadeIn 0.4s ease-in-out;
 }
@@ -1243,7 +780,6 @@ tr:nth-child(even) {
   }
 }
 
-/* Additional skeleton variations for better UX */
 .skeleton-wrapper::before {
   content: '';
   position: absolute;
@@ -1266,14 +802,65 @@ tr:nth-child(even) {
   }
 }
 
-/* Responsive skeleton */
-@media (max-width: 768px) {
-  .skeleton-image {
-    height: 250px;
+/* ===================================
+   ESTILOS PARA GENERACIÓN DE PDF
+   =================================== */
+
+@media print {
+
+  .toolbar,
+  .skeleton-wrapper {
+    display: none !important;
   }
 
-  .skeleton-table {
-    height: 150px;
+  .sheet {
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .portada-wrap,
+  .apto-section,
+  .content-pad {
+    page-break-after: always;
+  }
+
+  .page-break-avoid {
+    page-break-inside: avoid;
+  }
+
+  .ov-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 0 5%;
   }
 }
 
+/* ===================================
+   RESPONSIVE
+   =================================== */
+
+.skeleton-image {
+  height: 250px;
+}
+
+.skeleton-table {
+  height: 150px;
+}
+
+
+/* ===================================
+   VARIABLES CSS
+   =================================== */
+
+:root {
+  --color-primary: #8C1D2D;
+  --color-gold: #ffc400;
+  --paper: rgba(255, 255, 255, 0.92);
+  --card: rgba(255, 255, 255, 0.9);
+  --card-border: rgba(0, 0, 0, 0.12);
+  --line: rgba(0, 0, 0, 0.16);
+  --line-soft: rgba(0, 0, 0, 0.08);
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --border-radius: 14px;
+}
