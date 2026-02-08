@@ -344,7 +344,9 @@
             <!-- MONEDA EXTRANJERA (Solo si aplica) -->
             <div *ngIf="showCotizacionDolares">
               <div class="section-title">Cotización Moneda extranjera</div>
-              <div class="section-subtitle">Dólar</div>
+              <div class="section-subtitle">
+                Dólar <small *ngIf="trmValue">(Tasa: {{ trmValue | currency:'COP':'symbol':'1.0-2' }})</small>
+              </div>
 
               <div class="financing-header" style="display: flex; justify-content: space-between;">
                 <span>APARTAMENTO</span>
@@ -353,23 +355,23 @@
               <div class="financing-body">
                 <div class="financing-row">
                   <span>VALOR DE LA INVERSIÓN</span>
-                  <span>{{ '$ ' + ((data.valorInversionDolares || 85000) | number:'1.0-0') }}</span>
+                  <span>{{ '$ ' + ((data.valorInversionDolares) | number:'1.0-0') }}</span>
                 </div>
                 <div class="financing-row">
-                  <span>CUOTA DE SEPARACIÓN</span>
-                  <span>{{ '$ ' + ((data.cuotaSeparacionDolares || 1200) | number:'1.0-0') }}</span>
+                  <span>VALOR BENEFICIO 1</span>
+                  <span>{{ '$ ' + ((data.beneficio1Dolares) | number:'1.0-0') }}</span>
+                </div>
+                <div class="financing-row">
+                  <span>VALOR BENEFICIO 2</span>
+                  <span>{{ '$ ' + ((data.beneficio2Dolares) | number:'1.0-0') }}</span>
                 </div>
                 <div class="financing-row">
                   <span>VALOR CUOTA INICIAL</span>
-                  <span>{{ '$ ' + ((data.valorCuotaInicialDolares || 25000) | number:'1.0-0') }}</span>
-                </div>
-                <div class="financing-row">
-                  <span>VALOR FINAL</span>
-                  <span>{{ '$ ' + ((data.valorFinalDolares || 58800) | number:'1.0-0') }}</span>
+                  <span>{{ '$ ' + ((data.valorCuotaInicialDolares) | number:'1.0-0') }}</span>
                 </div>
                 <div class="financing-row">
                   <span>VALOR CUOTA MENSUAL</span>
-                  <span>{{ '$ ' + ((data.valorCuotaMensualDolares || 650) | number:'1.0-0') }}</span>
+                  <span>{{ '$ ' + ((data.valorCuotaMensualDolares) | number:'1.0-0') }}</span>
                 </div>
               </div>
             </div>

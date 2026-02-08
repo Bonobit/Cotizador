@@ -613,11 +613,18 @@ export class CotizacionFormPage implements OnInit {
             return;
         }
 
+        // Limpieza previa
         this.plan.clear();
         this.planesAdicionales.clear();
 
-        this.generarPlanApartamento();
-        this.generarPlanAdicionales();
+        // Validar y generar
+        const aptoOk = this.generarPlanApartamento();
+        const adicOk = this.generarPlanAdicionales();
+
+        if (!aptoOk || !adicOk) {
+            this.showPlan = false;
+            return;
+        }
 
         // Establecer el primer adicional como tab activo si existe
         const adicionalesSeleccionados = this.getAdicionalesSeleccionados();
@@ -628,20 +635,19 @@ export class CotizacionFormPage implements OnInit {
         this.showPlan = true;
     }
 
-    private generarPlanApartamento() {
+    private generarPlanApartamento(): boolean {
         const cantidadCuotas = this.form.get('cantidadCuotas')?.value || 0;
         const fechaUltima = this.form.get('fechaUltimaCuota')?.value;
         const valorEspecial = this.form.get('valorCuotaInicial')?.value || 0;
 
         this.totalFinanciarApto = Math.max(valorEspecial, 0);
 
-        // Validación de mínimo 1M para apartamento (Feature Logic)
+        // Validación de mínimo 1M para apartamento
         if (cantidadCuotas > 0) {
             const cuotaPromedio = this.totalFinanciarApto / cantidadCuotas;
             if (cuotaPromedio < 1000000) {
-                alert(`La cuota promedio del apartamento ($${Math.round(cuotaPromedio).toLocaleString()}) es inferior al mínimo permitido de $1.000.000. Por favor reduzca el número de cuotas o los beneficios.`);
-                this.showPlan = false;
-                return;
+                alert(`La cuota promedio del apartamento ($${Math.round(cuotaPromedio).toLocaleString()}) es inferior al mínimo permitido de $1.000.000. Reduzca las cuotas o ajuste los valores.`);
+                return false;
             }
         }
 
@@ -668,13 +674,17 @@ export class CotizacionFormPage implements OnInit {
 
         // Setup validation logic for main plan
         this.setupEditToggle(this.plan, this.totalFinanciarApto, 1000000);
+        return true;
     }
 
-    private generarPlanAdicionales() {
+    private generarPlanAdicionales(): boolean {
         const adicionalesSeleccionados = this.getAdicionalesSeleccionados();
+        let allValid = true;
 
         // Generar planes de adicionales
         adicionalesSeleccionados.forEach(config => {
+            if (!allValid) return;
+
             const cuotas = this.toNum(this.form.get(config.formControls.cuotasFinanciacion)?.value);
             const fechaUltimaCuota = this.form.get(config.formControls.fechaUltimaCuota)?.value;
             const beneficio = this.toNum(this.form.get(config.formControls.beneficio)?.value);
@@ -683,13 +693,13 @@ export class CotizacionFormPage implements OnInit {
 
             this.totalesAdicionales.set(config.id, valorDespuesBeneficio);
 
-            // Validate minimum quota (Feature Logic)
+            // Validar cuota mínima para adicionales
             if (cuotas > 0) {
                 const cuotaPromedioAdic = valorDespuesBeneficio / cuotas;
                 if (cuotaPromedioAdic < 500000) {
-                    // Note: We might want to alert here, but since this loop runs for all, be careful with multiple alerts.
-                    // The original feature logic had this check inside a loop before generation.
-                    // For now, I'll rely on executing it. If it fails validation later, it will show.
+                    alert(`La cuota promedio de ${config.displayName} ($${Math.round(cuotaPromedioAdic).toLocaleString()}) es inferior al mínimo permitido de $500.000.`);
+                    allValid = false;
+                    return;
                 }
             }
 
@@ -723,6 +733,8 @@ export class CotizacionFormPage implements OnInit {
             this.setupEditToggle(formArrayAdicional, valorDespuesBeneficio, 500000);
             this.planesAdicionales.set(config.id, formArrayAdicional);
         });
+
+        return allValid;
     }
 
     /**

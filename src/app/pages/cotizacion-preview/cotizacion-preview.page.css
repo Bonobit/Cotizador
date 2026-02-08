@@ -81,10 +81,10 @@
   width: 100%;
   max-width: 100%;
   margin: 0;
+  background: #fff;
   border-radius: 18px;
   overflow: hidden;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.10);
-  background: #000000
 }
 
 .pdf-mode .sheet {
@@ -122,7 +122,7 @@
 .portada-logo {
   position: absolute;
   left: 3%;
-  top: 80%;
+  top: 90%;
   /* Ajustado para que coincida con el diseño */
   width: 50%;
   max-width: 360px;
@@ -204,7 +204,7 @@
   pointer-events: none;
   left: 51%;
   /* Ajustado para centrarlo en el espacio blanco */
-  top: 17.6%;
+  top: 16.2%;
   /* Ajustado verticalmente */
   width: auto;
   height: auto;
@@ -251,7 +251,7 @@
 
 .ciudad-viva-section {
   width: 100%;
-  background: #000000;
+  background: #fff;
   page-break-inside: avoid;
 }
 
@@ -259,7 +259,7 @@
   width: 100%;
   margin: 0;
   padding: 0;
-  background: #000000;
+  background: #fff;
   position: relative;
   page-break-inside: avoid;
 }

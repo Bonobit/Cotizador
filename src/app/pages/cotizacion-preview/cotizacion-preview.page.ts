@@ -13,6 +13,7 @@ import { FooterAprobacionComponent } from '@shared/components/footer-aprobacion/
 import { CotizacionFormState } from '@core/models/form-state.model';
 import { switchMap, of } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CurrencyService } from '@core/services/currency.service';
 
 @Component({
   selector: 'app-cotizacion-preview-page',
@@ -49,6 +50,7 @@ export class CotizacionPreviewPage {
   data: Partial<CotizacionFormState> = {};
   currDate = new Date();
   isLoading = true;
+  trmValue = 0;
   private imagesToLoad = 0;
   private imagesLoaded = 0;
 
@@ -58,6 +60,7 @@ export class CotizacionPreviewPage {
   private state = inject(CotizacionStateService);
   private logger = inject(LoggerService);
   private destroyRef = inject(DestroyRef);
+  private currencyService = inject(CurrencyService);
 
   constructor(private router: Router) { }
 
@@ -118,6 +121,15 @@ export class CotizacionPreviewPage {
 
     this.countImagesToLoad();
 
+    // Cargar TRM si se requiere mostrar dólares
+    if (this.showCotizacionDolares) {
+      this.currencyService.getLatestTRM().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(trm => {
+        this.trmValue = trm;
+        this.calculateUSDValues();
+        this.cdr.detectChanges();
+      });
+    }
+
     setTimeout(() => {
       if (this.isLoading) {
         console.warn('Timeout alcanzado - forzando fin de carga');
@@ -176,6 +188,22 @@ export class CotizacionPreviewPage {
       this.isLoading = false;
       this.cdr.detectChanges();
     }, 100);
+  }
+
+  private calculateUSDValues() {
+    if (!this.data || !this.trmValue) return;
+
+    const valorApto = this.data.valorTotal || 0;
+    const beneficio1 = this.data.beneficioValorizacion || 0;
+    const beneficio2 = this.data.beneficioProntaSeparacion || 0;
+    const valorCuotaInicial = this.data.valorCuotaInicial || 0;
+    const cuotaMensual = this.data.valorCuotaMensualReal || 0;
+
+    this.data.valorInversionDolares = this.currencyService.convertToUSD(valorApto, this.trmValue);
+    this.data.beneficio1Dolares = this.currencyService.convertToUSD(beneficio1, this.trmValue);
+    this.data.beneficio2Dolares = this.currencyService.convertToUSD(beneficio2, this.trmValue);
+    this.data.valorCuotaInicialDolares = this.currencyService.convertToUSD(valorCuotaInicial, this.trmValue);
+    this.data.valorCuotaMensualDolares = this.currencyService.convertToUSD(cuotaMensual, this.trmValue);
   }
 
   volver() {

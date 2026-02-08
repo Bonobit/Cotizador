@@ -96,7 +96,8 @@ export interface CotizacionFormState {
 
     // Campos de cotización en dólares
     valorInversionDolares?: number;
-    cuotaSeparacionDolares?: number;
+    beneficio1Dolares?: number;
+    beneficio2Dolares?: number;
     valorCuotaInicialDolares?: number;
     valorFinalDolares?: number;
     valorCuotaMensualDolares?: number;
