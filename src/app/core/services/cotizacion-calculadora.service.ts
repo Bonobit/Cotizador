@@ -45,6 +45,10 @@ export class CotizacionCalculadoraService {
     }
 
     private toNum(v: any): number {
-        return (v === null || v === undefined || v === '') ? 0 : Number(v) || 0;
+        if (v === null || v === undefined || v === '') return 0;
+        if (typeof v === 'number') return isNaN(v) ? 0 : Math.round(v);
+        const clean = String(v).replace(/[^0-9]/g, '');
+        const n = parseInt(clean, 10);
+        return isNaN(n) ? 0 : n;
     }
 }

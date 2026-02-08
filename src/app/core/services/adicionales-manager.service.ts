@@ -206,7 +206,13 @@ export class AdicionalesManagerService {
 
         if (!valorTotalControl || !cuotasControl || !valorCuotaControl) return;
 
-        const toNum = (v: any) => (v === null || v === undefined || v === '' ? 0 : Number(String(v).replace(/[^0-9.-]+/g, "")) || 0);
+        const toNum = (v: any): number => {
+            if (v === null || v === undefined || v === '') return 0;
+            if (typeof v === 'number') return isNaN(v) ? 0 : Math.round(v);
+            const clean = String(v).replace(/[^0-9]/g, '');
+            const n = parseInt(clean, 10);
+            return isNaN(n) ? 0 : n;
+        };
 
         const valorTotal = toNum(valorTotalControl.value);
         const beneficio = beneficioControl ? toNum(beneficioControl.value) : 0;

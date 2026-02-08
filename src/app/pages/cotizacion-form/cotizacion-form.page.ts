@@ -888,20 +888,12 @@ export class CotizacionFormPage implements OnInit {
 
     private toNum(v: any): number {
         if (v === null || v === undefined || v === '') return 0;
-        if (typeof v === 'number') return v;
+        if (typeof v === 'number') return isNaN(v) ? 0 : Math.round(v);
 
-        // Limpieza robusta: Quita todo excepto números y puntos/comas
-        // Luego maneja el formato decimal (en Colombia suele ser punto para miles, pero la directiva usa comas para visual)
-        let s = String(v).replace(/[^0-9,.-]+/g, "");
-
-        // Si hay una coma al final (como en "1.000,"), la quitamos
-        if (s.endsWith(',')) s = s.slice(0, -1);
-
-        // Reemplazamos comas por nada (asumiendo que son separadores de miles o decimales incompletos)
-        // en este sistema trabajamos con enteros para pesos colombianos mayormente
-        s = s.replace(/,/g, "");
-
-        return Number(s) || 0;
+        // Limpieza estricta: Solo números
+        const s = String(v).replace(/[^0-9]/g, "");
+        const n = parseInt(s, 10);
+        return isNaN(n) ? 0 : n;
     }
 
     generarCotizacion() {

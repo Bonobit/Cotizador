@@ -72,20 +72,36 @@ export class PlanPagosService {
      */
     generarPlanPagos(opciones: PlanPagosOpciones): PlanPagosItem[] {
         const { valorTotal, valorInicial = 0, cantidadCuotas, fechaUltimaCuota, valorCuotaManual } = opciones;
+        const totalAFinanciar = valorTotal - valorInicial;
 
         // Calcular fechas
         const fechas = this.calcularFechas(cantidadCuotas, fechaUltimaCuota);
 
         // Calcular valor mensual (o usar el manual si existe)
+        // Usamos Math.round para que la diferencia en la última cuota sea mínima
         const valorMensual = valorCuotaManual !== undefined
             ? valorCuotaManual
-            : this.calcularValorMensual(valorTotal, valorInicial, cantidadCuotas);
+            : Math.round(totalAFinanciar / cantidadCuotas);
 
         // Generar items del plan
-        const plan: PlanPagosItem[] = fechas.map(fecha => ({
-            fecha,
-            valor: valorMensual
-        }));
+        const plan: PlanPagosItem[] = [];
+        let acumulado = 0;
+
+        for (let i = 0; i < cantidadCuotas; i++) {
+            if (i === cantidadCuotas - 1) {
+                // Última cuota: ajustar para que la suma sea exacta
+                plan.push({
+                    fecha: fechas[i],
+                    valor: totalAFinanciar - acumulado
+                });
+            } else {
+                plan.push({
+                    fecha: fechas[i],
+                    valor: valorMensual
+                });
+                acumulado += valorMensual;
+            }
+        }
 
         return plan;
     }
@@ -101,10 +117,16 @@ export class PlanPagosService {
         cuotas: { valor: number; manual: boolean }[],
         valorMinimo: number
     ): { success: boolean; nuevosValores?: number[]; error?: string } {
+        const toInt = (v: any) => {
+            if (typeof v === 'number') return isNaN(v) ? 0 : Math.round(v);
+            const s = String(v || '').replace(/[^0-9]/g, '');
+            return parseInt(s, 10) || 0;
+        };
+
         // 1. Sumar valores de cuotas manuales
         const totalManual = cuotas
             .filter(c => c.manual)
-            .reduce((sum, c) => sum + c.valor, 0);
+            .reduce((sum, c) => sum + toInt(c.valor), 0);
 
         // 2. Calcular saldo restante para cuotas automáticas
         const saldoRestante = totalFinanciar - totalManual;
@@ -119,8 +141,8 @@ export class PlanPagosService {
         }
 
         // 3. Calcular nuevo valor para automáticas
-        // Usamos Math.floor para evitar decimales y sumamos el residuo a la última automática
-        let valorAutomatico = Math.floor(saldoRestante / countAutomaticas);
+        // Usamos Math.round para que la diferencia en la última cuota sea mínima
+        let valorAutomatico = Math.round(saldoRestante / countAutomaticas);
 
         // 4. Validar mínimo
         if (valorAutomatico < valorMinimo) {
