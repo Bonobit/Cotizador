@@ -207,11 +207,11 @@
                     <td>{{ '$ ' + ((data.beneficioProntaSeparacion || 0) | number:'1.0-0') }} COP</td>
                   </tr>
                   <tr>
-                    <td>VALOR CUOTA INICIAL {{ data.porcentajeCuotaInicial || 30 }}%</td>
+                    <td>VALOR CUOTA INICIAL ({{ data.porcentajeCuotaInicial}}%)</td>
                     <td>{{ '$ ' + ((data.valorCuotaInicial || 0) | number:'1.0-0') }} COP</td>
                   </tr>
                   <tr>
-                    <td>VALOR CUOTA DEL MES</td>
+                    <td>VALOR CUOTA DEL MES ({{ data.cantidadCuotas}} meses)</td>
                     <td>{{ '$ ' + ((data.valorCuotaMensualReal || 0) | number:'1.0-0') }} COP</td>
                   </tr>
                   <!--<tr>
