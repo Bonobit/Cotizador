@@ -76,6 +76,10 @@ export class CotizacionFormPage implements OnInit {
     private lastAlertByControl = new WeakMap<FormControl, string>();
     private suppressNextAlertByControl = new WeakMap<FormControl, boolean>();
 
+    // State tracking for change detection
+    private currentProyectoId: number | null = null;
+    private currentTorre: string | null = null;
+
     constructor(
         private fb: FormBuilder,
         private router: Router,
@@ -186,6 +190,10 @@ export class CotizacionFormPage implements OnInit {
             // 3. Volver a aplicar valores ahora que los campos están habilitados
             // Esto es necesario porque patchValue ignora campos deshabilitados
             this.form.patchValue(savedForm, { emitEvent: false });
+
+            // Sincronizar estado interno para evitar disparos falsos de listeners
+            this.currentProyectoId = savedForm.proyecto ? Number(savedForm.proyecto) : null;
+            this.currentTorre = savedForm.torre || null;
 
             this.recalculateAll();
 
@@ -299,14 +307,13 @@ export class CotizacionFormPage implements OnInit {
     }
 
     private listenProyectosChanges() {
-        let previousId = this.form.get('proyecto')?.value;
-
         this.form.get('proyecto')!.valueChanges
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((id: any) => {
                 const currentId = id ? Number(id) : null;
-                if (currentId === (previousId ? Number(previousId) : null)) return;
-                previousId = currentId;
+                // Usar propiedad de clase para tracking
+                if (currentId === this.currentProyectoId) return;
+                this.currentProyectoId = currentId;
 
                 // Limpiar dependientes solo si el proyecto cambió de verdad
                 this.form.patchValue({
@@ -347,13 +354,12 @@ export class CotizacionFormPage implements OnInit {
     }
 
     private listenTorreChanges() {
-        let previousTorre = this.form.get('torre')?.value;
-
         this.form.get('torre')!.valueChanges
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((torre: string) => {
-                if (torre === previousTorre) return;
-                previousTorre = torre;
+                // Usar propiedad de clase para tracking
+                if (torre === this.currentTorre) return;
+                this.currentTorre = torre;
 
                 this.form.patchValue({ apartamento: '', valorTotal: null }, { emitEvent: false });
 
@@ -625,10 +631,9 @@ export class CotizacionFormPage implements OnInit {
     private generarPlanApartamento() {
         const cantidadCuotas = this.form.get('cantidadCuotas')?.value || 0;
         const fechaUltima = this.form.get('fechaUltimaCuota')?.value;
-        const valorEspecial = this.form.get('valorEspecialHoy')?.value || 0;
-        const inicial = this.form.get('valorCuotaInicial')?.value || 0;
+        const valorEspecial = this.form.get('valorCuotaInicial')?.value || 0;
 
-        this.totalFinanciarApto = Math.max(valorEspecial - inicial, 0);
+        this.totalFinanciarApto = Math.max(valorEspecial, 0);
 
         // Validación de mínimo 1M para apartamento (Feature Logic)
         if (cantidadCuotas > 0) {
@@ -642,7 +647,6 @@ export class CotizacionFormPage implements OnInit {
 
         const planApto = this.planPagosService.generarPlanPagos({
             valorTotal: valorEspecial,
-            valorInicial: inicial,
             cantidadCuotas: cantidadCuotas,
             fechaUltimaCuota: fechaUltima
         });

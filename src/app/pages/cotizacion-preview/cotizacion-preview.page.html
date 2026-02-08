@@ -196,29 +196,28 @@
                 <tbody>
                   <tr class="total-row">
                     <td>VALOR DEL APARTAMENTO</td>
-                    <td>{{ '$ ' + ((data.valorTotal || 350000000) | number:'1.0-0') }} COP</td>
+                    <td>{{ '$ ' + ((data.valorTotal || 0) | number:'1.0-0') }} COP</td>
                   </tr>
                   <tr>
-                    <td>BENEFICIO DEL PROGRAMA</td>
-                    <td>{{ '$ ' + ((data.beneficioValorizacion || 25000000) | number:'1.0-0') }} COP</td>
+                    <td>BENEFICIO 1</td>
+                    <td>{{ '$ ' + ((data.beneficioValorizacion || 0) | number:'1.0-0') }} COP</td>
                   </tr>
                   <tr>
-                    <td>SEPARACIÓN</td>
-                    <td>{{ '$ ' + ((data.beneficioProntaSeparacion || 5000000) | number:'1.0-0') }} COP</td>
+                    <td>BENEFICIO 2</td>
+                    <td>{{ '$ ' + ((data.beneficioProntaSeparacion || 0) | number:'1.0-0') }} COP</td>
                   </tr>
                   <tr>
                     <td>VALOR CUOTA INICIAL {{ data.porcentajeCuotaInicial || 30 }}%</td>
-                    <td>{{ '$ ' + ((data.valorCuotaInicial || 105000000) | number:'1.0-0') }} COP</td>
+                    <td>{{ '$ ' + ((data.valorCuotaInicial || 0) | number:'1.0-0') }} COP</td>
                   </tr>
                   <tr>
                     <td>VALOR CUOTA DEL MES</td>
-                    <!-- Si no existe campo específico, poner 0 o calcular -->
-                    <td>{{ '$ ' + ((data.valorCuotaMensualReal || 2500000) | number:'1.0-0') }} COP</td>
+                    <td>{{ '$ ' + ((data.valorCuotaMensualReal || 0) | number:'1.0-0') }} COP</td>
                   </tr>
-                  <tr>
+                  <!--<tr>
                     <td>VALOR CUOTA CON LINEA DE PRODUCTO</td>
-                    <td>{{ '$ ' + ((data.valorCuotaLineaProducto || 1500000) | number:'1.0-0') }} COP</td>
-                  </tr>
+                    <td>{{ '$ ' + ((data.valorCuotaLineaProducto || 0) | number:'1.0-0') }} COP</td>
+                  </tr>-->
                 </tbody>
               </table>
             </div>
@@ -425,10 +424,6 @@
             </div>
 
           </div>
-
-
-
-
         </div>
         <app-footer-aprobacion id="cotizacion-footer" [nombre]="(data.nombres || '') + ' ' + (data.apellidos || '')"
           (imageLoaded)="onFooterLoad()"></app-footer-aprobacion>
